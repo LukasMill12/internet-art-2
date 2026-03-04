@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Intent — draw</title>
+
+<style>
+:root{
+  --bg:#d9d7d0;
+  --fg:#111;
+  --muted: rgba(0,0,0,.55);
+}
+
+html,body{
+  margin:0;
+  height:100%;
+  background:var(--bg);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+}
+
+.app{
+  position:relative;
+  height:100%;
+  overflow:hidden;
+}
+
+.page{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transform:translateY(12px);
+  pointer-events:none;
+  transition: opacity .45s ease, transform .45s ease;
+}
+
+.page.active{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+.stage{
+  position:absolute;
+  inset:0;
+  z-index:0;
+}
+
+canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.intro{
+  position:absolute;
+  left:9vw;
+  top:9vh;
+  z-index:2;
+  color:var(--fg);
+  letter-spacing:-0.02em;
+  pointer-events:none;
+}
+
+.intro .hello{
+  font-size: clamp(24px,2.8vw,38px);
+}
+
+.intro .name{
+  font-size: clamp(30px,3.5vw,52px);
+  margin-top:4px;
+}
+
+.intro .desc{
+  margin-top:14px;
+  max-width:520px;
+  font-size:14px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.enter{
+  position:absolute;
+  left:9vw;
+  bottom:10vh;
+  z-index:2;
+  font-size: clamp(28px,3vw,42px);
+  color:rgba(0,0,0,.18);
+  opacity:.2;
+  transition:all .25s ease;
+  cursor:default;
+  user-select:none;
+}
+
+.enter.ready{
+  color:rgba(0,0,0,.8);
+  opacity:1;
+  cursor:pointer;
+  transform:translateY(-2px);
+}
+
+.p2{
+  padding:9vh 9vw;
+  color:var(--fg);
+}
+
+.p2 h1{
+  margin:0;
+  font-size: clamp(50px,6vw,80px);
+}
+
+.p2 p{
+  margin-top:18px;
+  max-width:700px;
+  color:var(--muted);
+  font-size:18px;
+  line-height:1.6;
+}
+
+.back{
+  display:inline-block;
+  margin-top:30px;
+  text-decoration:none;
+  color:rgba(0,0,0,.75);
+  border-bottom:1px solid rgba(0,0,0,.3);
+  padding-bottom:3px;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<!-- PAGE 1 -->
+<section class="page active" id="page1">
+
+  <div class="intro">
+    <div class="hello">hello,</div>
+    <div class="name">i’m Lukas Miliauskis</div>
+    <div class="desc">
+      I design visual systems.<br>
+      This website reflects how I think and work.
+    </div>
+  </div>
+
+  <div class="stage">
+    <canvas id="c"></canvas>
+  </div>
+
+  <div class="enter" id="enterBtn">enter</div>
+</section>
+
+<!-- PAGE 2 -->
+<section class="page" id="page2">
+  <div class="p2">
+    <h1>Intent</h1>
+    <p>This is where you showcase the principle.</p>
+    <a href="#" class="back" id="backBtn">← back</a>
+  </div>
+</section>
+
+</div>
+
+<script>
+(() => {
+
+const page1 = document.getElementById("page1");
+const page2 = document.getElementById("page2");
+const enterBtn = document.getElementById("enterBtn");
+const backBtn = document.getElementById("backBtn");
+
+function goTo(p){
+  if(p===1){
+    page1.classList.add("active");
+    page2.classList.remove("active");
+  } else {
+    page1.classList.remove("active");
+    page2.classList.add("active");
+  }
+}
+
+backBtn.addEventListener("click",(e)=>{
+  e.preventDefault();
+  goTo(1);
+});
+
+enterBtn.addEventListener("click",()=>{
+  if(completed) goTo(2);
+});
+
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+let W,H,dpr;
+let drawing=false;
+let strokePts=[];
+let pointer={x:0,y:0};
+let dots=[];
+let nextIdx=0;
+let completed=false;
+
+const DOT_R=7.5;
+const HIT_R=18;
+const LINE_W=2.2;
+
+function resize(){
+  const rect=canvas.getBoundingClientRect();
+  dpr=Math.max(1,Math.floor(window.devicePixelRatio||1));
+  canvas.width=rect.width*dpr;
+  canvas.height=rect.height*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  W=rect.width;
+  H=rect.height;
+  buildDots();
+  reset();
+  render();
+}
+
+function reset(){
+  drawing=false;
+  strokePts=[];
+  nextIdx=0;
+  completed=false;
+  enterBtn.classList.remove("ready");
+}
+
+function buildDots(){
+  const P = [
+    [0.06,0.18],[0.06,0.30],[0.06,0.44],[0.06,0.58],
+    [0.22,0.58],[0.20,0.18],[0.26,0.58],[0.26,0.18],
+    [0.36,0.18],[0.42,0.18],[0.39,0.18],[0.39,0.58],
+    [0.54,0.18],[0.48,0.18],[0.48,0.36],[0.52,0.36],[0.48,0.58],[0.54,0.58],
+    [0.70,0.58],[0.68,0.18],[0.74,0.58],[0.74,0.18],
+    [0.84,0.18],[0.90,0.18],[0.87,0.18],[0.87,0.58],
+  ];
+
+  const bandTop = H * 0.40;
+  const bandH   = H * 0.44;
+  const left    = W * 0.10;
+  const bandW   = W * 0.80;
+
+  dots = P.map((p,i)=>({
+    x:left + p[0]*bandW,
+    y:bandTop + p[1]*bandH,
+    label:String(i+1).padStart(2,"0")
+  }));
+}
+
+function setPointer(e){
+  const r=canvas.getBoundingClientRect();
+  pointer.x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+  pointer.y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+}
+
+function dist2(ax,ay,bx,by){
+  const dx=ax-bx, dy=ay-by;
+  return dx*dx+dy*dy;
+}
+
+function tryAdvance(){
+  const d=dots[nextIdx];
+  if(!d) return;
+  if(dist2(pointer.x,pointer.y,d.x,d.y)<=HIT_R*HIT_R){
+    nextIdx++;
+    if(nextIdx>=dots.length){
+      completed=true;
+      enterBtn.classList.add("ready");
+    }
+  }
+}
+
+function onDown(e){
+  setPointer(e);
+  drawing=true;
+  if(nextIdx===0){
+    const d0=dots[0];
+    if(dist2(pointer.x,pointer.y,d0.x,d0.y)<=HIT_R*HIT_R){
+      nextIdx=1;
+      strokePts.push({x:pointer.x,y:pointer.y});
+    } else drawing=false;
+  } else strokePts.push({x:pointer.x,y:pointer.y});
+  render();
+}
+
+function onMove(e){
+  if(!drawing) return;
+  setPointer(e);
+  strokePts.push({x:pointer.x,y:pointer.y});
+  tryAdvance();
+  render();
+}
+
+function onUp(){ drawing=false; }
+
+canvas.addEventListener("mousedown",onDown);
+window.addEventListener("mousemove",onMove);
+window.addEventListener("mouseup",onUp);
+
+canvas.addEventListener("touchstart",(e)=>{e.preventDefault();onDown(e);},{passive:false});
+canvas.addEventListener("touchmove",(e)=>{e.preventDefault();onMove(e);},{passive:false});
+canvas.addEventListener("touchend",(e)=>{e.preventDefault();onUp();},{passive:false});
+
+function render(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle="#d9d7d0";
+  ctx.fillRect(0,0,W,H);
+
+  if(strokePts.length>1){
+    ctx.strokeStyle="rgba(0,0,0,0.55)";
+    ctx.lineWidth=LINE_W;
+    ctx.lineCap="round";
+    ctx.lineJoin="round";
+    ctx.beginPath();
+    ctx.moveTo(strokePts[0].x,strokePts[0].y);
+
+    for(let i=1;i<strokePts.length-1;i++){
+      const p=strokePts[i];
+      const n=strokePts[i+1];
+      const mx=(p.x+n.x)*0.5;
+      const my=(p.y+n.y)*0.5;
+      ctx.quadraticCurveTo(p.x,p.y,mx,my);
+    }
+
+    const last=strokePts[strokePts.length-1];
+    ctx.lineTo(last.x,last.y);
+    ctx.stroke();
+  }
+
+  for(let i=0;i<dots.length;i++){
+    const d=dots[i];
+
+    ctx.fillStyle="rgba(0,0,0,0.92)";
+    ctx.beginPath();
+    ctx.arc(d.x,d.y,DOT_R,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle="rgba(0,0,0,0.55)";
+    ctx.font="13px system-ui";
+    ctx.textAlign="center";
+    ctx.textBaseline="bottom";
+    ctx.fillText(d.label,d.x-18,d.y-10);
+  }
+}
+
+resize();
+window.addEventListener("resize",resize);
+
+})();
+</script>
+
+</body>
+</html>
