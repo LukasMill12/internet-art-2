@@ -6,6 +6,13 @@
 <title>Intent — draw</title>
 
 <style>
+@font-face{
+  font-family:"Supreme";
+  src:url("Supreme-Regular.otf") format("opentype");
+  font-weight:400;
+  font-style:normal;
+}
+
 :root{
   --bg:#d9d7d0;
   --fg:#111;
@@ -44,6 +51,7 @@ html,body{
   position:absolute;
   inset:0;
   z-index:0;
+  background: url("Background.png") center/cover no-repeat;
 }
 
 canvas{
@@ -54,53 +62,49 @@ canvas{
   display:block;
 }
 
-.intro{
+/* Manual intro layer */
+.introManual{
   position:absolute;
-  left:9vw;
-  top:9vh;
+  inset:0;
   z-index:2;
-  color:var(--fg);
-  letter-spacing:-0.02em;
   pointer-events:none;
+  transition:opacity .3s ease;
 }
 
-.intro .hello{
-  font-size: clamp(24px,2.8vw,38px);
+.introWord{
+  position:absolute;
+  transform:translate(-50%, -50%);
+  font-family:"Supreme", system-ui, sans-serif;
+  font-size:20px;
+  letter-spacing:-0.01em;
+  text-transform:uppercase;
+  color:var(--fg);
+  white-space:nowrap;
 }
 
-.intro .name{
-  font-size: clamp(30px,3.5vw,52px);
-  margin-top:4px;
-}
-
-.intro .desc{
-  margin-top:14px;
-  max-width:520px;
-  font-size:14px;
-  color:var(--muted);
-  line-height:1.5;
-}
-
+/* Arrow button */
 .enter{
   position:absolute;
-  left:9vw;
-  bottom:10vh;
-  z-index:2;
-  font-size: clamp(28px,3vw,42px);
+  right:6vw;
+  bottom:8vh;
+  z-index:3;
+  font-size: clamp(34px,3.2vw,52px);
+  line-height:1;
   color:rgba(0,0,0,.18);
-  opacity:.2;
+  opacity:.25;
   transition:all .25s ease;
   cursor:default;
   user-select:none;
 }
 
 .enter.ready{
-  color:rgba(0,0,0,.8);
+  color:rgba(0,0,0,.85);
   opacity:1;
   cursor:pointer;
   transform:translateY(-2px);
 }
 
+/* Page 2 */
 .p2{
   padding:9vh 9vw;
   color:var(--fg);
@@ -136,20 +140,15 @@ canvas{
 <!-- PAGE 1 -->
 <section class="page active" id="page1">
 
-  <div class="intro">
-    <div class="hello">hello,</div>
-    <div class="name">i’m Lukas Miliauskis</div>
-    <div class="desc">
-      I design visual systems.<br>
-      This website reflects how I think and work.
-    </div>
-  </div>
+  <!-- Manual-position words -->
+  <div class="introManual" id="introManual"></div>
 
   <div class="stage">
     <canvas id="c"></canvas>
   </div>
 
-  <div class="enter" id="enterBtn">enter</div>
+  <!-- Arrow (starts inactive, no .ready class) -->
+  <div class="enter" id="enterBtn" aria-label="next">→</div>
 </section>
 
 <!-- PAGE 2 -->
@@ -170,6 +169,7 @@ const page1 = document.getElementById("page1");
 const page2 = document.getElementById("page2");
 const enterBtn = document.getElementById("enterBtn");
 const backBtn = document.getElementById("backBtn");
+const introLayer = document.getElementById("introManual");
 
 function goTo(p){
   if(p===1){
@@ -181,15 +181,44 @@ function goTo(p){
   }
 }
 
-backBtn.addEventListener("click",(e)=>{
-  e.preventDefault();
-  goTo(1);
-});
+/* show / hide intro text */
+function showIntroWords(show){
+  introLayer.style.transition = "none";
+  introLayer.style.opacity = show ? "1" : "0";
+}
 
-enterBtn.addEventListener("click",()=>{
-  if(completed) goTo(2);
-});
+/* ===========================
+   MANUAL WORD POSITIONS
+=========================== */
+const WORD_Y = 0.26;
 
+const WORDS = [
+  { text:"LUKAS MILIAUSKIS", x:0.068 },
+  { text:"I DESIGN",          x:0.21 },
+  { text:"VISUAL SYSTEMS",    x:0.355 },
+  { text:"THIS WEBSITE",      x:0.50 },
+  { text:"REFLECTS",          x:0.645 },
+  { text:"HOW I THINK",       x:0.79 },
+  { text:"AND WORK",          x:0.935 },
+];
+
+function renderIntroWords(){
+  introLayer.innerHTML = "";
+  for(const w of WORDS){
+    const el = document.createElement("div");
+    el.className = "introWord";
+    el.textContent = w.text;
+    el.style.left = (w.x * 100) + "vw";
+    el.style.top  = (WORD_Y * 100) + "vh";
+    introLayer.appendChild(el);
+  }
+}
+renderIntroWords();
+showIntroWords(true);
+
+/* ===========================
+   CANVAS PUZZLE
+=========================== */
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 
@@ -199,7 +228,7 @@ let strokePts=[];
 let pointer={x:0,y:0};
 let dots=[];
 let nextIdx=0;
-let completed=false;
+let completed=false;   // back to normal gating
 
 const DOT_R=7.5;
 const HIT_R=18;
@@ -219,11 +248,14 @@ function resize(){
 }
 
 function reset(){
-  drawing=false;
-  strokePts=[];
-  nextIdx=0;
-  completed=false;
-  enterBtn.classList.remove("ready");
+  drawing = false;
+  strokePts = [];
+  nextIdx = completed ? dots.length : 0;
+  if(completed){
+    enterBtn.classList.add("ready");
+  } else {
+    enterBtn.classList.remove("ready");
+  }
 }
 
 function buildDots(){
@@ -236,8 +268,8 @@ function buildDots(){
     [0.84,0.18],[0.90,0.18],[0.87,0.18],[0.87,0.58],
   ];
 
-  const bandTop = H * 0.40;
-  const bandH   = H * 0.44;
+  const bandTop = H * 0.56;
+  const bandH   = H * 0.34;
   const left    = W * 0.10;
   const bandW   = W * 0.80;
 
@@ -272,6 +304,7 @@ function tryAdvance(){
 }
 
 function onDown(e){
+  if(playingTransition) return;
   setPointer(e);
   drawing=true;
   if(nextIdx===0){
@@ -285,7 +318,7 @@ function onDown(e){
 }
 
 function onMove(e){
-  if(!drawing) return;
+  if(!drawing || playingTransition) return;
   setPointer(e);
   strokePts.push({x:pointer.x,y:pointer.y});
   tryAdvance();
@@ -304,11 +337,9 @@ canvas.addEventListener("touchend",(e)=>{e.preventDefault();onUp();},{passive:fa
 
 function render(){
   ctx.clearRect(0,0,W,H);
-  ctx.fillStyle="#d9d7d0";
-  ctx.fillRect(0,0,W,H);
 
   if(strokePts.length>1){
-    ctx.strokeStyle="rgba(0,0,0,0.55)";
+    ctx.strokeStyle="#F71F08";
     ctx.lineWidth=LINE_W;
     ctx.lineCap="round";
     ctx.lineJoin="round";
@@ -344,11 +375,85 @@ function render(){
   }
 }
 
+/* ===========================
+   IMAGE-SEQUENCE TRANSITION
+=========================== */
+
+const FRAME_COUNT = 11;
+const FRAME_DELAY = 100;
+const frames = [];
+let framesLoaded = 0;
+let playingTransition = false;
+
+function frameSrc(i){
+  return `Animation_${i}.png`;
+}
+
+// preload frames
+for(let i=1;i<=FRAME_COUNT;i++){
+  const img = new Image();
+  img.src = frameSrc(i);
+  img.onload = () => {
+    framesLoaded++;
+  };
+  frames.push(img);
+}
+
+function playTransition(){
+  if(playingTransition) return;
+  playingTransition = true;
+
+  // hide words when animation starts
+  showIntroWords(false);
+
+  let idx = 0;
+
+  function drawFrame(){
+    if(!playingTransition) return;
+
+    const img = frames[idx];
+    if(img && img.complete){
+      ctx.clearRect(0,0,W,H);
+      ctx.drawImage(img, 0, 0, W, H);
+    }
+
+    idx++;
+    if(idx < FRAME_COUNT){
+      setTimeout(drawFrame, FRAME_DELAY);
+    } else {
+      setTimeout(()=>{
+        playingTransition = false;
+        goTo(2);
+      }, 120);
+    }
+  }
+
+  drawFrame();
+}
+
+// arrow: only works after completion
+enterBtn.addEventListener("click",()=>{
+  if(!completed) return;
+  if(framesLoaded > 0){
+    playTransition();
+  } else {
+    goTo(2);
+  }
+});
+
+// back: return to page 1, show words again, keep completion state
+backBtn.addEventListener("click",(e)=>{
+  e.preventDefault();
+  playingTransition = false;
+  goTo(1);
+  showIntroWords(true);
+  render();
+});
+
 resize();
 window.addEventListener("resize",resize);
 
 })();
 </script>
-
 </body>
 </html>
