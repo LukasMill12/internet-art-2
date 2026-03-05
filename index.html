@@ -32,21 +32,7 @@ html,body{
   overflow:hidden;
 }
 
-.page{
-  position:absolute;
-  inset:0;
-  opacity:0;
-  transform:translateY(12px);
-  pointer-events:none;
-  transition: opacity .45s ease, transform .45s ease;
-}
-
-.page.active{
-  opacity:1;
-  transform:translateY(0);
-  pointer-events:auto;
-}
-
+/* GLOBAL STAGE (visible on both pages) */
 .stage{
   position:absolute;
   inset:0;
@@ -60,13 +46,31 @@ canvas{
   width:100%;
   height:100%;
   display:block;
+  z-index:1;
 }
 
-/* Manual intro layer */
+/* Pages: do NOT block canvas pointer events */
+.page{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transform:translateY(12px);
+  pointer-events:none;
+  transition: opacity .45s ease, transform .45s ease;
+  z-index:2;
+}
+
+.page.active{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:none;
+}
+
+/* Manual intro layer (visual only) */
 .introManual{
   position:absolute;
   inset:0;
-  z-index:2;
+  z-index:3;
   pointer-events:none;
   transition:opacity .3s ease;
 }
@@ -87,7 +91,7 @@ canvas{
   position:absolute;
   right:6vw;
   bottom:8vh;
-  z-index:3;
+  z-index:4;
   font-size: clamp(34px,3.2vw,52px);
   line-height:1;
   color:rgba(0,0,0,.18);
@@ -95,6 +99,7 @@ canvas{
   transition:all .25s ease;
   cursor:default;
   user-select:none;
+  pointer-events:auto;
 }
 
 .enter.ready{
@@ -104,10 +109,11 @@ canvas{
   transform:translateY(-2px);
 }
 
-/* Page 2 */
+/* Page 2 content should be clickable */
 .p2{
   padding:9vh 9vw;
   color:var(--fg);
+  pointer-events:auto;
 }
 
 .p2 h1{
@@ -130,6 +136,7 @@ canvas{
   color:rgba(0,0,0,.75);
   border-bottom:1px solid rgba(0,0,0,.3);
   padding-bottom:3px;
+  pointer-events:auto;
 }
 </style>
 </head>
@@ -137,28 +144,25 @@ canvas{
 <body>
 <div class="app">
 
-<!-- PAGE 1 -->
-<section class="page active" id="page1">
-
-  <!-- Manual-position words -->
-  <div class="introManual" id="introManual"></div>
-
-  <div class="stage">
+  <!-- GLOBAL BACKGROUND + CANVAS (kept across pages) -->
+  <div class="stage" id="stage">
     <canvas id="c"></canvas>
   </div>
 
-  <!-- Arrow (starts inactive, no .ready class) -->
-  <div class="enter" id="enterBtn" aria-label="next">→</div>
-</section>
+  <!-- PAGE 1 -->
+  <section class="page active" id="page1">
+    <div class="introManual" id="introManual"></div>
+    <div class="enter" id="enterBtn" aria-label="next">→</div>
+  </section>
 
-<!-- PAGE 2 -->
-<section class="page" id="page2">
-  <div class="p2">
-    <h1>Intent</h1>
-    <p>This is where you showcase the principle.</p>
-    <a href="#" class="back" id="backBtn">← back</a>
-  </div>
-</section>
+  <!-- PAGE 2 -->
+  <section class="page" id="page2">
+    <div class="p2">
+      <h1>Intent</h1>
+      <p>This is where you showcase the principle.</p>
+      <a href="#" class="back" id="backBtn">← back</a>
+    </div>
+  </section>
 
 </div>
 
@@ -168,16 +172,26 @@ canvas{
 const page1 = document.getElementById("page1");
 const page2 = document.getElementById("page2");
 const enterBtn = document.getElementById("enterBtn");
-const backBtn = document.getElementById("backBtn");
+const backBtn  = document.getElementById("backBtn");
 const introLayer = document.getElementById("introManual");
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const stageEl = document.getElementById("stage");
 
+const STAGE_BG_PAGE1 = 'url("Background.png") center/cover no-repeat';
+
+/* page switch */
 function goTo(p){
   if(p===1){
     page1.classList.add("active");
     page2.classList.remove("active");
+    canvas.style.pointerEvents = "auto";
+    stageEl.style.background = STAGE_BG_PAGE1;
   } else {
     page1.classList.remove("active");
     page2.classList.add("active");
+    canvas.style.pointerEvents = "none";
+    stageEl.style.background = "#fff";
   }
 }
 
@@ -217,22 +231,132 @@ renderIntroWords();
 showIntroWords(true);
 
 /* ===========================
-   CANVAS PUZZLE
+   CANVAS PUZZLE + DOTS
 =========================== */
-const canvas = document.getElementById("c");
-const ctx = canvas.getContext("2d");
 
 let W,H,dpr;
 let drawing=false;
 let strokePts=[];
 let pointer={x:0,y:0};
+
 let dots=[];
+let dotsHome=[];
 let nextIdx=0;
-let completed=false;   // back to normal gating
+let completed=false;
+
+let showDotLabels = true;
 
 const DOT_R=7.5;
 const HIT_R=18;
 const LINE_W=2.2;
+
+/* hero circle overlay (for page 2) – jagged, noisy, animated */
+let heroCircleVisible = false;
+let heroCircle = { x:0, y:0, r:0 };
+
+let circleAnim = false;
+let circleStartY = 0;
+let circleEndY = 0;
+let circleStartTime = 0;
+const circleDuration = 1000; // ms
+
+/* noise texture for circle */
+const NOISE_SIZE = 128;
+const NOISE_ALPHA = 0.94;
+
+const noiseCanvas = document.createElement("canvas");
+const noiseCtx = noiseCanvas.getContext("2d");
+noiseCanvas.width = NOISE_SIZE;
+noiseCanvas.height = NOISE_SIZE;
+
+function generateNoiseTexture(){
+  const imgData = noiseCtx.createImageData(NOISE_SIZE, NOISE_SIZE);
+  const data = imgData.data;
+
+  const baseR = 0xF7;
+  const baseG = 0x1F;
+  const baseB = 0x08;
+
+  for(let i=0;i<data.length;i+=4){
+    const jitter = (Math.random() - 0.5) * 40;
+    const r = Math.max(0, Math.min(255, baseR + jitter));
+    const g = Math.max(0, Math.min(255, baseG + jitter));
+    const b = Math.max(0, Math.min(255, baseB + jitter));
+
+    data[i]   = r;
+    data[i+1] = g;
+    data[i+2] = b;
+    data[i+3] = 255;
+  }
+
+  noiseCtx.putImageData(imgData, 0, 0);
+  noiseCtx.globalAlpha = 0.6;
+  noiseCtx.filter = "blur(0.4px)";
+  noiseCtx.drawImage(noiseCanvas, 0, 0);
+  noiseCtx.filter = "none";
+  noiseCtx.globalAlpha = 1;
+}
+generateNoiseTexture();
+
+/* rough circle helpers */
+let roughSeed = 12345;
+function seededRandom(){
+  roughSeed ^= roughSeed << 13;
+  roughSeed ^= roughSeed >> 17;
+  roughSeed ^= roughSeed << 5;
+  return (roughSeed >>> 0) / 0xFFFFFFFF;
+}
+
+function drawRoughCircle(x, y, r, jitter){
+  const steps = 256;
+  const angleStep = (Math.PI * 2) / steps;
+
+  ctx.beginPath();
+  for(let i=0;i<=steps;i++){
+    const a = i * angleStep;
+    const jr = (seededRandom() * 2 - 1) * jitter;
+    const rr = r + jr;
+    const px = x + Math.cos(a) * rr;
+    const py = y + Math.sin(a) * rr;
+    if(i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+}
+
+function drawHeroNoise(){
+  const { x, y, r } = heroCircle;
+  const pattern = ctx.createPattern(noiseCanvas, "repeat");
+  if(!pattern) return;
+
+  ctx.globalAlpha = NOISE_ALPHA;
+  ctx.fillStyle = pattern;
+  ctx.fillRect(x - r, y - r, r*2, r*2);
+  ctx.globalAlpha = 1;
+}
+
+function drawHeroCircle(){
+  if(!heroCircleVisible) return;
+
+  roughSeed = 12345;
+  const jitter = heroCircle.r * 0.004;
+
+  drawRoughCircle(heroCircle.x, heroCircle.y, heroCircle.r, jitter);
+  ctx.fillStyle = "#F71F08";
+  ctx.fill();
+
+  ctx.save();
+  drawRoughCircle(heroCircle.x, heroCircle.y, heroCircle.r, jitter);
+  ctx.clip();
+  drawHeroNoise();
+  ctx.restore();
+}
+
+function updateHeroCircle(){
+  heroCircle.x = W * 0.52;
+  heroCircle.r = W * 0.15;
+  heroCircle.y = H * 0.00; // starts at top (half visible)
+}
 
 function resize(){
   const rect=canvas.getBoundingClientRect();
@@ -242,7 +366,10 @@ function resize(){
   ctx.setTransform(dpr,0,0,dpr,0,0);
   W=rect.width;
   H=rect.height;
+
   buildDots();
+  setDotsToHome();
+  updateHeroCircle();
   reset();
   render();
 }
@@ -251,11 +378,8 @@ function reset(){
   drawing = false;
   strokePts = [];
   nextIdx = completed ? dots.length : 0;
-  if(completed){
-    enterBtn.classList.add("ready");
-  } else {
-    enterBtn.classList.remove("ready");
-  }
+  if(completed) enterBtn.classList.add("ready");
+  else enterBtn.classList.remove("ready");
 }
 
 function buildDots(){
@@ -273,11 +397,15 @@ function buildDots(){
   const left    = W * 0.10;
   const bandW   = W * 0.80;
 
-  dots = P.map((p,i)=>({
+  dotsHome = P.map((p,i)=>({
     x:left + p[0]*bandW,
     y:bandTop + p[1]*bandH,
     label:String(i+1).padStart(2,"0")
   }));
+}
+
+function setDotsToHome(){
+  dots = dotsHome.map(d => ({...d}));
 }
 
 function setPointer(e){
@@ -303,22 +431,29 @@ function tryAdvance(){
   }
 }
 
+let playingTransition = false;
+
 function onDown(e){
   if(playingTransition) return;
+  if(!page1.classList.contains("active")) return;
   setPointer(e);
   drawing=true;
+
   if(nextIdx===0){
     const d0=dots[0];
     if(dist2(pointer.x,pointer.y,d0.x,d0.y)<=HIT_R*HIT_R){
       nextIdx=1;
       strokePts.push({x:pointer.x,y:pointer.y});
     } else drawing=false;
-  } else strokePts.push({x:pointer.x,y:pointer.y});
+  } else {
+    strokePts.push({x:pointer.x,y:pointer.y});
+  }
   render();
 }
 
 function onMove(e){
   if(!drawing || playingTransition) return;
+  if(!page1.classList.contains("active")) return;
   setPointer(e);
   strokePts.push({x:pointer.x,y:pointer.y});
   tryAdvance();
@@ -335,10 +470,29 @@ canvas.addEventListener("touchstart",(e)=>{e.preventDefault();onDown(e);},{passi
 canvas.addEventListener("touchmove",(e)=>{e.preventDefault();onMove(e);},{passive:false});
 canvas.addEventListener("touchend",(e)=>{e.preventDefault();onUp();},{passive:false});
 
-function render(){
+function drawDots(){
+  for(let i=0;i<dots.length;i++){
+    const d = dots[i];
+
+    ctx.fillStyle="rgba(0,0,0,0.92)";
+    ctx.beginPath();
+    ctx.arc(d.x,d.y,DOT_R,0,Math.PI*2);
+    ctx.fill();
+
+    if(showDotLabels){
+      ctx.fillStyle="rgba(0,0,0,0.55)";
+      ctx.font="13px system-ui";
+      ctx.textAlign="center";
+      ctx.textBaseline="bottom";
+      ctx.fillText(d.label,d.x-18,d.y-10);
+    }
+  }
+}
+
+function render(timestamp){
   ctx.clearRect(0,0,W,H);
 
-  if(strokePts.length>1){
+  if(!playingTransition && page1.classList.contains("active") && strokePts.length>1){
     ctx.strokeStyle="#F71F08";
     ctx.lineWidth=LINE_W;
     ctx.lineCap="round";
@@ -359,19 +513,21 @@ function render(){
     ctx.stroke();
   }
 
-  for(let i=0;i<dots.length;i++){
-    const d=dots[i];
+  drawDots();
 
-    ctx.fillStyle="rgba(0,0,0,0.92)";
-    ctx.beginPath();
-    ctx.arc(d.x,d.y,DOT_R,0,Math.PI*2);
-    ctx.fill();
+  if(heroCircleVisible){
+    drawHeroCircle();
+  }
 
-    ctx.fillStyle="rgba(0,0,0,0.55)";
-    ctx.font="13px system-ui";
-    ctx.textAlign="center";
-    ctx.textBaseline="bottom";
-    ctx.fillText(d.label,d.x-18,d.y-10);
+  if(circleAnim && typeof timestamp === "number"){
+    const t = Math.min(1, (timestamp - circleStartTime) / circleDuration);
+    const ease = t*t*(3-2*t);
+    heroCircle.y = circleStartY + (circleEndY - circleStartY) * ease;
+    if(t < 1){
+      requestAnimationFrame(render);
+    } else {
+      circleAnim = false;
+    }
   }
 }
 
@@ -379,52 +535,99 @@ function render(){
    IMAGE-SEQUENCE TRANSITION
 =========================== */
 
-const FRAME_COUNT = 11;
+const FRAME_COUNT = 35;
 const FRAME_DELAY = 100;
 const frames = [];
 let framesLoaded = 0;
-let playingTransition = false;
+
+function lerp(a,b,t){ return a + (b-a)*t; }
 
 function frameSrc(i){
   return `Animation_${i}.png`;
 }
 
-// preload frames
+// preload frames 1..35
 for(let i=1;i<=FRAME_COUNT;i++){
   const img = new Image();
   img.src = frameSrc(i);
-  img.onload = () => {
-    framesLoaded++;
-  };
+  img.onload = () => { framesLoaded++; };
   frames.push(img);
+}
+
+/* Build target positions: ONE HORIZONTAL LINE */
+function buildLineTargets(){
+  const n = dots.length;
+  const yLine = H * 0.78;
+  const x0 = W * 0.12;
+  const x1 = W * 0.88;
+
+  const targets = new Array(n);
+  for(let i=0;i<n;i++){
+    const t = (n===1) ? 0.5 : (i/(n-1));
+    targets[i] = { x: lerp(x0, x1, t), y: yLine };
+  }
+  return targets;
+}
+
+function startCircleAnimationAfterDelay(){
+  circleStartY = H * 0.00;
+  circleEndY   = H * 0.45;
+  heroCircle.y = circleStartY;
+  heroCircleVisible = true;
+
+  setTimeout(()=>{
+    circleAnim = true;
+    circleStartTime = performance.now();
+    requestAnimationFrame(render);
+  }, 1200);
 }
 
 function playTransition(){
   if(playingTransition) return;
   playingTransition = true;
 
-  // hide words when animation starts
   showIntroWords(false);
+  drawing = false;
 
-  let idx = 0;
+  showDotLabels = false;
+
+  const startDots = dots.map(d => ({x:d.x, y:d.y, label:d.label}));
+  const targets = buildLineTargets();
+
+  let idx = 0; // 0..34
 
   function drawFrame(){
     if(!playingTransition) return;
 
+    const t = (FRAME_COUNT<=1) ? 1 : (idx / (FRAME_COUNT - 1));
+
+    ctx.clearRect(0,0,W,H);
     const img = frames[idx];
     if(img && img.complete){
-      ctx.clearRect(0,0,W,H);
       ctx.drawImage(img, 0, 0, W, H);
     }
+
+    for(let i=0;i<dots.length;i++){
+      dots[i].x = lerp(startDots[i].x, targets[i].x, t);
+      dots[i].y = lerp(startDots[i].y, targets[i].y, t);
+    }
+    drawDots();
 
     idx++;
     if(idx < FRAME_COUNT){
       setTimeout(drawFrame, FRAME_DELAY);
     } else {
-      setTimeout(()=>{
-        playingTransition = false;
-        goTo(2);
-      }, 120);
+      for(let i=0;i<dots.length;i++){
+        dots[i].x = targets[i].x;
+        dots[i].y = targets[i].y;
+      }
+
+      playingTransition = false;
+
+      updateHeroCircle();
+      goTo(2);
+      startCircleAnimationAfterDelay();
+      render();
     }
   }
 
@@ -434,19 +637,64 @@ function playTransition(){
 // arrow: only works after completion
 enterBtn.addEventListener("click",()=>{
   if(!completed) return;
+
   if(framesLoaded > 0){
     playTransition();
-  } else {
-    goTo(2);
+    return;
   }
+
+  // fallback: no images, just move dots in same 35 steps
+  playingTransition = true;
+  showIntroWords(false);
+  drawing = false;
+  showDotLabels = false;
+
+  const startDots = dots.map(d => ({x:d.x, y:d.y, label:d.label}));
+  const targets = buildLineTargets();
+
+  let idx = 0;
+
+  function step(){
+    const t = (FRAME_COUNT<=1) ? 1 : (idx / (FRAME_COUNT - 1));
+
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<dots.length;i++){
+      dots[i].x = lerp(startDots[i].x, targets[i].x, t);
+      dots[i].y = lerp(startDots[i].y, targets[i].y, t);
+    }
+    drawDots();
+
+    idx++;
+    if(idx < FRAME_COUNT){
+      setTimeout(step, FRAME_DELAY);
+    } else {
+      playingTransition = false;
+
+      updateHeroCircle();
+      goTo(2);
+      startCircleAnimationAfterDelay();
+      render();
+    }
+  }
+
+  step();
 });
 
-// back: return to page 1, show words again, keep completion state
+// back: return to page 1
 backBtn.addEventListener("click",(e)=>{
   e.preventDefault();
   playingTransition = false;
+
   goTo(1);
   showIntroWords(true);
+  stageEl.style.background = STAGE_BG_PAGE1;
+
+  heroCircleVisible = false;
+  circleAnim = false;
+  showDotLabels = true;
+  setDotsToHome();
+  completed = false;
+  reset();
   render();
 });
 
