@@ -13,6 +13,13 @@
   font-style:normal;
 }
 
+@font-face{
+  font-family:"Supreme";
+  src:url("Supreme-Bold.otf") format("opentype");
+  font-weight:700;
+  font-style:normal;
+}
+
 :root{
   --bg:#d9d7d0;
   --fg:#111;
@@ -22,19 +29,26 @@
 html,body{
   margin:0;
   height:100%;
+  width:100%;
+  overflow:hidden;
+  overscroll-behavior:none;
   background:var(--bg);
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
 }
 
+body{
+  position:fixed;
+  inset:0;
+}
+
 .app{
-  position:relative;
-  height:100%;
+  position:fixed;
+  inset:0;
   overflow:hidden;
 }
 
-/* GLOBAL STAGE (visible on both pages) */
 .stage{
-  position:absolute;
+  position:fixed;
   inset:0;
   z-index:0;
   background: url("Background.png") center/cover no-repeat;
@@ -49,7 +63,6 @@ canvas{
   z-index:1;
 }
 
-/* Pages: do NOT block canvas pointer events */
 .page{
   position:absolute;
   inset:0;
@@ -66,7 +79,6 @@ canvas{
   pointer-events:none;
 }
 
-/* Manual intro layer (visual only) */
 .introManual{
   position:absolute;
   inset:0;
@@ -86,7 +98,27 @@ canvas{
   white-space:nowrap;
 }
 
-/* Arrow button */
+.hint{
+  position:absolute;
+  left:50%;
+  bottom:15vh;
+  transform:translateX(-50%);
+  z-index:3;
+  pointer-events:none;
+  font-family:"Supreme", system-ui, sans-serif;
+  font-size:14px;
+  letter-spacing:0.01em;
+  text-transform:uppercase;
+  color:rgba(0,0,0,0.48);
+  opacity:0;
+  transition:opacity .45s ease;
+  white-space:nowrap;
+}
+
+.hint.visible{
+  opacity:1;
+}
+
 .enter{
   position:absolute;
   right:6vw;
@@ -109,7 +141,6 @@ canvas{
   transform:translateY(-2px);
 }
 
-/* Page 2 content should be clickable */
 .p2{
   padding:9vh 9vw;
   color:var(--fg);
@@ -144,36 +175,36 @@ canvas{
 <body>
 <div class="app">
 
-  <!-- GLOBAL BACKGROUND + CANVAS (kept across pages) -->
   <div class="stage" id="stage">
     <canvas id="c"></canvas>
   </div>
 
-  <!-- PAGE 1 -->
   <section class="page active" id="page1">
     <div class="introManual" id="introManual"></div>
+    <div class="hint" id="hintText">Connect the dots to reveal a word</div>
     <div class="enter" id="enterBtn" aria-label="next">→</div>
   </section>
 
-  <!-- PAGE 2 -->
   <section class="page" id="page2">
-    <div class="p2">
-      <h1>Intent</h1>
-      <p>This is where you showcase the principle.</p>
-      <a href="#" class="back" id="backBtn">← back</a>
-    </div>
-  </section>
+  <div class="p2">
+    <a href="#" class="back" id="backBtn">← back</a>
+  </div>
+</section>
+
+
 
 </div>
 
 <script>
 (() => {
 
+/* DOM refs */
 const page1 = document.getElementById("page1");
 const page2 = document.getElementById("page2");
 const enterBtn = document.getElementById("enterBtn");
-const backBtn  = document.getElementById("backBtn");
+const backBtn = document.getElementById("backBtn");
 const introLayer = document.getElementById("introManual");
+const hintText = document.getElementById("hintText");
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 const stageEl = document.getElementById("stage");
@@ -187,33 +218,27 @@ function goTo(p){
     page2.classList.remove("active");
     canvas.style.pointerEvents = "auto";
     stageEl.style.background = STAGE_BG_PAGE1;
+    startHintTimer();
   } else {
     page1.classList.remove("active");
     page2.classList.add("active");
-    canvas.style.pointerEvents = "none";
+    canvas.style.pointerEvents = "auto";
     stageEl.style.background = "#fff";
+    clearHintTimer();
+    hideHint();
   }
 }
 
-/* show / hide intro text */
-function showIntroWords(show){
-  introLayer.style.transition = "none";
-  introLayer.style.opacity = show ? "1" : "0";
-}
-
-/* ===========================
-   MANUAL WORD POSITIONS
-=========================== */
+/* intro words */
 const WORD_Y = 0.26;
-
 const WORDS = [
   { text:"LUKAS MILIAUSKIS", x:0.068 },
-  { text:"I DESIGN",          x:0.21 },
-  { text:"VISUAL SYSTEMS",    x:0.355 },
-  { text:"THIS WEBSITE",      x:0.50 },
-  { text:"REFLECTS",          x:0.645 },
-  { text:"HOW I THINK",       x:0.79 },
-  { text:"AND WORK",          x:0.935 },
+  { text:"I DESIGN", x:0.21 },
+  { text:"VISUAL SYSTEMS", x:0.355 },
+  { text:"THIS WEBSITE", x:0.50 },
+  { text:"REFLECTS", x:0.645 },
+  { text:"HOW I THINK", x:0.79 },
+  { text:"AND WORK", x:0.935 },
 ];
 
 function renderIntroWords(){
@@ -223,34 +248,73 @@ function renderIntroWords(){
     el.className = "introWord";
     el.textContent = w.text;
     el.style.left = (w.x * 100) + "vw";
-    el.style.top  = (WORD_Y * 100) + "vh";
+    el.style.top = (WORD_Y * 100) + "vh";
     introLayer.appendChild(el);
   }
+}
+function showIntroWords(show){
+  introLayer.style.transition = "none";
+  introLayer.style.opacity = show ? "1" : "0";
 }
 renderIntroWords();
 showIntroWords(true);
 
 /* ===========================
-   CANVAS PUZZLE + DOTS
+HINT
 =========================== */
+let hintTimer = null;
+let hasStartedPuzzle = false;
+const HINT_DELAY = 5000;
 
-let W,H,dpr;
-let drawing=false;
-let strokePts=[];
-let pointer={x:0,y:0};
+function showHint(){
+  if(!hasStartedPuzzle && page1.classList.contains("active")){
+    hintText.classList.add("visible");
+  }
+}
+function hideHint(){ hintText.classList.remove("visible"); }
+function clearHintTimer(){
+  if(hintTimer){ clearTimeout(hintTimer); hintTimer = null; }
+}
+function startHintTimer(){
+  clearHintTimer();
+  hideHint();
+  if(hasStartedPuzzle) return;
+  hintTimer = setTimeout(showHint, HINT_DELAY);
+}
+function markPuzzleStarted(){
+  if(hasStartedPuzzle) return;
+  hasStartedPuzzle = true;
+  clearHintTimer();
+  hideHint();
+}
 
-let dots=[];
-let dotsHome=[];
-let nextIdx=0;
-let completed=false;
+/* ===========================
+COMMON CANVAS STATE
+=========================== */
+let W, H, dpr;
+let drawing = false;
+let strokePts = [];
+let pointer = {x:0, y:0};
+
+let dots = [];
+let dotsHome = [];
+let nextIdx = 0;
+let completed = false;
 
 let showDotLabels = true;
 
-const DOT_R=7.5;
-const HIT_R=18;
-const LINE_W=2.2;
+const DOT_R = 7.5;
+const CLICK_HIT_R = 18;
+const DRAG_HIT_R = 9;
+const LINE_W = 2.2;
 
-/* hero circle overlay (for page 2) – jagged, noisy, animated */
+let pressStart = { x:0, y:0 };
+let movedSinceDown = false;
+const CLICK_MOVE_TOL = 8;
+
+/* ===========================
+HERO CIRCLE + SPHERICAL BELT
+=========================== */
 let heroCircleVisible = false;
 let heroCircle = { x:0, y:0, r:0 };
 
@@ -258,12 +322,13 @@ let circleAnim = false;
 let circleStartY = 0;
 let circleEndY = 0;
 let circleStartTime = 0;
-const circleDuration = 1000; // ms
+const circleDuration = 1000;
 
-/* noise texture for circle */
+/* belt activation flag */
+let beltActive = false;
+
 const NOISE_SIZE = 128;
 const NOISE_ALPHA = 0.94;
-
 const noiseCanvas = document.createElement("canvas");
 const noiseCtx = noiseCanvas.getContext("2d");
 noiseCanvas.width = NOISE_SIZE;
@@ -272,23 +337,17 @@ noiseCanvas.height = NOISE_SIZE;
 function generateNoiseTexture(){
   const imgData = noiseCtx.createImageData(NOISE_SIZE, NOISE_SIZE);
   const data = imgData.data;
-
-  const baseR = 0xF7;
-  const baseG = 0x1F;
-  const baseB = 0x08;
-
+  const baseR = 0xF7, baseG = 0x1F, baseB = 0x08;
   for(let i=0;i<data.length;i+=4){
     const jitter = (Math.random() - 0.5) * 40;
     const r = Math.max(0, Math.min(255, baseR + jitter));
     const g = Math.max(0, Math.min(255, baseG + jitter));
     const b = Math.max(0, Math.min(255, baseB + jitter));
-
-    data[i]   = r;
+    data[i] = r;
     data[i+1] = g;
     data[i+2] = b;
     data[i+3] = 255;
   }
-
   noiseCtx.putImageData(imgData, 0, 0);
   noiseCtx.globalAlpha = 0.6;
   noiseCtx.filter = "blur(0.4px)";
@@ -298,7 +357,6 @@ function generateNoiseTexture(){
 }
 generateNoiseTexture();
 
-/* rough circle helpers */
 let roughSeed = 12345;
 function seededRandom(){
   roughSeed ^= roughSeed << 13;
@@ -306,11 +364,9 @@ function seededRandom(){
   roughSeed ^= roughSeed << 5;
   return (roughSeed >>> 0) / 0xFFFFFFFF;
 }
-
 function drawRoughCircle(x, y, r, jitter){
   const steps = 256;
   const angleStep = (Math.PI * 2) / steps;
-
   ctx.beginPath();
   for(let i=0;i<=steps;i++){
     const a = i * angleStep;
@@ -318,21 +374,116 @@ function drawRoughCircle(x, y, r, jitter){
     const rr = r + jr;
     const px = x + Math.cos(a) * rr;
     const py = y + Math.sin(a) * rr;
-    if(i === 0) ctx.moveTo(px, py);
+    if(i===0) ctx.moveTo(px, py);
     else ctx.lineTo(px, py);
   }
   ctx.closePath();
 }
-
 function drawHeroNoise(){
-  const { x, y, r } = heroCircle;
-  const pattern = ctx.createPattern(noiseCanvas, "repeat");
+  const {x,y,r} = heroCircle;
+  const pattern = ctx.createPattern(noiseCanvas,"repeat");
   if(!pattern) return;
-
   ctx.globalAlpha = NOISE_ALPHA;
   ctx.fillStyle = pattern;
-  ctx.fillRect(x - r, y - r, r*2, r*2);
+  ctx.fillRect(x-r, y-r, r*2, r*2);
   ctx.globalAlpha = 1;
+}
+function updateHeroCircle(){
+  heroCircle.x = W * 0.50;
+  heroCircle.r = W * 0.15;
+  heroCircle.y = H * 0.00;
+}
+
+/* continuous belt text */
+const BELT_TEXT_BASE =
+"Intent is shaped by language, motion, structure, balance, continuity, attention, error, ambiguity, and chance. ";
+const BELT_TEXT = BELT_TEXT_BASE.repeat(10);
+const BELT_CHAR_COUNT = BELT_TEXT.length;
+
+let beltOffset = 0;
+let beltTargetOffset = 0;
+let beltY = 0;
+let beltTargetY = 0;
+
+let lastMouseX = null;
+
+const BELT_FONT_REL = 0.09;
+const BELT_MAX_Y = 0.65;
+const BELT_DEPTH_OFFSET = 0.04;
+
+/* draw one belt row at given bandY (px from circle center) */
+function drawSingleBelt(bandY){
+  const {x:cx, y:cy, r} = heroCircle;
+  const fontSize = r * BELT_FONT_REL;
+  ctx.font = `bold ${fontSize}px "Supreme", system-ui, sans-serif`;
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "center";
+
+  const totalArc = Math.PI * 1.6;
+  const startAngle = -totalArc / 2;
+
+  const charsOnArc = Math.floor(totalArc * r / (fontSize * 0.6));
+  const charAngleStep = totalArc / charsOnArc;
+
+  const latRatio = bandY / r;
+  const clampedLatRatio = Math.max(-0.999, Math.min(0.999, latRatio));
+  const theta = Math.asin(clampedLatRatio);
+  const latCos = Math.cos(theta);
+
+  const radiusAtLat = r * latCos + r * BELT_DEPTH_OFFSET;
+
+  const wholeOffset = Math.floor(beltOffset);
+  const fracOffset = beltOffset - wholeOffset;
+
+  for(let i=0; i<=charsOnArc; i++){
+    const shiftedI = i - fracOffset;
+
+    const angle = startAngle + shiftedI * charAngleStep;
+    const depth = Math.cos(angle);
+    if(depth <= 0) continue;
+
+    const xOnCircle = Math.sin(angle) * radiusAtLat;
+    const yOnCircle = bandY;
+
+    const screenX = cx + xOnCircle;
+    const screenY = cy + yOnCircle;
+
+    const charIndex = ((wholeOffset + i) % BELT_CHAR_COUNT + BELT_CHAR_COUNT) % BELT_CHAR_COUNT;
+    const ch = BELT_TEXT[charIndex];
+
+    const alpha = 0.45 + depth * 0.45;
+
+    ctx.save();
+    ctx.translate(screenX, screenY);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "#111";
+    ctx.fillText(ch, 0, 0);
+    ctx.restore();
+  }
+
+  ctx.globalAlpha = 1;
+}
+
+/* three-row text belt */
+function drawTextBelt(){
+  if(!heroCircleVisible || !page2.classList.contains("active") || !beltActive) return;
+
+  beltOffset += (beltTargetOffset - beltOffset) * 0.85;
+  beltY = beltTargetY;
+
+  const {r} = heroCircle;
+  const maxBandY = r * BELT_MAX_Y;
+
+  const centerBandY = Math.max(-maxBandY, Math.min(maxBandY, beltY));
+
+  const rowGap = r * 0.12;
+  const bandY1 = centerBandY - rowGap;
+  const bandY2 = centerBandY;
+  const bandY3 = centerBandY + rowGap;
+
+  drawSingleBelt(bandY1);
+  drawSingleBelt(bandY2);
+  drawSingleBelt(bandY3);
 }
 
 function drawHeroCircle(){
@@ -350,22 +501,48 @@ function drawHeroCircle(){
   ctx.clip();
   drawHeroNoise();
   ctx.restore();
+
+  drawTextBelt();
 }
 
-function updateHeroCircle(){
-  heroCircle.x = W * 0.52;
-  heroCircle.r = W * 0.15;
-  heroCircle.y = H * 0.00; // starts at top (half visible)
-}
+/* mouse → beltOffset / beltY */
+window.addEventListener("mousemove",(e)=>{
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width;
 
+  if(page2.classList.contains("active")){
+    if(lastMouseX === null) lastMouseX = x;
+    const dx = x - lastMouseX;
+    lastMouseX = x;
+
+    const charsPerScreen = BELT_CHAR_COUNT * 0.12;
+    beltTargetOffset += dx * charsPerScreen * -1;
+
+    if(beltTargetOffset > 1e6) beltTargetOffset -= 1e6;
+    if(beltTargetOffset < -1e6) beltTargetOffset += 1e6;
+
+    const yPx = e.clientY - rect.top;
+    const rawOffsetY = yPx - heroCircle.y;
+    const maxBandY = heroCircle.r * BELT_MAX_Y;
+    beltTargetY = Math.max(-maxBandY, Math.min(maxBandY, rawOffsetY));
+
+    render();
+  } else {
+    lastMouseX = null;
+  }
+});
+
+/* ===========================
+LAYOUT + DOT PUZZLE
+=========================== */
 function resize(){
-  const rect=canvas.getBoundingClientRect();
-  dpr=Math.max(1,Math.floor(window.devicePixelRatio||1));
-  canvas.width=rect.width*dpr;
-  canvas.height=rect.height*dpr;
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  W=rect.width;
-  H=rect.height;
+  const rect = canvas.getBoundingClientRect();
+  dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  W = rect.width;
+  H = rect.height;
 
   buildDots();
   setDotsToHome();
@@ -378,6 +555,7 @@ function reset(){
   drawing = false;
   strokePts = [];
   nextIdx = completed ? dots.length : 0;
+  movedSinceDown = false;
   if(completed) enterBtn.classList.add("ready");
   else enterBtn.classList.remove("ready");
 }
@@ -393,123 +571,200 @@ function buildDots(){
   ];
 
   const bandTop = H * 0.56;
-  const bandH   = H * 0.34;
-  const left    = W * 0.10;
-  const bandW   = W * 0.80;
+  const bandH = H * 0.34;
+  const left = W * 0.10;
+  const bandW = W * 0.80;
 
   dotsHome = P.map((p,i)=>({
-    x:left + p[0]*bandW,
-    y:bandTop + p[1]*bandH,
-    label:String(i+1).padStart(2,"0")
+    x: left + p[0] * bandW,
+    y: bandTop + p[1] * bandH,
+    label: String(i+1).padStart(2,"0")
   }));
 }
-
 function setDotsToHome(){
   dots = dotsHome.map(d => ({...d}));
 }
 
 function setPointer(e){
-  const r=canvas.getBoundingClientRect();
-  pointer.x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
-  pointer.y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+  const r = canvas.getBoundingClientRect();
+  const src = (e.touches && e.touches[0]) ? e.touches[0] : e;
+  pointer.x = src.clientX - r.left;
+  pointer.y = src.clientY - r.top;
 }
-
 function dist2(ax,ay,bx,by){
-  const dx=ax-bx, dy=ay-by;
-  return dx*dx+dy*dy;
+  const dx = ax - bx, dy = ay - by;
+  return dx*dx + dy*dy;
 }
+function appendPoint(x,y){
+  const last = strokePts[strokePts.length-1];
+  if(!last){
+    strokePts.push({x,y});
+    return;
+  }
+  const dx = x - last.x, dy = y - last.y;
+  if(dx*dx + dy*dy > 0.25) strokePts.push({x,y});
+}
+function completeIfDone(){
+  if(nextIdx >= dots.length){
+    completed = true;
+    enterBtn.classList.add("ready");
+    drawing = false;
+  }
+}
+function hitCurrentDotClick(){
+  const d = dots[nextIdx];
+  if(!d) return false;
 
-function tryAdvance(){
-  const d=dots[nextIdx];
-  if(!d) return;
-  if(dist2(pointer.x,pointer.y,d.x,d.y)<=HIT_R*HIT_R){
+  if(dist2(pointer.x, pointer.y, d.x, d.y) <= CLICK_HIT_R * CLICK_HIT_R){
+    appendPoint(d.x, d.y);
     nextIdx++;
-    if(nextIdx>=dots.length){
-      completed=true;
-      enterBtn.classList.add("ready");
-    }
+    completeIfDone();
+    markPuzzleStarted();
+    return true;
+  }
+  return false;
+}
+function hitCurrentDotDrag(){
+  const d = dots[nextIdx];
+  if(!d) return false;
+
+  if(dist2(pointer.x, pointer.y, d.x, d.y) <= DRAG_HIT_R * DRAG_HIT_R){
+    appendPoint(pointer.x, pointer.y);
+    nextIdx++;
+    completeIfDone();
+    markPuzzleStarted();
+    return true;
+  }
+  return false;
+}
+function maybeAddFreePoint(){
+  if(!drawing || completed) return;
+  const last = strokePts[strokePts.length-1];
+  if(!last){
+    strokePts.push({x:pointer.x, y:pointer.y});
+    return;
+  }
+  const dx = pointer.x - last.x, dy = pointer.y - last.y;
+  if(dx*dx + dy*dy >= 2.5 * 2.5){
+    strokePts.push({x:pointer.x, y:pointer.y});
   }
 }
 
 let playingTransition = false;
 
 function onDown(e){
-  if(playingTransition) return;
-  if(!page1.classList.contains("active")) return;
+  if(playingTransition || !page1.classList.contains("active")) return;
   setPointer(e);
-  drawing=true;
+  pressStart.x = pointer.x;
+  pressStart.y = pointer.y;
+  movedSinceDown = false;
+  drawing = true;
 
-  if(nextIdx===0){
-    const d0=dots[0];
-    if(dist2(pointer.x,pointer.y,d0.x,d0.y)<=HIT_R*HIT_R){
-      nextIdx=1;
-      strokePts.push({x:pointer.x,y:pointer.y});
-    } else drawing=false;
+  if(nextIdx === 0){
+    const d = dots[0];
+    if(dist2(pointer.x, pointer.y, d.x, d.y) <= CLICK_HIT_R * CLICK_HIT_R){
+      appendPoint(d.x, d.y);
+      nextIdx = 1;
+      completeIfDone();
+      markPuzzleStarted();
+      render();
+      return;
+    }
+    drawing = false;
   } else {
-    strokePts.push({x:pointer.x,y:pointer.y});
+    appendPoint(pointer.x, pointer.y);
+    if(strokePts.length > 0) markPuzzleStarted();
   }
   render();
 }
 
 function onMove(e){
-  if(!drawing || playingTransition) return;
-  if(!page1.classList.contains("active")) return;
+  if(!drawing || playingTransition || !page1.classList.contains("active")) return;
   setPointer(e);
-  strokePts.push({x:pointer.x,y:pointer.y});
-  tryAdvance();
+
+  const dx0 = pointer.x - pressStart.x;
+  const dy0 = pointer.y - pressStart.y;
+  if(dx0*dx0 + dy0*dy0 > CLICK_MOVE_TOL * CLICK_MOVE_TOL) movedSinceDown = true;
+
+  if(movedSinceDown){
+    maybeAddFreePoint();
+    hitCurrentDotDrag();
+    if(strokePts.length > 0) markPuzzleStarted();
+  } else {
+    maybeAddFreePoint();
+  }
   render();
 }
 
-function onUp(){ drawing=false; }
+function onUp(e){
+  if(!page1.classList.contains("active")){
+    drawing = false;
+    return;
+  }
 
-canvas.addEventListener("mousedown",onDown);
-window.addEventListener("mousemove",onMove);
-window.addEventListener("mouseup",onUp);
+  setPointer(e);
 
-canvas.addEventListener("touchstart",(e)=>{e.preventDefault();onDown(e);},{passive:false});
-canvas.addEventListener("touchmove",(e)=>{e.preventDefault();onMove(e);},{passive:false});
-canvas.addEventListener("touchend",(e)=>{e.preventDefault();onUp();},{passive:false});
+  if(drawing){
+    if(movedSinceDown){
+      appendPoint(pointer.x, pointer.y);
+      hitCurrentDotDrag();
+    } else {
+      hitCurrentDotClick();
+    }
+  }
 
+  drawing = false;
+  render();
+}
+
+canvas.addEventListener("mousedown", onDown);
+window.addEventListener("mousemove", onMove);
+window.addEventListener("mouseup", onUp);
+canvas.addEventListener("touchstart", e => { e.preventDefault(); onDown(e); }, {passive:false});
+canvas.addEventListener("touchmove", e => { e.preventDefault(); onMove(e); }, {passive:false});
+window.addEventListener("touchend", e => {
+  if(!e.changedTouches || !e.changedTouches.length) return;
+  const t = e.changedTouches[0];
+  onUp({clientX:t.clientX, clientY:t.clientY});
+}, {passive:false});
+
+/* dots rendering */
 function drawDots(){
-  for(let i=0;i<dots.length;i++){
-    const d = dots[i];
-
-    ctx.fillStyle="rgba(0,0,0,0.92)";
+  for(const d of dots){
+    ctx.fillStyle = "rgba(0,0,0,0.92)";
     ctx.beginPath();
-    ctx.arc(d.x,d.y,DOT_R,0,Math.PI*2);
+    ctx.arc(d.x, d.y, DOT_R, 0, Math.PI*2);
     ctx.fill();
 
     if(showDotLabels){
-      ctx.fillStyle="rgba(0,0,0,0.55)";
-      ctx.font="13px system-ui";
-      ctx.textAlign="center";
-      ctx.textBaseline="bottom";
-      ctx.fillText(d.label,d.x-18,d.y-10);
+      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.font = "13px system-ui";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(d.label, d.x - 18, d.y - 10);
     }
   }
 }
 
+/* master render */
 function render(timestamp){
   ctx.clearRect(0,0,W,H);
 
-  if(!playingTransition && page1.classList.contains("active") && strokePts.length>1){
-    ctx.strokeStyle="#F71F08";
-    ctx.lineWidth=LINE_W;
-    ctx.lineCap="round";
-    ctx.lineJoin="round";
+  if(!playingTransition && page1.classList.contains("active") && strokePts.length > 1){
+    ctx.strokeStyle = "#F71F08";
+    ctx.lineWidth = LINE_W;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
     ctx.beginPath();
-    ctx.moveTo(strokePts[0].x,strokePts[0].y);
-
-    for(let i=1;i<strokePts.length-1;i++){
-      const p=strokePts[i];
-      const n=strokePts[i+1];
-      const mx=(p.x+n.x)*0.5;
-      const my=(p.y+n.y)*0.5;
-      ctx.quadraticCurveTo(p.x,p.y,mx,my);
+    ctx.moveTo(strokePts[0].x, strokePts[0].y);
+    for(let i=1;i<strokePts.length;i++){
+      ctx.lineTo(strokePts[i].x, strokePts[i].y);
     }
 
-    const last=strokePts[strokePts.length-1];
-    ctx.lineTo(last.x,last.y);
+    if(drawing && strokePts.length){
+      ctx.lineTo(pointer.x, pointer.y);
+    }
+
     ctx.stroke();
   }
 
@@ -521,32 +776,29 @@ function render(timestamp){
 
   if(circleAnim && typeof timestamp === "number"){
     const t = Math.min(1, (timestamp - circleStartTime) / circleDuration);
-    const ease = t*t*(3-2*t);
+    const ease = t * t * (3 - 2 * t);
     heroCircle.y = circleStartY + (circleEndY - circleStartY) * ease;
     if(t < 1){
       requestAnimationFrame(render);
     } else {
       circleAnim = false;
+      beltActive = true;
+      render();
     }
   }
 }
 
 /* ===========================
-   IMAGE-SEQUENCE TRANSITION
+TRANSITION
 =========================== */
-
 const FRAME_COUNT = 35;
 const FRAME_DELAY = 100;
 const frames = [];
 let framesLoaded = 0;
 
-function lerp(a,b,t){ return a + (b-a)*t; }
+function lerp(a,b,t){ return a + (b-a) * t; }
+function frameSrc(i){ return `Animation_${i}.png`; }
 
-function frameSrc(i){
-  return `Animation_${i}.png`;
-}
-
-// preload frames 1..35
 for(let i=1;i<=FRAME_COUNT;i++){
   const img = new Image();
   img.src = frameSrc(i);
@@ -554,32 +806,34 @@ for(let i=1;i<=FRAME_COUNT;i++){
   frames.push(img);
 }
 
-/* Build target positions: ONE HORIZONTAL LINE */
 function buildLineTargets(){
   const n = dots.length;
   const yLine = H * 0.78;
-  const x0 = W * 0.12;
-  const x1 = W * 0.88;
-
+  const x0 = W * 0.12, x1 = W * 0.88;
   const targets = new Array(n);
   for(let i=0;i<n;i++){
     const t = (n===1) ? 0.5 : (i/(n-1));
-    targets[i] = { x: lerp(x0, x1, t), y: yLine };
+    targets[i] = {x:lerp(x0,x1,t), y:yLine};
   }
   return targets;
 }
 
 function startCircleAnimationAfterDelay(){
   circleStartY = H * 0.00;
-  circleEndY   = H * 0.45;
+  circleEndY = H * 0.45;
   heroCircle.y = circleStartY;
   heroCircleVisible = true;
+
+  beltOffset = beltTargetOffset = 0;
+  beltY = beltTargetY = 0;
+  lastMouseX = null;
+  beltActive = false;
 
   setTimeout(()=>{
     circleAnim = true;
     circleStartTime = performance.now();
     requestAnimationFrame(render);
-  }, 1200);
+  },1200);
 }
 
 function playTransition(){
@@ -588,32 +842,29 @@ function playTransition(){
 
   showIntroWords(false);
   drawing = false;
-
   showDotLabels = false;
+  clearHintTimer();
+  hideHint();
 
   const startDots = dots.map(d => ({x:d.x, y:d.y, label:d.label}));
   const targets = buildLineTargets();
-
-  let idx = 0; // 0..34
+  let idx = 0;
 
   function drawFrame(){
     if(!playingTransition) return;
-
-    const t = (FRAME_COUNT<=1) ? 1 : (idx / (FRAME_COUNT - 1));
-
+    const t = (FRAME_COUNT <= 1) ? 1 : (idx / (FRAME_COUNT - 1));
     ctx.clearRect(0,0,W,H);
     const img = frames[idx];
-    if(img && img.complete){
-      ctx.drawImage(img, 0, 0, W, H);
-    }
+    if(img && img.complete) ctx.drawImage(img,0,0,W,H);
 
     for(let i=0;i<dots.length;i++){
       dots[i].x = lerp(startDots[i].x, targets[i].x, t);
       dots[i].y = lerp(startDots[i].y, targets[i].y, t);
     }
-    drawDots();
 
+    drawDots();
     idx++;
+
     if(idx < FRAME_COUNT){
       setTimeout(drawFrame, FRAME_DELAY);
     } else {
@@ -621,9 +872,7 @@ function playTransition(){
         dots[i].x = targets[i].x;
         dots[i].y = targets[i].y;
       }
-
       playingTransition = false;
-
       updateHeroCircle();
       goTo(2);
       startCircleAnimationAfterDelay();
@@ -634,42 +883,40 @@ function playTransition(){
   drawFrame();
 }
 
-// arrow: only works after completion
 enterBtn.addEventListener("click",()=>{
   if(!completed) return;
-
   if(framesLoaded > 0){
     playTransition();
     return;
   }
 
-  // fallback: no images, just move dots in same 35 steps
   playingTransition = true;
   showIntroWords(false);
   drawing = false;
   showDotLabels = false;
+  clearHintTimer();
+  hideHint();
 
   const startDots = dots.map(d => ({x:d.x, y:d.y, label:d.label}));
   const targets = buildLineTargets();
-
   let idx = 0;
 
   function step(){
-    const t = (FRAME_COUNT<=1) ? 1 : (idx / (FRAME_COUNT - 1));
-
+    const t = (FRAME_COUNT <= 1) ? 1 : (idx / (FRAME_COUNT - 1));
     ctx.clearRect(0,0,W,H);
+
     for(let i=0;i<dots.length;i++){
       dots[i].x = lerp(startDots[i].x, targets[i].x, t);
       dots[i].y = lerp(startDots[i].y, targets[i].y, t);
     }
-    drawDots();
 
+    drawDots();
     idx++;
+
     if(idx < FRAME_COUNT){
       setTimeout(step, FRAME_DELAY);
     } else {
       playingTransition = false;
-
       updateHeroCircle();
       goTo(2);
       startCircleAnimationAfterDelay();
@@ -680,7 +927,6 @@ enterBtn.addEventListener("click",()=>{
   step();
 });
 
-// back: return to page 1
 backBtn.addEventListener("click",(e)=>{
   e.preventDefault();
   playingTransition = false;
@@ -691,15 +937,23 @@ backBtn.addEventListener("click",(e)=>{
 
   heroCircleVisible = false;
   circleAnim = false;
+  beltActive = false;
+  beltOffset = beltTargetOffset = 0;
+  beltY = beltTargetY = 0;
+  lastMouseX = null;
+
   showDotLabels = true;
   setDotsToHome();
   completed = false;
+  hasStartedPuzzle = false;
   reset();
+  startHintTimer();
   render();
 });
 
 resize();
-window.addEventListener("resize",resize);
+window.addEventListener("resize", resize);
+startHintTimer();
 
 })();
 </script>
