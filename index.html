@@ -12,7 +12,6 @@
   font-weight:400;
   font-style:normal;
 }
-
 @font-face{
   font-family:"Supreme";
   src:url("Supreme-Bold.otf") format("opentype");
@@ -147,19 +146,6 @@ canvas{
   pointer-events:auto;
 }
 
-.p2 h1{
-  margin:0;
-  font-size: clamp(50px,6vw,80px);
-}
-
-.p2 p{
-  margin-top:18px;
-  max-width:700px;
-  color:var(--muted);
-  font-size:18px;
-  line-height:1.6;
-}
-
 .back{
   display:inline-block;
   margin-top:30px;
@@ -171,10 +157,10 @@ canvas{
 }
 </style>
 </head>
-
 <body>
-<div class="app">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js"></script>
 
+<div class="app">
   <div class="stage" id="stage">
     <canvas id="c"></canvas>
   </div>
@@ -186,13 +172,10 @@ canvas{
   </section>
 
   <section class="page" id="page2">
-  <div class="p2">
-    <a href="#" class="back" id="backBtn">← back</a>
-  </div>
-</section>
-
-
-
+    <div class="p2">
+      <a href="#" class="back" id="backBtn">← back</a>
+    </div>
+  </section>
 </div>
 
 <script>
@@ -210,6 +193,7 @@ const ctx = canvas.getContext("2d");
 const stageEl = document.getElementById("stage");
 
 const STAGE_BG_PAGE1 = 'url("Background.png") center/cover no-repeat';
+const BYPASS_PUZZLE = false;
 
 /* page switch */
 function goTo(p){
@@ -260,7 +244,7 @@ renderIntroWords();
 showIntroWords(true);
 
 /* ===========================
-HINT
+   HINT
 =========================== */
 let hintTimer = null;
 let hasStartedPuzzle = false;
@@ -273,7 +257,10 @@ function showHint(){
 }
 function hideHint(){ hintText.classList.remove("visible"); }
 function clearHintTimer(){
-  if(hintTimer){ clearTimeout(hintTimer); hintTimer = null; }
+  if(hintTimer){
+    clearTimeout(hintTimer);
+    hintTimer = null;
+  }
 }
 function startHintTimer(){
   clearHintTimer();
@@ -289,7 +276,7 @@ function markPuzzleStarted(){
 }
 
 /* ===========================
-COMMON CANVAS STATE
+   COMMON CANVAS STATE
 =========================== */
 let W, H, dpr;
 let drawing = false;
@@ -299,7 +286,7 @@ let pointer = {x:0, y:0};
 let dots = [];
 let dotsHome = [];
 let nextIdx = 0;
-let completed = false;
+let completed = BYPASS_PUZZLE;
 
 let showDotLabels = true;
 
@@ -313,7 +300,7 @@ let movedSinceDown = false;
 const CLICK_MOVE_TOL = 8;
 
 /* ===========================
-HERO CIRCLE + SPHERICAL BELT
+   HERO CIRCLE
 =========================== */
 let heroCircleVisible = false;
 let heroCircle = { x:0, y:0, r:0 };
@@ -322,182 +309,526 @@ let circleAnim = false;
 let circleStartY = 0;
 let circleEndY = 0;
 let circleStartTime = 0;
-const circleDuration = 1000;
+const circleDuration = 1600;
 
-/* belt activation flag */
-let beltActive = false;
+let dotsAnim = false;
+let dotsAnimStartTime = 0;
+const dotsAnimDuration = 1600;
+let dotsAnimStart = [];
+let dotsAnimTarget = [];
 
-const NOISE_SIZE = 128;
-const NOISE_ALPHA = 0.94;
-const noiseCanvas = document.createElement("canvas");
-const noiseCtx = noiseCanvas.getContext("2d");
-noiseCanvas.width = NOISE_SIZE;
-noiseCanvas.height = NOISE_SIZE;
+/* pills */
+let cornerDots=[], cornerDotsVisible=false, cornerDotsAnim=false, cornerDotsStartTime=0;
+const cornerDotsDuration=420; let cornerDotsStart=[], cornerDotsTarget=[];
+let cornerMergeAnim=false, cornerMergeStartTime=0; const cornerMergeDuration=520;
+let cornerLine={active:false,x1:0,y1:0,x2:0,y2:0,t:0};
+let cornerNumberVisible=false, cornerNumberAnim=false, cornerNumberStartTime=0; const cornerNumberDuration=420;
+let cornerNumberReverseAnim=false, cornerNumberReverseStartTime=0; const cornerNumberReverseDuration=420;
+let cornerLineHover=false, cornerLineLoad=0, cornerLineLoading=false, cornerLineLoaded=false, lastTimestamp=0;
+const cornerLineLoadDuration=1200;
+
+let centerDots=[], centerDotsVisible=false, centerDotsAnim=false, centerDotsStartTime=0;
+const centerDotsDuration=420; let centerDotsStart=[], centerDotsTarget=[];
+let centerMergeAnim=false, centerMergeStartTime=0; const centerMergeDuration=520;
+let centerLine={active:false,x1:0,y1:0,x2:0,y2:0,t:0};
+let centerNumberVisible=false, centerNumberAnim=false, centerNumberStartTime=0; const centerNumberDuration=420;
+let centerLineHover=false, centerLineLoad=0, centerLineLoading=false, centerLineLoaded=false;
+const centerLineLoadDuration=1200;
+
+/* pill 5 — third belt pill, right side */
+let thirdPillDots=[], thirdPillDotsVisible=false, thirdPillDotsAnim=false, thirdPillDotsStartTime=0;
+const thirdPillDotsDuration=420; let thirdPillDotsStart=[], thirdPillDotsTarget=[];
+let thirdPillMergeAnim=false, thirdPillMergeStartTime=0; const thirdPillMergeDuration=520;
+let thirdPillLine={active:false,x1:0,y1:0,x2:0,y2:0,t:0};
+let thirdPillNumberVisible=false, thirdPillNumberAnim=false, thirdPillNumberStartTime=0; const thirdPillNumberDuration=420;
+let thirdPillLineHover=false, thirdPillLineLoad=0, thirdPillLineLoading=false, thirdPillLineLoaded=false;
+const thirdPillLineLoadDuration=1200;
+let thirdPillReverseAnim=false, thirdPillReverseStartTime=0; const thirdPillReverseDuration=520;
+let thirdPillSlideOutAnim=false, thirdPillSlideOutStartTime=0; const thirdPillSlideOutDuration=650;
+let thirdPillSlideOutFrom=[], thirdPillSlideOutTo=[];
+let thirdPillSequenceStarted=false;
+
+/* pill 6 — third belt left pill */
+let fourthPillDots=[], fourthPillDotsVisible=false, fourthPillDotsAnim=false, fourthPillDotsStartTime=0;
+const fourthPillDotsDuration=420; let fourthPillDotsStart=[], fourthPillDotsTarget=[];
+let fourthPillMergeAnim=false, fourthPillMergeStartTime=0; const fourthPillMergeDuration=520;
+let fourthPillLine={active:false,x1:0,y1:0,x2:0,y2:0,t:0};
+let fourthPillReverseAnim=false, fourthPillReverseStartTime=0; const fourthPillReverseDuration=520;
+let fourthPillSlideOutAnim=false, fourthPillSlideOutStartTime=0; const fourthPillSlideOutDuration=650;
+let fourthPillSlideOutFrom=[], fourthPillSlideOutTo=[];
+let fourthPillLineHover=false, fourthPillLineLoad=0, fourthPillLineLoading=false, fourthPillLineLoaded=false;
+const fourthPillLineLoadDuration=1200;
+
+/* ===========================
+   CONTINUE PARTICLES
+=========================== */
+let textStrokesActive = false;
+let textStrokesResolved = false;
+let textStrokesResolving = false;
+let textStrokeProgress = 0;
+let textStrokeTargetProgress = 0;
+
+const CONTINUE_PARTICLE_COUNT = 1600;
+const CONTINUE_PARTICLE_RADIUS = 0.72;
+const CONTINUE_PARTICLE_STEP = 1.35;
+const CONTINUE_MORPH_DURATION = 1200;
+
+let continueParticles = [];
+let continueLetterPoints = [];
+let continueLetterPointsBuilt = false;
+
+/* opentype.js font */
+let _otFont = null;
+let _otFontReady = false;
+window.addEventListener('load', () => {
+  if(typeof opentype !== 'undefined'){
+    opentype.load("Supreme-Regular.otf", (err, font) => {
+      if(!err){
+        _otFont = font;
+        _otFontReady = true;
+      }
+    });
+  }
+});
+
+let leftArrowVisible=false, leftArrowAnim=false, leftArrowStartTime=0; const leftArrowDuration=360;
+let leftArrowReverseAnim=false, leftArrowReverseStartTime=0; const leftArrowReverseDuration=360;
+
+let rightArrowVisible=false, rightArrowAnim=false, rightArrowStartTime=0; const rightArrowDuration=360;
+let rightArrowReverseAnim=false, rightArrowReverseStartTime=0; const rightArrowReverseDuration=360;
+let leftDots=[], leftDotsVisible=false, leftDotsAnim=false, leftDotsStartTime=0; const leftDotsDuration=650;
+let leftDotsStart=[], leftDotsTarget=[];
+let leftMergeAnim=false, leftMergeStartTime=0; const leftMergeDuration=520;
+let leftLine={active:false,x1:0,y1:0,x2:0,y2:0,t:0}; let leftSequenceStarted=false;
+let leftLineHover=false, leftLineLoad=0, leftLineLoading=false, leftLineLoaded=false;
+const leftLineLoadDuration=1200;
+
+let blankDots=[], blankDotsVisible=false, blankDotsAnim=false, blankDotsStartTime=0;
+const blankDotsDuration=420; let blankDotsStart=[], blankDotsTarget=[];
+let blankMergeAnim=false, blankMergeStartTime=0; const blankMergeDuration=520;
+let blankLine={active:false,x1:0,y1:0,x2:0,y2:0,t:0};
+let blankLineHover=false, blankLineLoad=0, blankLineLoading=false, blankLineLoaded=false;
+const blankLineLoadDuration=1200;
+
+let hoverReverseStarted=false;
+
+/* reverse + slide-out */
+let centerReverseAnim=false, centerReverseStartTime=0; const centerReverseDuration=520;
+let centerSlideOutAnim=false, centerSlideOutStartTime=0; const centerSlideOutDuration=650;
+let centerSlideOutFrom=[], centerSlideOutTo=[];
+let blankReverseAnim=false, blankReverseStartTime=0; const blankReverseDuration=520;
+let blankSlideOutAnim=false, blankSlideOutStartTime=0; const blankSlideOutDuration=650;
+let blankSlideOutFrom=[], blankSlideOutTo=[];
+let pillsResolveStarted=false;
+let cornerReverseAnim=false, cornerReverseStartTime=0; const cornerReverseDuration=520;
+let cornerSlideOutAnim=false, cornerSlideOutStartTime=0; const cornerSlideOutDuration=650;
+let cornerSlideOutFrom=[], cornerSlideOutTo=[];
+let leftReverseAnim=false, leftReverseStartTime=0; const leftReverseDuration=520;
+let leftSlideOutAnim=false, leftSlideOutStartTime=0; const leftSlideOutDuration=650;
+let leftSlideOutFrom=[], leftSlideOutTo=[];
+
+/* squiggle */
+let sentenceLineActive=false, sentenceLineResolved=false, sentenceLineResolveAnim=false;
+let sentenceLineProgress=0, sentenceLineTargetProgress=0;
+const SNAKE_TRAIL=0.42, RESOLVE_SPEED=0.00065;
+let resolvePath=[], resolveHeadT=0, snakeTrailPts=0;
+let sentenceLineStartX=0, sentenceLineEndX=0, sentenceLineBaseY=0, sentenceLineCursorX=0;
+let sentenceBoxX=0, sentenceBoxY=0, sentenceBoxW=0, sentenceBoxH=0, sentenceBoxR=0;
+
+/* ===========================
+   ORANGE BLOB
+=========================== */
+let blobActive=false, blobResolved=false, blobResolveAnim=false, blobResolveT=0;
+const BLOB_RESOLVE_SPEED = 0.0015;
+const BLOB_PHASE_SPLIT   = 0.45;
+let blobCX=0, blobCY=0;
+let blobProgress=0, blobTargetProgress=0, blobFlyPath=[];
+let blobStretch=0, blobTail=0, blobDirX=-1, blobDirY=0, blobPhase=0;
+
+let blobRevealT = 0;
+let blobRevealAnim = false;
+let blobRevealStartTime = 0;
+const BLOB_REVEAL_DURATION = 900;
+let blobMouseVX=0, blobLastMouseX=null;
+
+/* belt */
+let beltActive=false, beltMouseEnabled=false, beltHighlightRow=0;
+const NOISE_SIZE=128, NOISE_ALPHA=0.94;
+const noiseCanvas=document.createElement("canvas");
+const noiseCtx=noiseCanvas.getContext("2d");
+noiseCanvas.width=NOISE_SIZE;
+noiseCanvas.height=NOISE_SIZE;
 
 function generateNoiseTexture(){
-  const imgData = noiseCtx.createImageData(NOISE_SIZE, NOISE_SIZE);
-  const data = imgData.data;
-  const baseR = 0xF7, baseG = 0x1F, baseB = 0x08;
+  const imgData=noiseCtx.createImageData(NOISE_SIZE,NOISE_SIZE), data=imgData.data;
+  const baseR=0xF7, baseG=0x1F, baseB=0x08;
   for(let i=0;i<data.length;i+=4){
-    const jitter = (Math.random() - 0.5) * 40;
-    const r = Math.max(0, Math.min(255, baseR + jitter));
-    const g = Math.max(0, Math.min(255, baseG + jitter));
-    const b = Math.max(0, Math.min(255, baseB + jitter));
-    data[i] = r;
-    data[i+1] = g;
-    data[i+2] = b;
-    data[i+3] = 255;
+    const j=(Math.random()-0.5)*40;
+    data[i]=Math.max(0,Math.min(255,baseR+j));
+    data[i+1]=Math.max(0,Math.min(255,baseG+j));
+    data[i+2]=Math.max(0,Math.min(255,baseB+j));
+    data[i+3]=255;
   }
-  noiseCtx.putImageData(imgData, 0, 0);
-  noiseCtx.globalAlpha = 0.6;
-  noiseCtx.filter = "blur(0.4px)";
-  noiseCtx.drawImage(noiseCanvas, 0, 0);
-  noiseCtx.filter = "none";
-  noiseCtx.globalAlpha = 1;
+  noiseCtx.putImageData(imgData,0,0);
+  noiseCtx.globalAlpha=0.6;
+  noiseCtx.filter="blur(0.4px)";
+  noiseCtx.drawImage(noiseCanvas,0,0);
+  noiseCtx.filter="none";
+  noiseCtx.globalAlpha=1;
 }
 generateNoiseTexture();
 
-let roughSeed = 12345;
+let roughSeed=12345;
 function seededRandom(){
   roughSeed ^= roughSeed << 13;
   roughSeed ^= roughSeed >> 17;
   roughSeed ^= roughSeed << 5;
   return (roughSeed >>> 0) / 0xFFFFFFFF;
 }
-function drawRoughCircle(x, y, r, jitter){
-  const steps = 256;
-  const angleStep = (Math.PI * 2) / steps;
+function drawRoughCircle(x,y,r,jitter){
+  const steps=256, as=(Math.PI*2)/steps;
   ctx.beginPath();
   for(let i=0;i<=steps;i++){
-    const a = i * angleStep;
-    const jr = (seededRandom() * 2 - 1) * jitter;
-    const rr = r + jr;
-    const px = x + Math.cos(a) * rr;
-    const py = y + Math.sin(a) * rr;
-    if(i===0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
+    const a=i*as, jr=(seededRandom()*2-1)*jitter, rr=r+jr;
+    const px=x+Math.cos(a)*rr, py=y+Math.sin(a)*rr;
+    i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
   }
   ctx.closePath();
 }
 function drawHeroNoise(){
-  const {x,y,r} = heroCircle;
-  const pattern = ctx.createPattern(noiseCanvas,"repeat");
+  const {x,y,r}=heroCircle, pattern=ctx.createPattern(noiseCanvas,"repeat");
   if(!pattern) return;
-  ctx.globalAlpha = NOISE_ALPHA;
-  ctx.fillStyle = pattern;
-  ctx.fillRect(x-r, y-r, r*2, r*2);
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha=NOISE_ALPHA;
+  ctx.fillStyle=pattern;
+  ctx.fillRect(x-r,y-r,r*2,r*2);
+  ctx.globalAlpha=1;
 }
 function updateHeroCircle(){
-  heroCircle.x = W * 0.50;
-  heroCircle.r = W * 0.15;
-  heroCircle.y = H * 0.00;
+  heroCircle.x=W*0.50;
+  heroCircle.r=W*0.15;
+  heroCircle.y=H*0.00;
 }
 
-/* continuous belt text */
-const BELT_TEXT_BASE =
-"Intent is shaped by language, motion, structure, balance, continuity, attention, error, ambiguity, and chance. ";
-const BELT_TEXT = BELT_TEXT_BASE.repeat(10);
-const BELT_CHAR_COUNT = BELT_TEXT.length;
+const BELT_TEXTS=[
+  "A line becomes intention the moment it stops wandering and begins to define a boundary. ",
+  "A form becomes meaningful when space gathers inside it and turns structure into presence. ",
+  "Meaning appears when form begins to carry language and turns structure into communication. "
+];
+const BELT_REPEAT=10;
+const BELT_ROWS=BELT_TEXTS.map(text=>{
+  const repeated=text.repeat(BELT_REPEAT);
+  return {text:repeated,count:repeated.length};
+});
+let beltBaseOffsets=[59,59,59], beltOffset=0, beltTargetOffset=0, beltY=0, beltTargetY=0, lastMouseX=null;
+const BELT_FONT_REL=0.09, BELT_MAX_Y=0.65, BELT_DEPTH_OFFSET=0.04, BELT_CHAR_WIDTH_FACTOR=0.62, BELT_EDGE_HIDE=0.16;
+let beltHighlightActive=false, beltHighlightWidth=0.01, beltHighlightFade=0;
+let beltHighlightFadeIn=false, beltHighlightFadeOut=false, beltHighlightStartTime=0, beltHighlightFadeOutStartTime=0;
+const beltHighlightFadeDuration=1200, beltHighlightFadeOutDuration=700;
 
-let beltOffset = 0;
-let beltTargetOffset = 0;
-let beltY = 0;
-let beltTargetY = 0;
+function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+function lerp(a,b,t){ return a+(b-a)*t; }
 
-let lastMouseX = null;
+function quadraticPoint(p0,p1,p2,t){
+  const mt = 1 - t;
+  return {
+    x: mt*mt*p0.x + 2*mt*t*p1.x + t*t*p2.x,
+    y: mt*mt*p0.y + 2*mt*t*p1.y + t*t*p2.y
+  };
+}
+function cubicPoint(p0,p1,p2,p3,t){
+  const mt = 1 - t;
+  return {
+    x: mt*mt*mt*p0.x + 3*mt*mt*t*p1.x + 3*mt*t*t*p2.x + t*t*t*p3.x,
+    y: mt*mt*mt*p0.y + 3*mt*mt*t*p1.y + 3*mt*t*t*p2.y + t*t*t*p3.y
+  };
+}
 
-const BELT_FONT_REL = 0.09;
-const BELT_MAX_Y = 0.65;
-const BELT_DEPTH_OFFSET = 0.04;
+function flattenCommandsToContours(commands, curveSteps = 18){
+  const contours = [];
+  let current = [];
+  let cx = 0, cy = 0;
+  let sx = 0, sy = 0;
 
-/* draw one belt row at given bandY (px from circle center) */
-function drawSingleBelt(bandY){
-  const {x:cx, y:cy, r} = heroCircle;
-  const fontSize = r * BELT_FONT_REL;
-  ctx.font = `bold ${fontSize}px "Supreme", system-ui, sans-serif`;
-  ctx.textBaseline = "middle";
-  ctx.textAlign = "center";
+  function push(x,y){ current.push({x,y}); }
+  function finishCurrent(){
+    if(current.length > 1) contours.push(current);
+    current = [];
+  }
 
-  const totalArc = Math.PI * 1.6;
-  const startAngle = -totalArc / 2;
+  for(let i=0;i<commands.length;i++){
+    const cmd = commands[i];
 
-  const charsOnArc = Math.floor(totalArc * r / (fontSize * 0.6));
-  const charAngleStep = totalArc / charsOnArc;
+    if(cmd.type === "M"){
+      finishCurrent();
+      cx = sx = cmd.x;
+      cy = sy = cmd.y;
+      push(cx, cy);
 
-  const latRatio = bandY / r;
-  const clampedLatRatio = Math.max(-0.999, Math.min(0.999, latRatio));
-  const theta = Math.asin(clampedLatRatio);
-  const latCos = Math.cos(theta);
+    } else if(cmd.type === "L"){
+      for(let j=1;j<=3;j++){
+        const t = j / 3;
+        push(cx + (cmd.x - cx) * t, cy + (cmd.y - cy) * t);
+      }
+      cx = cmd.x;
+      cy = cmd.y;
 
-  const radiusAtLat = r * latCos + r * BELT_DEPTH_OFFSET;
+    } else if(cmd.type === "Q"){
+      const p0 = {x:cx, y:cy};
+      const p1 = {x:cmd.x1, y:cmd.y1};
+      const p2 = {x:cmd.x, y:cmd.y};
+      for(let j=1;j<=curveSteps;j++){
+        const t = j / curveSteps;
+        const p = quadraticPoint(p0,p1,p2,t);
+        push(p.x, p.y);
+      }
+      cx = cmd.x;
+      cy = cmd.y;
 
-  const wholeOffset = Math.floor(beltOffset);
-  const fracOffset = beltOffset - wholeOffset;
+    } else if(cmd.type === "C"){
+      const p0 = {x:cx, y:cy};
+      const p1 = {x:cmd.x1, y:cmd.y1};
+      const p2 = {x:cmd.x2, y:cmd.y2};
+      const p3 = {x:cmd.x, y:cmd.y};
+      for(let j=1;j<=curveSteps;j++){
+        const t = j / curveSteps;
+        const p = cubicPoint(p0,p1,p2,p3,t);
+        push(p.x, p.y);
+      }
+      cx = cmd.x;
+      cy = cmd.y;
 
-  for(let i=0; i<=charsOnArc; i++){
-    const shiftedI = i - fracOffset;
+    } else if(cmd.type === "Z"){
+      for(let j=1;j<=3;j++){
+        const t = j / 3;
+        push(cx + (sx - cx) * t, cy + (sy - cy) * t);
+      }
+      cx = sx;
+      cy = sy;
+      finishCurrent();
+    }
+  }
 
-    const angle = startAngle + shiftedI * charAngleStep;
-    const depth = Math.cos(angle);
-    if(depth <= 0) continue;
+  finishCurrent();
+  return contours;
+}
 
-    const xOnCircle = Math.sin(angle) * radiusAtLat;
-    const yOnCircle = bandY;
+function resampleContour(points, step = CONTINUE_PARTICLE_STEP){
+  if(points.length < 2) return points.slice();
 
-    const screenX = cx + xOnCircle;
-    const screenY = cy + yOnCircle;
+  let total = 0;
+  const seg = [];
 
-    const charIndex = ((wholeOffset + i) % BELT_CHAR_COUNT + BELT_CHAR_COUNT) % BELT_CHAR_COUNT;
-    const ch = BELT_TEXT[charIndex];
+  for(let i=1;i<points.length;i++){
+    const d = Math.hypot(points[i].x - points[i-1].x, points[i].y - points[i-1].y);
+    seg.push(d);
+    total += d;
+  }
 
-    const alpha = 0.45 + depth * 0.45;
+  const count = Math.max(2, Math.round(total / step));
+  const out = [];
+
+  for(let k=0;k<count;k++){
+    const target = total * (count === 1 ? 0 : k / (count - 1));
+    let run = 0;
+
+    for(let i=1;i<points.length;i++){
+      const d = seg[i-1];
+      if(run + d >= target){
+        const t = d ? (target - run) / d : 0;
+        out.push({
+          x: points[i-1].x + (points[i].x - points[i-1].x) * t,
+          y: points[i-1].y + (points[i].y - points[i-1].y) * t
+        });
+        break;
+      }
+      run += d;
+    }
+  }
+
+  return out;
+}
+
+function getBounds(points){
+  if(!points.length){
+    return { minX:0, minY:0, maxX:0, maxY:0, width:0, height:0 };
+  }
+
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for(const p of points){
+    if(p.x < minX) minX = p.x;
+    if(p.y < minY) minY = p.y;
+    if(p.x > maxX) maxX = p.x;
+    if(p.y > maxY) maxY = p.y;
+  }
+
+  return {
+    minX, minY, maxX, maxY,
+    width: maxX - minX,
+    height: maxY - minY
+  };
+}
+
+function buildContinueLetterPoints(){
+  if(!_otFontReady || !_otFont) return;
+
+  const WORD = "CONTINUE";
+  const b = { x: sentenceBoxX, y: sentenceBoxY, w: sentenceBoxW, h: sentenceBoxH };
+  const baseFontSize = b.h * 0.80;
+  let penX = 0;
+  const rawContours = [];
+
+  for(let i=0;i<WORD.length;i++){
+    const ch = WORD[i];
+    const glyph = _otFont.charToGlyph(ch);
+    const path = glyph.getPath(penX, 0, baseFontSize);
+    const contours = flattenCommandsToContours(path.commands, 20);
+    for(const c of contours) rawContours.push(c);
+    penX += glyph.advanceWidth * baseFontSize / _otFont.unitsPerEm;
+  }
+
+  const rawPoints = [];
+  for(const contour of rawContours){
+    for(const p of contour) rawPoints.push(p);
+  }
+
+  if(!rawPoints.length){
+    continueLetterPoints = [];
+    continueLetterPointsBuilt = true;
+    return;
+  }
+
+  const bounds = getBounds(rawPoints);
+  const safeW = b.w * 0.72;
+  const safeH = b.h * 0.40;
+  const scale = Math.min(
+    safeW / Math.max(bounds.width, 1),
+    safeH / Math.max(bounds.height, 1)
+  );
+
+  const scaledContours = rawContours.map(contour =>
+    contour.map(p => ({
+      x: (p.x - bounds.minX) * scale,
+      y: (p.y - bounds.minY) * scale
+    }))
+  );
+
+  const scaledPoints = [];
+  for(const contour of scaledContours){
+    for(const p of contour) scaledPoints.push(p);
+  }
+
+  const scaledBounds = getBounds(scaledPoints);
+  const offsetX = b.x + (b.w - scaledBounds.width) * 0.5;
+  const offsetY = b.y + (b.h - scaledBounds.height) * 0.5;
+
+  const centeredContours = scaledContours.map(contour =>
+    contour.map(p => ({
+      x: p.x + offsetX,
+      y: p.y + offsetY
+    }))
+  );
+
+  const dense = [];
+  for(const contour of centeredContours){
+    const sampled = resampleContour(contour, CONTINUE_PARTICLE_STEP);
+    for(const p of sampled) dense.push(p);
+  }
+
+  continueLetterPoints = dense;
+  continueLetterPointsBuilt = true;
+
+  if(continueLetterPoints.length){
+    for(let i=0;i<continueParticles.length;i++){
+      const idx = Math.floor(i / continueParticles.length * continueLetterPoints.length);
+      continueParticles[i].targetIndex = idx;
+    }
+  }
+}
+
+function updateSentenceLineLayout(){
+  sentenceLineStartX=W*0.955;
+  sentenceLineEndX=W*0.30;
+  sentenceLineBaseY=H*0.865;
+  sentenceBoxW=W*0.18;
+  sentenceBoxH=H*0.074;
+  sentenceBoxX=W*0.5-sentenceBoxW*0.5;
+  sentenceBoxY=H*0.828;
+  sentenceBoxR=Math.min(sentenceBoxH*0.34,18);
+}
+
+function drawSingleBelt(bandY,beltText,beltCharCount,extraOffset=0,highlight=false){
+  const {x:cx,y:cy,r}=heroCircle, fontSize=r*BELT_FONT_REL;
+  ctx.font=`bold ${fontSize}px "Supreme", system-ui, sans-serif`;
+  ctx.textBaseline="middle";
+  ctx.textAlign="center";
+
+  const totalArc=Math.PI*1.6, latRatio=bandY/r;
+  const clampedLatRatio=Math.max(-0.999,Math.min(0.999,latRatio));
+  const theta=Math.asin(clampedLatRatio), latCos=Math.cos(theta);
+  const radiusAtLat=r*latCos+r*BELT_DEPTH_OFFSET;
+
+  const visibleChars=Math.max(12,Math.floor(totalArc*radiusAtLat/(fontSize*BELT_CHAR_WIDTH_FACTOR)));
+  const charAngleStep=totalArc/visibleChars;
+
+  const totalOffset=beltOffset+extraOffset, wholeOffset=Math.floor(totalOffset), fracOffset=totalOffset-wholeOffset;
+  const startI=-Math.floor(visibleChars/2), endI=Math.ceil(visibleChars/2);
+
+  for(let i=startI;i<=endI;i++){
+    const shiftedI=i-fracOffset, angle=shiftedI*charAngleStep, depth=Math.cos(angle);
+    if(depth<=BELT_EDGE_HIDE) continue;
+
+    const xOnCircle=Math.sin(angle)*radiusAtLat;
+    const screenX=cx+xOnCircle, screenY=cy+bandY;
+    const charIndex=((wholeOffset+i)%beltCharCount+beltCharCount)%beltCharCount;
+    const ch=beltText[charIndex];
+    const alpha=0.35+((depth-BELT_EDGE_HIDE)/(1-BELT_EDGE_HIDE))*0.55;
+    const inHighlight=highlight&&beltHighlightActive&&depth>=(1-beltHighlightWidth);
 
     ctx.save();
-    ctx.translate(screenX, screenY);
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = "#111";
-    ctx.fillText(ch, 0, 0);
+    ctx.translate(screenX,screenY);
+
+    let fill="#111";
+    if(inHighlight){
+      const f=beltHighlightFade;
+      fill=`rgb(${Math.round(17+(255-17)*f)},${Math.round(17+(255-17)*f)},${Math.round(17+(255-17)*f)})`;
+    }
+
+    ctx.globalAlpha=Math.max(0,Math.min(1,alpha));
+    ctx.fillStyle=fill;
+    ctx.fillText(ch,0,0);
     ctx.restore();
   }
 
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha=1;
 }
 
-/* three-row text belt */
 function drawTextBelt(){
-  if(!heroCircleVisible || !page2.classList.contains("active") || !beltActive) return;
+  if(!heroCircleVisible||!page2.classList.contains("active")||!beltActive) return;
 
-  beltOffset += (beltTargetOffset - beltOffset) * 0.85;
-  beltY = beltTargetY;
+  beltOffset+=(beltTargetOffset-beltOffset)*0.85;
+  beltY=beltTargetY;
 
-  const {r} = heroCircle;
-  const maxBandY = r * BELT_MAX_Y;
+  const {r}=heroCircle, maxBandY=r*BELT_MAX_Y;
+  const centerBandY=Math.max(-maxBandY,Math.min(maxBandY,beltY));
+  const rowGap=r*0.12;
 
-  const centerBandY = Math.max(-maxBandY, Math.min(maxBandY, beltY));
-
-  const rowGap = r * 0.12;
-  const bandY1 = centerBandY - rowGap;
-  const bandY2 = centerBandY;
-  const bandY3 = centerBandY + rowGap;
-
-  drawSingleBelt(bandY1);
-  drawSingleBelt(bandY2);
-  drawSingleBelt(bandY3);
+  drawSingleBelt(centerBandY-rowGap,BELT_ROWS[0].text,BELT_ROWS[0].count,beltBaseOffsets[0],beltHighlightRow===0);
+  drawSingleBelt(centerBandY,       BELT_ROWS[1].text,BELT_ROWS[1].count,beltBaseOffsets[1],beltHighlightRow===1);
+  drawSingleBelt(centerBandY+rowGap,BELT_ROWS[2].text,BELT_ROWS[2].count,beltBaseOffsets[2],beltHighlightRow===2);
 }
 
 function drawHeroCircle(){
   if(!heroCircleVisible) return;
 
-  roughSeed = 12345;
-  const jitter = heroCircle.r * 0.004;
+  roughSeed=12345;
+  const jitter=heroCircle.r*0.004;
 
-  drawRoughCircle(heroCircle.x, heroCircle.y, heroCircle.r, jitter);
-  ctx.fillStyle = "#F71F08";
+  drawRoughCircle(heroCircle.x,heroCircle.y,heroCircle.r,jitter);
+  ctx.fillStyle="#F71F08";
   ctx.fill();
 
   ctx.save();
-  drawRoughCircle(heroCircle.x, heroCircle.y, heroCircle.r, jitter);
+  drawRoughCircle(heroCircle.x,heroCircle.y,heroCircle.r,jitter);
   ctx.clip();
   drawHeroNoise();
   ctx.restore();
@@ -505,118 +836,155 @@ function drawHeroCircle(){
   drawTextBelt();
 }
 
-/* mouse → beltOffset / beltY */
+function pointInPill(px,py,line,dotsArr,reverseAnim,slideAnim){
+  if(!line.active||!page2.classList.contains("active")) return false;
+  if(reverseAnim||slideAnim) return false;
+  const center=dotsArr[1];
+  if(!center) return false;
+  const radius=center.r??DOT_R;
+  const top=Math.min(line.y1,line.y2), bottom=Math.max(line.y1,line.y2);
+  if(px>=center.x-radius&&px<=center.x+radius&&py>=top&&py<=bottom) return true;
+  if((px-center.x)**2+(py-top)**2<=radius*radius) return true;
+  if((px-center.x)**2+(py-bottom)**2<=radius*radius) return true;
+  return false;
+}
+
+/* mousemove */
 window.addEventListener("mousemove",(e)=>{
-  const rect = canvas.getBoundingClientRect();
-  const x = (e.clientX - rect.left) / rect.width;
+  const rect=canvas.getBoundingClientRect();
+  const x=(e.clientX-rect.left)/rect.width;
+  const localX=e.clientX-rect.left, localY=e.clientY-rect.top;
+  sentenceLineCursorX=localX;
+
+  if(blobActive&&!blobResolved&&!blobResolveAnim){
+    if(blobLastMouseX!==null){
+      const rawVX=localX-blobLastMouseX;
+      blobMouseVX+=(rawVX-blobMouseVX)*0.35;
+    }
+    blobLastMouseX=localX;
+  }
+
+  if(page2.classList.contains("active")&&beltMouseEnabled){
+    beltTargetOffset=(x-0.5)*130*-1;
+    const rawOffsetY=localY-heroCircle.y, maxBandY=heroCircle.r*BELT_MAX_Y;
+    beltTargetY=Math.max(-maxBandY,Math.min(maxBandY,rawOffsetY));
+  } else {
+    lastMouseX=null;
+  }
 
   if(page2.classList.contains("active")){
-    if(lastMouseX === null) lastMouseX = x;
-    const dx = x - lastMouseX;
-    lastMouseX = x;
+    if(sentenceLineActive&&!sentenceLineResolved&&!sentenceLineResolveAnim){
+      sentenceLineTargetProgress=clamp((sentenceLineStartX-localX)/(sentenceLineStartX-sentenceLineEndX),0,1);
+    }
+    if(blobActive&&!blobResolved&&!blobResolveAnim){
+      blobTargetProgress=clamp((W*0.955-localX)/(W*0.955-W*0.28),0,1);
+    }
+    if(textStrokesActive){
+      textStrokeTargetProgress = clamp((W*0.955 - localX) / (W*0.955 - W*0.28), 0, 1);
+    }
 
-    const charsPerScreen = BELT_CHAR_COUNT * 0.12;
-    beltTargetOffset += dx * charsPerScreen * -1;
+    const cornerHit=pointInPill(localX,localY,cornerLine,cornerDots,cornerReverseAnim,cornerSlideOutAnim);
+    cornerLineHover=cornerHit;
+    if(cornerLineHover&&!cornerLineLoaded) cornerLineLoading=true;
+    else if(!cornerLineHover&&!cornerLineLoaded){ cornerLineLoading=false; cornerLineLoad=0; }
 
-    if(beltTargetOffset > 1e6) beltTargetOffset -= 1e6;
-    if(beltTargetOffset < -1e6) beltTargetOffset += 1e6;
-
-    const yPx = e.clientY - rect.top;
-    const rawOffsetY = yPx - heroCircle.y;
-    const maxBandY = heroCircle.r * BELT_MAX_Y;
-    beltTargetY = Math.max(-maxBandY, Math.min(maxBandY, rawOffsetY));
-
-    render();
-  } else {
-    lastMouseX = null;
+    if(leftLine.active){
+      leftLineHover=pointInPill(localX,localY,leftLine,leftDots,leftReverseAnim,leftSlideOutAnim);
+      if(leftLineHover&&!leftLineLoaded) leftLineLoading=true;
+      else if(!leftLineHover&&!leftLineLoaded){ leftLineLoading=false; leftLineLoad=0; }
+    }
+    if(centerLine.active){
+      centerLineHover=pointInPill(localX,localY,centerLine,centerDots,false,false);
+      if(centerLineHover&&!centerLineLoaded) centerLineLoading=true;
+      else if(!centerLineHover&&!centerLineLoaded){ centerLineLoading=false; centerLineLoad=0; }
+    }
+    if(blankLine.active){
+      blankLineHover=pointInPill(localX,localY,blankLine,blankDots,false,false);
+      if(blankLineHover&&!blankLineLoaded) blankLineLoading=true;
+      else if(!blankLineHover&&!blankLineLoaded){ blankLineLoading=false; blankLineLoad=0; }
+    }
+    if(thirdPillLine.active){
+      thirdPillLineHover=pointInPill(localX,localY,thirdPillLine,thirdPillDots,thirdPillReverseAnim,thirdPillSlideOutAnim);
+      if(thirdPillLineHover&&!thirdPillLineLoaded) thirdPillLineLoading=true;
+      else if(!thirdPillLineHover&&!thirdPillLineLoaded){ thirdPillLineLoading=false; thirdPillLineLoad=0; }
+    }
+    if(fourthPillLine.active&&!fourthPillReverseAnim&&!fourthPillSlideOutAnim){
+      fourthPillLineHover=pointInPill(localX,localY,fourthPillLine,fourthPillDots,fourthPillReverseAnim,fourthPillSlideOutAnim);
+      if(fourthPillLineHover&&!fourthPillLineLoaded) fourthPillLineLoading=true;
+      else if(!fourthPillLineHover&&!fourthPillLineLoaded){ fourthPillLineLoading=false; fourthPillLineLoad=0; }
+    }
   }
 });
 
 /* ===========================
-LAYOUT + DOT PUZZLE
+   LAYOUT + DOT PUZZLE
 =========================== */
 function resize(){
-  const rect = canvas.getBoundingClientRect();
-  dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  W = rect.width;
-  H = rect.height;
+  const rect=canvas.getBoundingClientRect();
+  dpr=Math.max(1,Math.floor(window.devicePixelRatio||1));
+  canvas.width=rect.width*dpr;
+  canvas.height=rect.height*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  W=rect.width;
+  H=rect.height;
 
   buildDots();
   setDotsToHome();
   updateHeroCircle();
+  updateSentenceLineLayout();
   reset();
   render();
 }
 
 function reset(){
-  drawing = false;
-  strokePts = [];
-  nextIdx = completed ? dots.length : 0;
-  movedSinceDown = false;
-  if(completed) enterBtn.classList.add("ready");
+  drawing=false;
+  strokePts=[];
+  nextIdx=completed?dots.length:0;
+  movedSinceDown=false;
+
+  if(BYPASS_PUZZLE||completed) enterBtn.classList.add("ready");
   else enterBtn.classList.remove("ready");
 }
 
 function buildDots(){
-  const P = [
-    [0.06,0.18],[0.06,0.30],[0.06,0.44],[0.06,0.58],
-    [0.22,0.58],[0.20,0.18],[0.26,0.58],[0.26,0.18],
-    [0.36,0.18],[0.42,0.18],[0.39,0.18],[0.39,0.58],
+  const P=[
+    [0.06,0.18],[0.06,0.30],[0.06,0.44],[0.06,0.58],[0.22,0.58],[0.20,0.18],
+    [0.26,0.58],[0.26,0.18],[0.36,0.18],[0.42,0.18],[0.39,0.18],[0.39,0.58],
     [0.54,0.18],[0.48,0.18],[0.48,0.36],[0.52,0.36],[0.48,0.58],[0.54,0.58],
-    [0.70,0.58],[0.68,0.18],[0.74,0.58],[0.74,0.18],
-    [0.84,0.18],[0.90,0.18],[0.87,0.18],[0.87,0.58],
+    [0.70,0.58],[0.68,0.18],[0.74,0.58],[0.74,0.18],[0.84,0.18],[0.90,0.18],[0.87,0.18],[0.87,0.58],
   ];
-
-  const bandTop = H * 0.56;
-  const bandH = H * 0.34;
-  const left = W * 0.10;
-  const bandW = W * 0.80;
-
-  dotsHome = P.map((p,i)=>({
-    x: left + p[0] * bandW,
-    y: bandTop + p[1] * bandH,
-    label: String(i+1).padStart(2,"0")
+  const bandTop=H*0.56, bandH=H*0.34, left=W*0.10, bandW=W*0.80;
+  dotsHome=P.map((p,i)=>({
+    x:left+p[0]*bandW,
+    y:bandTop+p[1]*bandH,
+    label:String(i+1).padStart(2,"0")
   }));
 }
-function setDotsToHome(){
-  dots = dotsHome.map(d => ({...d}));
-}
-
+function setDotsToHome(){ dots=dotsHome.map(d=>({...d})); }
 function setPointer(e){
-  const r = canvas.getBoundingClientRect();
-  const src = (e.touches && e.touches[0]) ? e.touches[0] : e;
-  pointer.x = src.clientX - r.left;
-  pointer.y = src.clientY - r.top;
+  const r=canvas.getBoundingClientRect(), src=(e.touches&&e.touches[0])?e.touches[0]:e;
+  pointer.x=src.clientX-r.left;
+  pointer.y=src.clientY-r.top;
 }
-function dist2(ax,ay,bx,by){
-  const dx = ax - bx, dy = ay - by;
-  return dx*dx + dy*dy;
-}
+function dist2(ax,ay,bx,by){ const dx=ax-bx,dy=ay-by; return dx*dx+dy*dy; }
 function appendPoint(x,y){
-  const last = strokePts[strokePts.length-1];
-  if(!last){
-    strokePts.push({x,y});
-    return;
-  }
-  const dx = x - last.x, dy = y - last.y;
-  if(dx*dx + dy*dy > 0.25) strokePts.push({x,y});
+  const last=strokePts[strokePts.length-1];
+  if(!last){ strokePts.push({x,y}); return; }
+  const dx=x-last.x,dy=y-last.y;
+  if(dx*dx+dy*dy>0.25) strokePts.push({x,y});
 }
 function completeIfDone(){
-  if(nextIdx >= dots.length){
-    completed = true;
+  if(nextIdx>=dots.length){
+    completed=true;
     enterBtn.classList.add("ready");
-    drawing = false;
+    drawing=false;
   }
 }
 function hitCurrentDotClick(){
-  const d = dots[nextIdx];
+  const d=dots[nextIdx];
   if(!d) return false;
-
-  if(dist2(pointer.x, pointer.y, d.x, d.y) <= CLICK_HIT_R * CLICK_HIT_R){
-    appendPoint(d.x, d.y);
+  if(dist2(pointer.x,pointer.y,d.x,d.y)<=CLICK_HIT_R*CLICK_HIT_R){
+    appendPoint(d.x,d.y);
     nextIdx++;
     completeIfDone();
     markPuzzleStarted();
@@ -625,11 +993,10 @@ function hitCurrentDotClick(){
   return false;
 }
 function hitCurrentDotDrag(){
-  const d = dots[nextIdx];
+  const d=dots[nextIdx];
   if(!d) return false;
-
-  if(dist2(pointer.x, pointer.y, d.x, d.y) <= DRAG_HIT_R * DRAG_HIT_R){
-    appendPoint(pointer.x, pointer.y);
+  if(dist2(pointer.x,pointer.y,d.x,d.y)<=DRAG_HIT_R*DRAG_HIT_R){
+    appendPoint(pointer.x,pointer.y);
     nextIdx++;
     completeIfDone();
     markPuzzleStarted();
@@ -638,67 +1005,66 @@ function hitCurrentDotDrag(){
   return false;
 }
 function maybeAddFreePoint(){
-  if(!drawing || completed) return;
-  const last = strokePts[strokePts.length-1];
+  if(!drawing||completed||BYPASS_PUZZLE) return;
+  const last=strokePts[strokePts.length-1];
   if(!last){
-    strokePts.push({x:pointer.x, y:pointer.y});
+    strokePts.push({x:pointer.x,y:pointer.y});
     return;
   }
-  const dx = pointer.x - last.x, dy = pointer.y - last.y;
-  if(dx*dx + dy*dy >= 2.5 * 2.5){
-    strokePts.push({x:pointer.x, y:pointer.y});
-  }
+  const dx=pointer.x-last.x,dy=pointer.y-last.y;
+  if(dx*dx+dy*dy>=2.5*2.5) strokePts.push({x:pointer.x,y:pointer.y});
 }
 
-let playingTransition = false;
+let playingTransition=false;
 
 function onDown(e){
-  if(playingTransition || !page1.classList.contains("active")) return;
-  setPointer(e);
-  pressStart.x = pointer.x;
-  pressStart.y = pointer.y;
-  movedSinceDown = false;
-  drawing = true;
+  if(BYPASS_PUZZLE) return;
+  if(playingTransition||!page1.classList.contains("active")) return;
 
-  if(nextIdx === 0){
-    const d = dots[0];
-    if(dist2(pointer.x, pointer.y, d.x, d.y) <= CLICK_HIT_R * CLICK_HIT_R){
-      appendPoint(d.x, d.y);
-      nextIdx = 1;
+  setPointer(e);
+  pressStart.x=pointer.x;
+  pressStart.y=pointer.y;
+  movedSinceDown=false;
+  drawing=true;
+
+  if(nextIdx===0){
+    const d=dots[0];
+    if(dist2(pointer.x,pointer.y,d.x,d.y)<=CLICK_HIT_R*CLICK_HIT_R){
+      appendPoint(d.x,d.y);
+      nextIdx=1;
       completeIfDone();
       markPuzzleStarted();
       render();
       return;
     }
-    drawing = false;
+    drawing=false;
   } else {
-    appendPoint(pointer.x, pointer.y);
-    if(strokePts.length > 0) markPuzzleStarted();
+    appendPoint(pointer.x,pointer.y);
+    if(strokePts.length>0) markPuzzleStarted();
   }
   render();
 }
-
 function onMove(e){
-  if(!drawing || playingTransition || !page1.classList.contains("active")) return;
-  setPointer(e);
+  if(BYPASS_PUZZLE) return;
+  if(!drawing||playingTransition||!page1.classList.contains("active")) return;
 
-  const dx0 = pointer.x - pressStart.x;
-  const dy0 = pointer.y - pressStart.y;
-  if(dx0*dx0 + dy0*dy0 > CLICK_MOVE_TOL * CLICK_MOVE_TOL) movedSinceDown = true;
+  setPointer(e);
+  const dx0=pointer.x-pressStart.x,dy0=pointer.y-pressStart.y;
+  if(dx0*dx0+dy0*dy0>CLICK_MOVE_TOL*CLICK_MOVE_TOL) movedSinceDown=true;
 
   if(movedSinceDown){
     maybeAddFreePoint();
     hitCurrentDotDrag();
-    if(strokePts.length > 0) markPuzzleStarted();
+    if(strokePts.length>0) markPuzzleStarted();
   } else {
     maybeAddFreePoint();
   }
   render();
 }
-
 function onUp(e){
+  if(BYPASS_PUZZLE) return;
   if(!page1.classList.contains("active")){
-    drawing = false;
+    drawing=false;
     return;
   }
 
@@ -706,176 +1072,1947 @@ function onUp(e){
 
   if(drawing){
     if(movedSinceDown){
-      appendPoint(pointer.x, pointer.y);
+      appendPoint(pointer.x,pointer.y);
       hitCurrentDotDrag();
     } else {
       hitCurrentDotClick();
     }
   }
 
-  drawing = false;
+  drawing=false;
   render();
 }
 
-canvas.addEventListener("mousedown", onDown);
-window.addEventListener("mousemove", onMove);
-window.addEventListener("mouseup", onUp);
-canvas.addEventListener("touchstart", e => { e.preventDefault(); onDown(e); }, {passive:false});
-canvas.addEventListener("touchmove", e => { e.preventDefault(); onMove(e); }, {passive:false});
-window.addEventListener("touchend", e => {
-  if(!e.changedTouches || !e.changedTouches.length) return;
-  const t = e.changedTouches[0];
-  onUp({clientX:t.clientX, clientY:t.clientY});
-}, {passive:false});
+canvas.addEventListener("mousedown",onDown);
+window.addEventListener("mousemove",onMove);
+window.addEventListener("mouseup",onUp);
+canvas.addEventListener("touchstart",e=>{e.preventDefault();onDown(e);},{passive:false});
+canvas.addEventListener("touchmove",e=>{e.preventDefault();onMove(e);},{passive:false});
+window.addEventListener("touchend",e=>{
+  if(!e.changedTouches||!e.changedTouches.length) return;
+  const t=e.changedTouches[0];
+  onUp({clientX:t.clientX,clientY:t.clientY});
+},{passive:false});
 
-/* dots rendering */
+/* ===========================
+   DRAW HELPERS
+=========================== */
 function drawDots(){
   for(const d of dots){
-    ctx.fillStyle = "rgba(0,0,0,0.92)";
+    ctx.fillStyle="rgba(0,0,0,0.92)";
     ctx.beginPath();
-    ctx.arc(d.x, d.y, DOT_R, 0, Math.PI*2);
+    ctx.arc(d.x,d.y,DOT_R,0,Math.PI*2);
     ctx.fill();
 
-    if(showDotLabels){
-      ctx.fillStyle = "rgba(0,0,0,0.55)";
-      ctx.font = "13px system-ui";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "bottom";
-      ctx.fillText(d.label, d.x - 18, d.y - 10);
+    if(showDotLabels&&page1.classList.contains("active")){
+      ctx.fillStyle="rgba(0,0,0,0.55)";
+      ctx.font="13px system-ui";
+      ctx.textAlign="center";
+      ctx.textBaseline="bottom";
+      ctx.fillText(d.label,d.x-18,d.y-10);
     }
   }
 }
-
-/* master render */
-function render(timestamp){
-  ctx.clearRect(0,0,W,H);
-
-  if(!playingTransition && page1.classList.contains("active") && strokePts.length > 1){
-    ctx.strokeStyle = "#F71F08";
-    ctx.lineWidth = LINE_W;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+function drawDotsArray(arr){
+  if(!arr.length||!page2.classList.contains("active")) return;
+  for(const d of arr){
+    const a=d.alpha!=null?d.alpha:1;
+    if(a<=0) continue;
+    ctx.fillStyle=`rgba(0,0,0,${0.92*a})`;
     ctx.beginPath();
-    ctx.moveTo(strokePts[0].x, strokePts[0].y);
-    for(let i=1;i<strokePts.length;i++){
-      ctx.lineTo(strokePts[i].x, strokePts[i].y);
-    }
+    ctx.arc(d.x,d.y,d.r??DOT_R,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+function drawCornerDots(){ if(!cornerDotsVisible) return; drawDotsArray(cornerDots); }
+function drawCenterDots(){ if(!centerDotsVisible) return; drawDotsArray(centerDots); }
+function drawBlankDots(){ if(!blankDotsVisible) return; drawDotsArray(blankDots); }
+function drawLeftDots(){ if(!leftDotsVisible) return; drawDotsArray(leftDots); }
+function drawThirdPillDots(){ if(!thirdPillDotsVisible) return; drawDotsArray(thirdPillDots); }
+function drawFourthPillDots(){ if(!fourthPillDotsVisible) return; drawDotsArray(fourthPillDots); }
 
-    if(drawing && strokePts.length){
-      ctx.lineTo(pointer.x, pointer.y);
-    }
+function drawLine(line,dotsArr){
+  if(!line.active||!page2.classList.contains("active")) return;
+  const center=dotsArr[1], targetRadius=center?(center.r??DOT_R):DOT_R;
+  ctx.strokeStyle="rgba(0,0,0,0.92)";
+  ctx.lineCap="round";
+  ctx.lineWidth=targetRadius*2;
+  ctx.beginPath();
+  ctx.moveTo(line.x1,line.y1);
+  ctx.lineTo(line.x2,line.y2);
+  ctx.stroke();
+}
+function drawCornerLine(){ drawLine(cornerLine,cornerDots); }
+function drawCenterLine(){ drawLine(centerLine,centerDots); }
+function drawBlankLine(){ drawLine(blankLine,blankDots); }
+function drawLeftLine(){ drawLine(leftLine,leftDots); }
+function drawThirdPillLine(){ drawLine(thirdPillLine,thirdPillDots); }
+function drawFourthPillLine(){ drawLine(fourthPillLine,fourthPillDots); }
 
+function drawPillLoader(lineObj,dotsArr,load,color){
+  if(!lineObj.active||!page2.classList.contains("active")||load<=0) return;
+  const center=dotsArr[1];
+  if(!center) return;
+  const radius=center.r??DOT_R, top=Math.min(lineObj.y1,lineObj.y2), bottom=Math.max(lineObj.y1,lineObj.y2);
+  const outlineTop=top-radius, outlineBottom=bottom+radius, height=outlineBottom-outlineTop;
+  const width=radius*2, x=center.x-radius, y=outlineTop, r=radius;
+
+  ctx.save();
+  ctx.strokeStyle=color;
+  ctx.lineWidth=Math.max(2,radius*0.32);
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+  const perimeter=2*(height-2*r)+2*Math.PI*r;
+  ctx.setLineDash([perimeter]);
+  ctx.lineDashOffset=perimeter*(1-load);
+
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+width-r,y);
+  ctx.arcTo(x+width,y,x+width,y+r,r);
+  ctx.lineTo(x+width,y+height-r);
+  ctx.arcTo(x+width,y+height,x+width-r,y+height,r);
+  ctx.lineTo(x+r,y+height);
+  ctx.arcTo(x,y+height,x,y+height-r,r);
+  ctx.lineTo(x,y+r);
+  ctx.arcTo(x,y,x+r,y,r);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+function drawCornerLineLoader(){ drawPillLoader(cornerLine,cornerDots,cornerLineLoad,"#F71F08"); }
+function drawCenterLineLoader(){ drawPillLoader(centerLine,centerDots,centerLineLoad,"#F71F08"); }
+function drawLeftLineLoader(){ drawPillLoader(leftLine,leftDots,leftLineLoad,"#F71F08"); }
+function drawBlankLineLoader(){ drawPillLoader(blankLine,blankDots,blankLineLoad,"#F71F08"); }
+function drawThirdPillLineLoader(){ drawPillLoader(thirdPillLine,thirdPillDots,thirdPillLineLoad,"#F71F08"); }
+function drawFourthPillLineLoader(){ drawPillLoader(fourthPillLine,fourthPillDots,fourthPillLineLoad,"#F71F08"); }
+
+function drawNumberInPill(timestamp,visible,line,dotsArr,anim,animStart,animDur,revAnim,revStart,revDur,label){
+  if(!visible||!page2.classList.contains("active")||!line.active) return;
+  const center=dotsArr[1];
+  if(!center) return;
+
+  let t=1;
+  if(anim){
+    t=Math.min(1,(timestamp-animStart)/animDur);
+    t=t*t*(3-2*t);
+  } else if(revAnim){
+    const rt=Math.min(1,(timestamp-revStart)/revDur);
+    t=1-rt*rt*(3-2*rt);
+    if(rt>=1) return;
+  }
+
+  const fontSize=DOT_R*2.55, fullH=fontSize*1.35, revealH=fullH*t, bottomY=center.y+fullH*0.5;
+  ctx.save();
+  ctx.font=`300 ${fontSize}px "Supreme", system-ui, sans-serif`;
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.fillStyle="rgba(255,255,255,1)";
+  ctx.beginPath();
+  ctx.rect(center.x-fontSize,bottomY-revealH,fontSize*2,revealH);
+  ctx.clip();
+  ctx.fillText(label,center.x,center.y+1);
+  ctx.restore();
+}
+function drawCornerNumber(ts){
+  drawNumberInPill(ts,cornerNumberVisible,cornerLine,cornerDots,cornerNumberAnim,cornerNumberStartTime,cornerNumberDuration,cornerNumberReverseAnim,cornerNumberReverseStartTime,cornerNumberReverseDuration,"1");
+  if(cornerNumberReverseAnim){
+    const rt=Math.min(1,(ts-cornerNumberReverseStartTime)/cornerNumberReverseDuration);
+    if(rt>=1){
+      cornerNumberReverseAnim=false;
+      cornerNumberVisible=false;
+    }
+  }
+}
+function drawCenterNumber(ts){
+  drawNumberInPill(ts,centerNumberVisible,centerLine,centerDots,centerNumberAnim,centerNumberStartTime,centerNumberDuration,false,0,0,"2");
+  if(centerNumberAnim){
+    const t=Math.min(1,(ts-centerNumberStartTime)/centerNumberDuration);
+    if(t>=1) centerNumberAnim=false;
+  }
+}
+function drawThirdPillNumber(ts){
+  drawNumberInPill(ts,thirdPillNumberVisible,thirdPillLine,thirdPillDots,thirdPillNumberAnim,thirdPillNumberStartTime,thirdPillNumberDuration,false,0,0,"3");
+  if(thirdPillNumberAnim){
+    const t=Math.min(1,(ts-thirdPillNumberStartTime)/thirdPillNumberDuration);
+    if(t>=1) thirdPillNumberAnim=false;
+  }
+}
+
+function drawLeftArrow(timestamp){
+  if(!leftArrowVisible||!page2.classList.contains("active")) return;
+  const center=cornerDots[1];
+  if(!center) return;
+
+  let t=1;
+  if(leftArrowAnim){
+    t=Math.min(1,(timestamp-leftArrowStartTime)/leftArrowDuration);
+    t=t*t*(3-2*t);
+    if(t>=1) leftArrowAnim=false;
+  } else if(leftArrowReverseAnim){
+    const rt=Math.min(1,(timestamp-leftArrowReverseStartTime)/leftArrowReverseDuration);
+    t=1-rt*rt*(3-2*rt);
+    if(rt>=1){
+      leftArrowReverseAnim=false;
+      leftArrowVisible=false;
+      return;
+    }
+  }
+
+  const x=center.x-(center.r??DOT_R)*4.5, y=center.y, arm=DOT_R*1.45, shaftLen=DOT_R*3.3, joinInset=DOT_R*0.22;
+  ctx.save();
+  ctx.strokeStyle="rgba(0,0,0,0.92)";
+  ctx.lineWidth=Math.max(2,DOT_R*0.32);
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+  const shaftPhase=Math.min(1,t/0.55);
+
+  ctx.beginPath();
+  ctx.moveTo(x+joinInset,y);
+  ctx.lineTo(x+joinInset+shaftLen*shaftPhase,y);
+  ctx.stroke();
+
+  if(t>0.55){
+    const hp=Math.min(1,(t-0.55)/0.45);
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    ctx.lineTo(x+arm*hp,y-arm*hp);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    ctx.lineTo(x+arm*hp,y+arm*hp);
     ctx.stroke();
   }
+  ctx.restore();
+}
 
-  drawDots();
+function drawRightArrow(timestamp){
+  if(!rightArrowVisible||!page2.classList.contains("active")) return;
+  const center=centerDots[1];
+  if(!center) return;
 
-  if(heroCircleVisible){
-    drawHeroCircle();
+  let t=1;
+  if(rightArrowAnim){
+    t=Math.min(1,(timestamp-rightArrowStartTime)/rightArrowDuration);
+    t=t*t*(3-2*t);
+    if(t>=1) rightArrowAnim=false;
+  } else if(rightArrowReverseAnim){
+    const rt=Math.min(1,(timestamp-rightArrowReverseStartTime)/rightArrowReverseDuration);
+    t=1-rt*rt*(3-2*rt);
+    if(rt>=1){
+      rightArrowReverseAnim=false;
+      rightArrowVisible=false;
+      return;
+    }
   }
 
-  if(circleAnim && typeof timestamp === "number"){
-    const t = Math.min(1, (timestamp - circleStartTime) / circleDuration);
-    const ease = t * t * (3 - 2 * t);
-    heroCircle.y = circleStartY + (circleEndY - circleStartY) * ease;
-    if(t < 1){
-      requestAnimationFrame(render);
-    } else {
-      circleAnim = false;
-      beltActive = true;
-      render();
-    }
+  const x=center.x-(center.r??DOT_R)*4.5, y=center.y, arm=DOT_R*1.45, shaftLen=DOT_R*3.3, joinInset=DOT_R*0.22;
+  ctx.save();
+  ctx.strokeStyle="rgba(0,0,0,0.92)";
+  ctx.lineWidth=Math.max(2,DOT_R*0.32);
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+
+  const shaftPhase=Math.min(1,t/0.55);
+  ctx.beginPath();
+  ctx.moveTo(x+joinInset,y);
+  ctx.lineTo(x+joinInset+shaftLen*shaftPhase,y);
+  ctx.stroke();
+
+  if(t>0.55){
+    const hp=Math.min(1,(t-0.55)/0.45);
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    ctx.lineTo(x+arm*hp,y-arm*hp);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    ctx.lineTo(x+arm*hp,y+arm*hp);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ===========================
+   REVERSE ANIMATIONS
+=========================== */
+function startCornerReverse(ts){
+  if(cornerReverseAnim||cornerSlideOutAnim) return;
+  cornerReverseAnim=true;
+  cornerReverseStartTime=ts||performance.now();
+  if(cornerNumberVisible&&!cornerNumberReverseAnim){
+    cornerNumberAnim=false;
+    cornerNumberReverseAnim=true;
+    cornerNumberReverseStartTime=ts||performance.now();
+  }
+  const center=cornerDots[1], gap=H*0.028;
+  cornerDotsVisible=true;
+  cornerDots[0]={x:center.x,y:center.y-gap,alpha:0,r:DOT_R};
+  cornerDots[1]={x:center.x,y:center.y,alpha:1,r:center.r??DOT_R*1.6};
+  cornerDots[2]={x:center.x,y:center.y+gap,alpha:0,r:DOT_R};
+  cornerLine.active=true;
+}
+function startCornerSlideOut(ts){
+  cornerSlideOutAnim=true;
+  cornerSlideOutStartTime=ts||performance.now();
+  const offX=W+W*0.04;
+  cornerSlideOutFrom=cornerDots.map(d=>({x:d.x,y:d.y,alpha:d.alpha??1,r:d.r??DOT_R}));
+  cornerSlideOutTo=cornerDots.map(d=>({x:offX,y:d.y,alpha:1,r:DOT_R}));
+}
+function startLeftReverse(ts){
+  if(leftReverseAnim||leftSlideOutAnim) return;
+  leftReverseAnim=true;
+  leftReverseStartTime=ts||performance.now();
+  if(leftArrowVisible&&!leftArrowReverseAnim){
+    leftArrowReverseAnim=true;
+    leftArrowReverseStartTime=ts||performance.now();
+  }
+  const center=leftDots[1], gap=H*0.028;
+  leftDotsVisible=true;
+  leftDots[0]={x:center.x,y:center.y-gap,alpha:0,r:DOT_R};
+  leftDots[1]={x:center.x,y:center.y,alpha:1,r:center.r??DOT_R*1.6};
+  leftDots[2]={x:center.x,y:center.y+gap,alpha:0,r:DOT_R};
+  leftLine.active=true;
+}
+function startLeftSlideOut(ts){
+  leftSlideOutAnim=true;
+  leftSlideOutStartTime=ts||performance.now();
+  const offX=-W*0.04;
+  leftSlideOutFrom=leftDots.map(d=>({x:d.x,y:d.y,alpha:d.alpha??1,r:d.r??DOT_R}));
+  leftSlideOutTo=leftDots.map(d=>({x:offX,y:d.y,alpha:1,r:DOT_R}));
+}
+function updateCornerReverse(ts){
+  if(!cornerReverseAnim) return;
+  const t=Math.min(1,(ts-cornerReverseStartTime)/cornerReverseDuration), ease=t*t*(3-2*t);
+  const center=cornerDots[1], topDot=cornerDots[0], bottomDot=cornerDots[2];
+  center.r=DOT_R*(1.6-0.6*ease);
+  topDot.alpha=ease;
+  bottomDot.alpha=ease;
+  const halfLen=H*0.028*1.1*(1-ease);
+  cornerLine.x1=center.x;
+  cornerLine.x2=center.x;
+  cornerLine.y1=center.y-halfLen;
+  cornerLine.y2=center.y+halfLen;
+  if(t>=1){
+    cornerReverseAnim=false;
+    cornerLine.active=false;
+    cornerDots[0].alpha=1;
+    cornerDots[1].alpha=1;
+    cornerDots[2].alpha=1;
+    cornerDots[1].r=DOT_R;
+    startCornerSlideOut(ts);
+  }
+}
+function updateCornerSlideOut(ts){
+  if(!cornerSlideOutAnim) return;
+  const t=Math.min(1,(ts-cornerSlideOutStartTime)/cornerSlideOutDuration), ease=t*t*(3-2*t);
+  for(let i=0;i<cornerDots.length;i++){
+    cornerDots[i].x=cornerSlideOutFrom[i].x+(cornerSlideOutTo[i].x-cornerSlideOutFrom[i].x)*ease;
+    cornerDots[i].y=cornerSlideOutFrom[i].y;
+    cornerDots[i].r=DOT_R;
+    cornerDots[i].alpha=1;
+  }
+  if(t>=1){
+    cornerSlideOutAnim=false;
+    cornerDotsVisible=false;
+  }
+}
+function updateLeftReverse(ts){
+  if(!leftReverseAnim) return;
+  const t=Math.min(1,(ts-leftReverseStartTime)/leftReverseDuration), ease=t*t*(3-2*t);
+  const center=leftDots[1], topDot=leftDots[0], bottomDot=leftDots[2];
+  center.r=DOT_R*(1.6-0.6*ease);
+  topDot.alpha=ease;
+  bottomDot.alpha=ease;
+  const halfLen=H*0.028*1.1*(1-ease);
+  leftLine.x1=center.x;
+  leftLine.x2=center.x;
+  leftLine.y1=center.y-halfLen;
+  leftLine.y2=center.y+halfLen;
+  if(t>=1){
+    leftReverseAnim=false;
+    leftLine.active=false;
+    leftDots[0].alpha=1;
+    leftDots[1].alpha=1;
+    leftDots[2].alpha=1;
+    leftDots[1].r=DOT_R;
+    startLeftSlideOut(ts);
+  }
+}
+function updateLeftSlideOut(ts){
+  if(!leftSlideOutAnim) return;
+  const t=Math.min(1,(ts-leftSlideOutStartTime)/leftSlideOutDuration), ease=t*t*(3-2*t);
+  for(let i=0;i<leftDots.length;i++){
+    leftDots[i].x=leftSlideOutFrom[i].x+(leftSlideOutTo[i].x-leftSlideOutFrom[i].x)*ease;
+    leftDots[i].y=leftSlideOutFrom[i].y;
+    leftDots[i].r=DOT_R;
+    leftDots[i].alpha=1;
+  }
+  if(t>=1){
+    leftSlideOutAnim=false;
+    leftDotsVisible=false;
+  }
+}
+
+/* pill 3 (center-right) */
+function startCenterReverse(ts){
+  if(centerReverseAnim||centerSlideOutAnim) return;
+  centerReverseAnim=true;
+  centerReverseStartTime=ts||performance.now();
+  if(centerNumberVisible){ centerNumberAnim=false; }
+  if(rightArrowVisible&&!rightArrowReverseAnim){
+    rightArrowReverseAnim=true;
+    rightArrowReverseStartTime=ts||performance.now();
+  }
+  const center=centerDots[1], gap=H*0.028;
+  centerDotsVisible=true;
+  centerDots[0]={x:center.x,y:center.y-gap,alpha:0,r:DOT_R};
+  centerDots[1]={x:center.x,y:center.y,alpha:1,r:center.r??DOT_R*1.6};
+  centerDots[2]={x:center.x,y:center.y+gap,alpha:0,r:DOT_R};
+  centerLine.active=true;
+}
+function startCenterSlideOut(ts){
+  centerSlideOutAnim=true;
+  centerSlideOutStartTime=ts||performance.now();
+  const offX=W+W*0.04;
+  centerSlideOutFrom=centerDots.map(d=>({x:d.x,y:d.y,alpha:d.alpha??1,r:d.r??DOT_R}));
+  centerSlideOutTo=centerDots.map(d=>({x:offX,y:d.y,alpha:1,r:DOT_R}));
+}
+function updateCenterReverse(ts){
+  if(!centerReverseAnim) return;
+  const t=Math.min(1,(ts-centerReverseStartTime)/centerReverseDuration), ease=t*t*(3-2*t);
+  const center=centerDots[1], topDot=centerDots[0], bottomDot=centerDots[2];
+  center.r=DOT_R*(1.6-0.6*ease);
+  topDot.alpha=ease;
+  bottomDot.alpha=ease;
+  const halfLen=H*0.028*1.1*(1-ease);
+  centerLine.x1=center.x;
+  centerLine.x2=center.x;
+  centerLine.y1=center.y-halfLen;
+  centerLine.y2=center.y+halfLen;
+  if(t>=1){
+    centerReverseAnim=false;
+    centerLine.active=false;
+    centerDots[0].alpha=1;
+    centerDots[1].alpha=1;
+    centerDots[2].alpha=1;
+    centerDots[1].r=DOT_R;
+    startCenterSlideOut(ts);
+  }
+}
+function updateCenterSlideOut(ts){
+  if(!centerSlideOutAnim) return;
+  const t=Math.min(1,(ts-centerSlideOutStartTime)/centerSlideOutDuration), ease=t*t*(3-2*t);
+  for(let i=0;i<centerDots.length;i++){
+    centerDots[i].x=centerSlideOutFrom[i].x+(centerSlideOutTo[i].x-centerSlideOutFrom[i].x)*ease;
+    centerDots[i].y=centerSlideOutFrom[i].y;
+    centerDots[i].r=DOT_R;
+    centerDots[i].alpha=1;
+  }
+  if(t>=1){
+    centerSlideOutAnim=false;
+    centerDotsVisible=false;
+  }
+}
+
+/* pill 4 (blank-left) */
+function startBlankReverse(ts){
+  if(blankReverseAnim||blankSlideOutAnim) return;
+  blankReverseAnim=true;
+  blankReverseStartTime=ts||performance.now();
+  const center=blankDots[1], gap=H*0.028;
+  blankDotsVisible=true;
+  blankDots[0]={x:center.x,y:center.y-gap,alpha:0,r:DOT_R};
+  blankDots[1]={x:center.x,y:center.y,alpha:1,r:center.r??DOT_R*1.6};
+  blankDots[2]={x:center.x,y:center.y+gap,alpha:0,r:DOT_R};
+  blankLine.active=true;
+}
+function startBlankSlideOut(ts){
+  blankSlideOutAnim=true;
+  blankSlideOutStartTime=ts||performance.now();
+  const offX=-W*0.04;
+  blankSlideOutFrom=blankDots.map(d=>({x:d.x,y:d.y,alpha:d.alpha??1,r:d.r??DOT_R}));
+  blankSlideOutTo=blankDots.map(d=>({x:offX,y:d.y,alpha:1,r:DOT_R}));
+}
+function updateBlankReverse(ts){
+  if(!blankReverseAnim) return;
+  const t=Math.min(1,(ts-blankReverseStartTime)/blankReverseDuration), ease=t*t*(3-2*t);
+  const center=blankDots[1], topDot=blankDots[0], bottomDot=blankDots[2];
+  center.r=DOT_R*(1.6-0.6*ease);
+  topDot.alpha=ease;
+  bottomDot.alpha=ease;
+  const halfLen=H*0.028*1.1*(1-ease);
+  blankLine.x1=center.x;
+  blankLine.x2=center.x;
+  blankLine.y1=center.y-halfLen;
+  blankLine.y2=center.y+halfLen;
+  if(t>=1){
+    blankReverseAnim=false;
+    blankLine.active=false;
+    blankDots[0].alpha=1;
+    blankDots[1].alpha=1;
+    blankDots[2].alpha=1;
+    blankDots[1].r=DOT_R;
+    startBlankSlideOut(ts);
+  }
+}
+function updateBlankSlideOut(ts){
+  if(!blankSlideOutAnim) return;
+  const t=Math.min(1,(ts-blankSlideOutStartTime)/blankSlideOutDuration), ease=t*t*(3-2*t);
+  for(let i=0;i<blankDots.length;i++){
+    blankDots[i].x=blankSlideOutFrom[i].x+(blankSlideOutTo[i].x-blankSlideOutFrom[i].x)*ease;
+    blankDots[i].y=blankSlideOutFrom[i].y;
+    blankDots[i].r=DOT_R;
+    blankDots[i].alpha=1;
+  }
+  if(t>=1){
+    blankSlideOutAnim=false;
+    blankDotsVisible=false;
   }
 }
 
 /* ===========================
-TRANSITION
+   SQUIGGLE
 =========================== */
-const FRAME_COUNT = 35;
-const FRAME_DELAY = 100;
-const frames = [];
-let framesLoaded = 0;
+function buildFullSquigglePoints(){
+  const x0=W*0.73, y0=sentenceLineBaseY, drawW=W*0.43, pts=[];
+  for(let i=0;i<=420;i++){
+    const t=i/420, env=0.30+0.70*Math.sin(t*Math.PI), baseX=x0-drawW*t;
+    const xChaos=Math.sin(t*Math.PI*4+0.5)*W*0.082*env+Math.cos(t*Math.PI*6.6+1.1)*W*0.044*env+Math.cos(t*Math.PI*1.6+1.3)*W*0.022*env+Math.sin(t*Math.PI*10.2+2.1)*W*0.009*env;
+    const y=y0+Math.sin(t*Math.PI*3+0.3)*H*0.034*env+Math.cos(t*Math.PI*1.8+1.8)*H*0.026*env+Math.sin(t*Math.PI*5.6+0.7)*H*0.016*env;
+    pts.push({x:baseX+xChaos,y});
+  }
+  return pts;
+}
+function buildRoundedRectPolyline(x,y,w,h,r){
+  const pts=[], as=16;
+  function pL(x1,y1,x2,y2,s=18){ for(let i=0;i<=s;i++){ const t=i/s; pts.push({x:x1+(x2-x1)*t,y:y1+(y2-y1)*t}); } }
+  function pA(cx,cy,rad,a0,a1,s=as){ for(let i=0;i<=s;i++){ const t=i/s, a=a0+(a1-a0)*t; pts.push({x:cx+Math.cos(a)*rad,y:cy+Math.sin(a)*rad}); } }
+  pL(x+r,y,x+w-r,y,20); pA(x+w-r,y+r,r,-Math.PI/2,0,as); pL(x+w,y+r,x+w,y+h-r,14); pA(x+w-r,y+h-r,r,0,Math.PI/2,as);
+  pL(x+w-r,y+h,x+r,y+h,20); pA(x+r,y+h-r,r,Math.PI/2,Math.PI,as); pL(x,y+h-r,x,y+r,14); pA(x+r,y+r,r,Math.PI,Math.PI*1.5,as);
+  return pts;
+}
+function buildResolvePath(){
+  const fullSq=buildFullSquigglePoints(), headIdx=Math.round(sentenceLineProgress*(fullSq.length-1));
+  const trail=Math.floor(SNAKE_TRAIL*fullSq.length), tailIdx=Math.max(0,headIdx-trail);
+  const squiggleTail=fullSq.slice(tailIdx,headIdx+1); snakeTrailPts=squiggleTail.length;
+  const startPt=fullSq[headIdx], rect=buildRoundedRectPolyline(sentenceBoxX,sentenceBoxY,sentenceBoxW,sentenceBoxH,sentenceBoxR), rectStart=rect[0];
+  const cp1={x:startPt.x-W*0.03,y:startPt.y-H*0.06}, cp2={x:rectStart.x+W*0.06,y:rectStart.y+H*0.05};
+  const tp=[];
+  for(let i=0;i<=90;i++){
+    const t=i/90;
+    tp.push(cubicPoint(startPt,cp1,cp2,rectStart,t));
+  }
+  resolvePath=[...squiggleTail,...tp,...rect];
+  resolveHeadT=(squiggleTail.length-1)/(resolvePath.length-1);
+}
+function getSentenceShapePoints(){
+  if(sentenceLineResolved) return buildRoundedRectPolyline(sentenceBoxX,sentenceBoxY,sentenceBoxW,sentenceBoxH,sentenceBoxR);
+  if(sentenceLineResolveAnim&&resolvePath.length>1){
+    const totalPts=resolvePath.length, headIdx=Math.min(totalPts-1,Math.round(resolveHeadT*(totalPts-1))), tailIdx=Math.max(0,headIdx-snakeTrailPts);
+    return resolvePath.slice(tailIdx,headIdx+1);
+  }
+  const fullSq=buildFullSquigglePoints(), totalPts=fullSq.length, headIdx=Math.min(totalPts-1,Math.round(sentenceLineProgress*(totalPts-1)));
+  if(headIdx<=0) return [fullSq[0],fullSq[0]];
+  const trail=Math.floor(SNAKE_TRAIL*totalPts), tailIdx=Math.max(0,headIdx-trail);
+  return fullSq.slice(tailIdx,headIdx+1);
+}
+function drawSentenceShape(){
+  if(!sentenceLineActive||!page2.classList.contains("active")) return;
+  const pts=getSentenceShapePoints();
+  if(!pts.length) return;
+  ctx.save();
+  ctx.strokeStyle="#111";
+  ctx.lineWidth=2.2;
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+  if(sentenceLineResolved) ctx.closePath();
+  ctx.stroke();
+  if(!sentenceLineResolved){
+    const tip=pts[pts.length-1];
+    ctx.fillStyle="#111";
+    ctx.beginPath();
+    ctx.arc(tip.x,tip.y,0.55,0,Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
 
-function lerp(a,b,t){ return a + (b-a) * t; }
-function frameSrc(i){ return `Animation_${i}.png`; }
+/* ===========================
+   ORANGE BLOB
+=========================== */
+function updateBlob(dt){
+  if(!blobActive||blobResolved||!page2.classList.contains("active")) return;
+  if(blobResolveAnim){
+    blobResolveT=Math.min(1,blobResolveT+dt*BLOB_RESOLVE_SPEED);
+    if(blobResolveT>=1){
+      blobResolveAnim=false;
+      blobResolved=true;
+      if(!thirdPillSequenceStarted){
+        thirdPillSequenceStarted=true;
+        setTimeout(()=>{
+          buildThirdPillDotsTargets();
+          thirdPillDotsVisible=true;
+          thirdPillDotsAnim=true;
+          thirdPillDotsStartTime=performance.now();
+          render();
+        }, 2200);
+      }
+    }
+    return;
+  }
 
+  const speed=Math.abs(blobMouseVX);
+  const speedNorm=clamp(speed/14, 0, 1.6);
+
+  if(speed>0.4) blobDirX=blobMouseVX<0?-1:1;
+
+  blobStretch+=(speedNorm-blobStretch)*0.18;
+  blobTail+=(speedNorm*1.1-blobTail)*0.14;
+  blobPhase+=speed*0.055;
+  blobMouseVX*=0.80;
+}
+
+function drawLiquidBlobPath(cx,cy,baseR,morphPhase,dirX,dirY,stretchAmt,tailAmt){
+  const N=64, pts=[];
+  for(let i=0;i<N;i++){
+    const a=(i/N)*Math.PI*2, nx=Math.cos(a), ny=Math.sin(a);
+    const dirDot=nx*dirX+ny*dirY;
+    const front=Math.max(0,dirDot), back=Math.max(0,-dirDot), side=1-Math.abs(dirDot);
+    const wobble=Math.sin(a*2+morphPhase*0.24)*baseR*0.18+Math.cos(a*3-morphPhase*0.15)*baseR*0.11+Math.sin(a*5+morphPhase*0.08)*baseR*0.06;
+    const directionalRadius=front*baseR*0.18*stretchAmt+back*baseR*0.72*tailAmt-side*baseR*0.12*stretchAmt;
+    const r=Math.max(baseR*0.42,baseR+wobble+directionalRadius);
+    const dragShift=(-back*back*baseR*0.65*tailAmt)+(front*front*baseR*0.10*stretchAmt);
+    pts.push({x:cx+nx*r+dirX*dragShift, y:cy+ny*r+dirY*dragShift});
+  }
+  ctx.beginPath();
+  ctx.moveTo((pts[N-1].x+pts[0].x)*0.5,(pts[N-1].y+pts[0].y)*0.5);
+  for(let i=0;i<N;i++){
+    const curr=pts[i], next=pts[(i+1)%N];
+    ctx.quadraticCurveTo(curr.x,curr.y,(curr.x+next.x)*0.5,(curr.y+next.y)*0.5);
+  }
+  ctx.closePath();
+}
+
+function drawBlob(){
+  if(!blobActive||!page2.classList.contains("active")) return;
+  const baseR=Math.min(sentenceBoxW,sentenceBoxH)*0.38;
+  ctx.save();
+  ctx.fillStyle="#F71F08";
+
+  if(blobResolved){
+    const r = sentenceBoxR;
+    const x = sentenceBoxX, y = sentenceBoxY, w = sentenceBoxW, h = sentenceBoxH;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
+    ctx.arcTo(x + w, y, x + w, y + r, r); ctx.lineTo(x + w, y + h - r);
+    ctx.arcTo(x + w, y + h, x + w - r, y + h, r); ctx.lineTo(x + r, y + h);
+    ctx.arcTo(x, y + h, x, y + h - r, r); ctx.lineTo(x, y + r);
+    ctx.arcTo(x, y, x + r, y, r);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
+
+  if(blobResolveAnim){
+    const ease = blobResolveT * blobResolveT * (3 - 2 * blobResolveT);
+    const rectCX = sentenceBoxX + sentenceBoxW * 0.5;
+    const rectCY = sentenceBoxY + sentenceBoxH * 0.5;
+    const targetR = sentenceBoxH * 0.5;
+    const phase1 = Math.min(1, ease / BLOB_PHASE_SPLIT);
+    const p1 = phase1 * phase1 * (3 - 2 * phase1);
+    const currentR = baseR + (targetR - baseR) * p1;
+    const deformFade = Math.max(0, 1 - phase1);
+    const stretchNow = blobStretch * deformFade;
+    const tailNow    = blobTail    * deformFade;
+
+    if(ease <= BLOB_PHASE_SPLIT){
+      const N = 64, pts = [];
+      for(let i = 0; i < N; i++){
+        const a = (i / N) * Math.PI * 2;
+        const nx = Math.cos(a), ny = Math.sin(a);
+        const dirDot = nx * blobDirX + ny * blobDirY;
+        const front = Math.max(0, dirDot), back = Math.max(0, -dirDot), side = 1 - Math.abs(dirDot);
+        const wobble = (
+          Math.sin(a * 2 + blobPhase * 0.24) * currentR * 0.18 +
+          Math.cos(a * 3 - blobPhase * 0.15) * currentR * 0.11 +
+          Math.sin(a * 5 + blobPhase * 0.08) * currentR * 0.06
+        ) * deformFade;
+        const directionalR = front * currentR * 0.18 * stretchNow + back * currentR * 0.72 * tailNow - side * currentR * 0.12 * stretchNow;
+        const r = Math.max(currentR * 0.55, currentR + wobble + directionalR);
+        const dragShift = (-back * back * currentR * 0.65 * tailNow + front * front * currentR * 0.10 * stretchNow) * deformFade;
+        pts.push({ x: rectCX + nx * r + blobDirX * dragShift, y: rectCY + ny * r + blobDirY * dragShift });
+      }
+      ctx.beginPath();
+      ctx.moveTo((pts[63].x + pts[0].x) * 0.5, (pts[63].y + pts[0].y) * 0.5);
+      for(let i = 0; i < 64; i++){
+        const curr = pts[i], next = pts[(i+1) % 64];
+        ctx.quadraticCurveTo(curr.x, curr.y, (curr.x+next.x)*0.5, (curr.y+next.y)*0.5);
+      }
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      const phase2 = (ease - BLOB_PHASE_SPLIT) / (1 - BLOB_PHASE_SPLIT);
+      const p2 = phase2 * phase2 * (3 - 2 * phase2);
+      const r = sentenceBoxR;
+      const halfH = sentenceBoxH * 0.5;
+      const halfW = targetR + (sentenceBoxW * 0.5 - targetR) * p2;
+      const x = rectCX - halfW;
+      const y = rectCY - halfH;
+      const w = halfW * 2;
+      const h = sentenceBoxH;
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.arcTo(x + w, y, x + w, y + r, r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+      ctx.lineTo(x + r, y + h);
+      ctx.arcTo(x, y + h, x, y + h - r, r);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.restore();
+    return;
+  }
+
+  drawLiquidBlobPath(blobCX,blobCY,baseR,blobPhase,blobDirX,blobDirY,blobStretch,blobTail);
+  ctx.fill();
+
+  if(blobRevealT < 1){
+    const ease = blobRevealT * blobRevealT * (3 - 2 * blobRevealT);
+    const innerR = (baseR + baseR * 0.5) * ease;
+    const outerR = baseR * 3.5;
+
+    ctx.save();
+    const inset = 1.5;
+    const bx = sentenceBoxX + inset, by = sentenceBoxY + inset;
+    const bw = sentenceBoxW - inset * 2, bh = sentenceBoxH - inset * 2;
+    const br = Math.max(0, sentenceBoxR - inset);
+    ctx.beginPath();
+    ctx.moveTo(bx + br, by);
+    ctx.lineTo(bx + bw - br, by);
+    ctx.arcTo(bx + bw, by, bx + bw, by + br, br);
+    ctx.lineTo(bx + bw, by + bh - br);
+    ctx.arcTo(bx + bw, by + bh, bx + bw - br, by + bh, br);
+    ctx.lineTo(bx + br, by + bh);
+    ctx.arcTo(bx, by + bh, bx, by + bh - br, br);
+    ctx.lineTo(bx, by + br);
+    ctx.arcTo(bx, by, bx + br, by, br);
+    ctx.closePath();
+    ctx.clip();
+
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(blobCX, blobCY, outerR, 0, Math.PI * 2, false);
+    ctx.arc(blobCX, blobCY, innerR, 0, Math.PI * 2, true);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+/* ===========================
+   CONTINUE PARTICLES
+=========================== */
+function initTextStrokes(){
+  textStrokesActive = true;
+  textStrokesResolved = false;
+  textStrokesResolving = false;
+  textStrokeProgress = 0;
+  textStrokeTargetProgress = 0;
+
+  continueParticles = [];
+  continueLetterPoints = [];
+  continueLetterPointsBuilt = false;
+
+  const cx = sentenceBoxX + sentenceBoxW * 0.5;
+  const cy = sentenceBoxY + sentenceBoxH * 0.5;
+
+  for(let i=0;i<CONTINUE_PARTICLE_COUNT;i++){
+    const rx = (Math.random() - 0.5) * sentenceBoxW * 0.78;
+    const ry = (Math.random() - 0.5) * sentenceBoxH * 0.62;
+    const a = Math.random() * Math.PI * 2;
+    const s = 0.03 + Math.random() * 0.06;
+
+    continueParticles.push({
+      x: cx + rx,
+      y: cy + ry,
+      vx: Math.cos(a) * s,
+      vy: Math.sin(a) * s,
+      sx: cx + rx,
+      sy: cy + ry,
+      targetIndex: -1
+    });
+  }
+
+  if(_otFontReady) buildContinueLetterPoints();
+}
+
+function updateTextStrokes(dt){
+  if(!textStrokesActive) return;
+
+  if(_otFontReady && !continueLetterPointsBuilt){
+    buildContinueLetterPoints();
+  }
+
+  const cx = sentenceBoxX + sentenceBoxW * 0.5;
+  const cy = sentenceBoxY + sentenceBoxH * 0.5;
+  const rxBound = sentenceBoxW * 0.5 - 8;
+  const ryBound = sentenceBoxH * 0.5 - 8;
+
+  if(!textStrokesResolving){
+    const prev = textStrokeProgress;
+    textStrokeProgress += (textStrokeTargetProgress - textStrokeProgress) * 0.12;
+    const drive = clamp((textStrokeProgress - prev) * 18, -1, 1);
+    const absDrive = Math.abs(drive);
+
+    for(let i=0;i<continueParticles.length;i++){
+      const p = continueParticles[i];
+
+      p.vx += (Math.random() - 0.5) * 0.0020;
+      p.vy += (Math.random() - 0.5) * 0.0020;
+
+      p.vx += -drive * (0.010 + Math.random() * 0.010);
+      p.vy += (Math.random() - 0.5) * 0.003 * absDrive;
+
+      p.vx *= 0.985;
+      p.vy *= 0.985;
+
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+
+      const nx = (p.x - cx) / rxBound;
+      const ny = (p.y - cy) / ryBound;
+      const d = nx * nx + ny * ny;
+
+      if(d > 1){
+        const len = Math.sqrt(d);
+        p.x = cx + (nx / len) * rxBound * 0.985;
+        p.y = cy + (ny / len) * ryBound * 0.985;
+        p.vx *= -0.35;
+        p.vy *= -0.35;
+      }
+    }
+
+    return;
+  }
+
+  textStrokeProgress = Math.min(1, textStrokeProgress + dt / CONTINUE_MORPH_DURATION);
+
+  if(!continueLetterPoints.length) return;
+
+  const morph = textStrokeProgress;
+
+  for(let i=0;i<continueParticles.length;i++){
+    const p = continueParticles[i];
+    const idx = ((p.targetIndex % continueLetterPoints.length) + continueLetterPoints.length) % continueLetterPoints.length;
+    const target = continueLetterPoints[idx];
+    p.x = p.sx + (target.x - p.sx) * morph;
+    p.y = p.sy + (target.y - p.sy) * morph;
+  }
+
+  textStrokesResolved = morph >= 0.999;
+}
+
+function startTextStrokesResolve(){
+  if(!textStrokesActive || textStrokesResolving) return;
+  textStrokesResolving = true;
+  textStrokeProgress = 0;
+
+  for(let i=0;i<continueParticles.length;i++){
+    continueParticles[i].sx = continueParticles[i].x;
+    continueParticles[i].sy = continueParticles[i].y;
+  }
+
+  if(_otFontReady && !continueLetterPointsBuilt){
+    buildContinueLetterPoints();
+  }
+}
+
+function drawTextStrokes(){
+  if(!textStrokesActive || !page2.classList.contains("active")) return;
+  if(!continueParticles.length) return;
+
+  ctx.save();
+
+  ctx.beginPath();
+  ctx.moveTo(sentenceBoxX + sentenceBoxR, sentenceBoxY);
+  ctx.lineTo(sentenceBoxX + sentenceBoxW - sentenceBoxR, sentenceBoxY);
+  ctx.arcTo(sentenceBoxX + sentenceBoxW, sentenceBoxY, sentenceBoxX + sentenceBoxW, sentenceBoxY + sentenceBoxR, sentenceBoxR);
+  ctx.lineTo(sentenceBoxX + sentenceBoxW, sentenceBoxY + sentenceBoxH - sentenceBoxR);
+  ctx.arcTo(sentenceBoxX + sentenceBoxW, sentenceBoxY + sentenceBoxH, sentenceBoxX + sentenceBoxW - sentenceBoxR, sentenceBoxY + sentenceBoxH, sentenceBoxR);
+  ctx.lineTo(sentenceBoxX + sentenceBoxR, sentenceBoxY + sentenceBoxH);
+  ctx.arcTo(sentenceBoxX, sentenceBoxY + sentenceBoxH, sentenceBoxX, sentenceBoxY + sentenceBoxH - sentenceBoxR, sentenceBoxR);
+  ctx.lineTo(sentenceBoxX, sentenceBoxY + sentenceBoxR);
+  ctx.arcTo(sentenceBoxX, sentenceBoxY, sentenceBoxX + sentenceBoxR, sentenceBoxY, sentenceBoxR);
+  ctx.closePath();
+  ctx.clip();
+
+  ctx.fillStyle = "#111";
+  for(let i=0;i<continueParticles.length;i++){
+    const p = continueParticles[i];
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, CONTINUE_PARTICLE_RADIUS, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+/* ===========================
+   PAGE 2 ANIMATIONS
+=========================== */
+function buildPage2DotTargets(){
+  dotsAnimStart=dots.map(d=>({x:d.x,y:d.y}));
+  const bottomY=H*0.78,farRightStart=W*1.05,gap=W*0.035;
+  dotsAnimTarget=dots.map((d,i)=>({x:farRightStart+i*gap,y:bottomY}));
+}
+function buildCornerDotsTargets(){
+  const x=W*0.955,y0=H*0.300,gap=H*0.028,sX=W+W*0.04;
+  cornerDotsStart=[{x:sX,y:y0},{x:sX,y:y0+gap},{x:sX,y:y0+gap*2}];
+  cornerDotsTarget=[{x,y:y0},{x,y:y0+gap},{x,y:y0+gap*2}];
+  cornerDots=cornerDotsStart.map(d=>({...d,alpha:1,r:DOT_R}));
+}
+function buildCenterDotsTargets(){
+  const x=W*0.955,y0=H*0.425,gap=H*0.028,sX=W+W*0.04;
+  centerDotsStart=[{x:sX,y:y0},{x:sX,y:y0+gap},{x:sX,y:y0+gap*2}];
+  centerDotsTarget=[{x,y:y0},{x,y:y0+gap},{x,y:y0+gap*2}];
+  centerDots=centerDotsStart.map(d=>({...d,alpha:1,r:DOT_R}));
+}
+function buildLeftDotsTargets(){
+  const x=W*0.28,y0=H*0.300,gap=H*0.028,sX=-W*0.04;
+  leftDotsStart=[{x:sX,y:y0},{x:sX,y:y0+gap},{x:sX,y:y0+gap*2}];
+  leftDotsTarget=[{x,y:y0},{x,y:y0+gap},{x,y:y0+gap*2}];
+  leftDots=leftDotsStart.map(d=>({...d,alpha:1,r:DOT_R}));
+  leftDotsVisible=true;
+  leftDotsAnim=true;
+  leftDotsStartTime=performance.now();
+}
+function buildBlankDotsTargets(){
+  const x=W*0.28,y0=H*0.425,gap=H*0.028,sX=-W*0.04;
+  blankDotsStart=[{x:sX,y:y0},{x:sX,y:y0+gap},{x:sX,y:y0+gap*2}];
+  blankDotsTarget=[{x,y:y0},{x,y:y0+gap},{x,y:y0+gap*2}];
+  blankDots=blankDotsStart.map(d=>({...d,alpha:1,r:DOT_R}));
+}
+function buildThirdPillDotsTargets(){
+  const x=W*0.955, y0=H*0.550, gap=H*0.028, sX=W+W*0.04;
+  thirdPillDotsStart=[{x:sX,y:y0},{x:sX,y:y0+gap},{x:sX,y:y0+gap*2}];
+  thirdPillDotsTarget=[{x,y:y0},{x,y:y0+gap},{x,y:y0+gap*2}];
+  thirdPillDots=thirdPillDotsStart.map(d=>({...d,alpha:1,r:DOT_R}));
+}
+function buildFourthPillDotsTargets(){
+  const x=W*0.28, y0=H*0.550, gap=H*0.028, sX=-W*0.04;
+  fourthPillDotsStart=[{x:sX,y:y0},{x:sX,y:y0+gap},{x:sX,y:y0+gap*2}];
+  fourthPillDotsTarget=[{x,y:y0},{x,y:y0+gap},{x,y:y0+gap*2}];
+  fourthPillDots=fourthPillDotsStart.map(d=>({...d,alpha:1,r:DOT_R}));
+}
+
+function updatePage2Animations(ts){
+  if(circleAnim){
+    const t=Math.min(1,(ts-circleStartTime)/circleDuration), ease=t*t*(3-2*t);
+    heroCircle.y=circleStartY+(circleEndY-circleStartY)*ease;
+    if(t>=1) circleAnim=false;
+  }
+  if(dotsAnim){
+    const t=Math.min(1,(ts-dotsAnimStartTime)/dotsAnimDuration), ease=t*t*(3-2*t);
+    for(let i=0;i<dots.length;i++){
+      dots[i].x=dotsAnimStart[i].x+(dotsAnimTarget[i].x-dotsAnimStart[i].x)*ease;
+      dots[i].y=dotsAnimStart[i].y+(dotsAnimTarget[i].y-dotsAnimStart[i].y)*ease;
+    }
+    if(t>=1){
+      dotsAnim=false;
+      for(let i=0;i<dots.length;i++){
+        dots[i].x=dotsAnimTarget[i].x;
+        dots[i].y=dotsAnimTarget[i].y;
+      }
+      buildCornerDotsTargets();
+      cornerDotsVisible=true;
+      cornerDotsAnim=true;
+      cornerDotsStartTime=ts;
+    }
+  }
+  if(cornerDotsAnim){
+    const t=Math.min(1,(ts-cornerDotsStartTime)/cornerDotsDuration), eo=1-Math.pow(1-t,3);
+    for(let i=0;i<cornerDots.length;i++){
+      cornerDots[i].x=cornerDotsStart[i].x+(cornerDotsTarget[i].x-cornerDotsStart[i].x)*eo;
+      cornerDots[i].y=cornerDotsStart[i].y+(cornerDotsTarget[i].y-cornerDotsStart[i].y)*eo;
+    }
+    if(t>=1){
+      cornerDotsAnim=false;
+      for(let i=0;i<cornerDots.length;i++){
+        cornerDots[i].x=cornerDotsTarget[i].x;
+        cornerDots[i].y=cornerDotsTarget[i].y;
+      }
+      cornerMergeAnim=true;
+      cornerMergeStartTime=ts;
+      const mid=cornerDots[1];
+      cornerLine.active=true;
+      cornerLine.x1=mid.x;
+      cornerLine.y1=mid.y;
+      cornerLine.x2=mid.x;
+      cornerLine.y2=mid.y;
+      cornerLine.t=0;
+    }
+  }
+  if(leftDotsAnim){
+    const t=Math.min(1,(ts-leftDotsStartTime)/leftDotsDuration), eo=1-Math.pow(1-t,3);
+    for(let i=0;i<leftDots.length;i++){
+      leftDots[i].x=leftDotsStart[i].x+(leftDotsTarget[i].x-leftDotsStart[i].x)*eo;
+      leftDots[i].y=leftDotsStart[i].y+(leftDotsTarget[i].y-leftDotsStart[i].y)*eo;
+    }
+    if(t>=1){
+      leftDotsAnim=false;
+      for(let i=0;i<leftDots.length;i++){
+        leftDots[i].x=leftDotsTarget[i].x;
+        leftDots[i].y=leftDotsTarget[i].y;
+      }
+      leftMergeAnim=true;
+      leftMergeStartTime=ts;
+      const mid=leftDots[1];
+      leftLine.active=true;
+      leftLine.x1=mid.x;
+      leftLine.y1=mid.y;
+      leftLine.x2=mid.x;
+      leftLine.y2=mid.y;
+      leftLine.t=0;
+    }
+  }
+  if(centerDotsAnim){
+    const t=Math.min(1,(ts-centerDotsStartTime)/centerDotsDuration), eo=1-Math.pow(1-t,3);
+    for(let i=0;i<centerDots.length;i++){
+      centerDots[i].x=centerDotsStart[i].x+(centerDotsTarget[i].x-centerDotsStart[i].x)*eo;
+      centerDots[i].y=centerDotsStart[i].y+(centerDotsTarget[i].y-centerDotsStart[i].y)*eo;
+    }
+    if(t>=1){
+      centerDotsAnim=false;
+      for(let i=0;i<centerDots.length;i++){
+        centerDots[i].x=centerDotsTarget[i].x;
+        centerDots[i].y=centerDotsTarget[i].y;
+      }
+      centerMergeAnim=true;
+      centerMergeStartTime=ts;
+      const mid=centerDots[1];
+      centerLine.active=true;
+      centerLine.x1=mid.x;
+      centerLine.y1=mid.y;
+      centerLine.x2=mid.x;
+      centerLine.y2=mid.y;
+      centerLine.t=0;
+    }
+  }
+  if(blankDotsAnim){
+    const t=Math.min(1,(ts-blankDotsStartTime)/blankDotsDuration), eo=1-Math.pow(1-t,3);
+    for(let i=0;i<blankDots.length;i++){
+      blankDots[i].x=blankDotsStart[i].x+(blankDotsTarget[i].x-blankDotsStart[i].x)*eo;
+      blankDots[i].y=blankDotsStart[i].y+(blankDotsTarget[i].y-blankDotsStart[i].y)*eo;
+    }
+    if(t>=1){
+      blankDotsAnim=false;
+      for(let i=0;i<blankDots.length;i++){
+        blankDots[i].x=blankDotsTarget[i].x;
+        blankDots[i].y=blankDotsTarget[i].y;
+      }
+      blankMergeAnim=true;
+      blankMergeStartTime=ts;
+      const mid=blankDots[1];
+      blankLine.active=true;
+      blankLine.x1=mid.x;
+      blankLine.y1=mid.y;
+      blankLine.x2=mid.x;
+      blankLine.y2=mid.y;
+      blankLine.t=0;
+
+      blobActive=true;
+      blobCX=sentenceBoxX+sentenceBoxW*0.5;
+      blobCY=sentenceBoxY+sentenceBoxH*0.5;
+      blobProgress=0;
+      blobTargetProgress=0;
+      blobPhase=0;
+      blobStretch=0;
+      blobTail=0;
+      blobDirX=-1;
+      blobDirY=0;
+      blobMouseVX=0;
+      blobLastMouseX=null;
+      blobFlyPath=[];
+      blobRevealT=0;
+      blobRevealAnim=true;
+      blobRevealStartTime=performance.now();
+    }
+  }
+  if(thirdPillDotsAnim){
+    const t=Math.min(1,(ts-thirdPillDotsStartTime)/thirdPillDotsDuration), eo=1-Math.pow(1-t,3);
+    for(let i=0;i<thirdPillDots.length;i++){
+      thirdPillDots[i].x=thirdPillDotsStart[i].x+(thirdPillDotsTarget[i].x-thirdPillDotsStart[i].x)*eo;
+      thirdPillDots[i].y=thirdPillDotsStart[i].y+(thirdPillDotsTarget[i].y-thirdPillDotsStart[i].y)*eo;
+    }
+    if(t>=1){
+      thirdPillDotsAnim=false;
+      for(let i=0;i<thirdPillDots.length;i++){
+        thirdPillDots[i].x=thirdPillDotsTarget[i].x;
+        thirdPillDots[i].y=thirdPillDotsTarget[i].y;
+      }
+      thirdPillMergeAnim=true;
+      thirdPillMergeStartTime=ts;
+      const mid=thirdPillDots[1];
+      thirdPillLine.active=true;
+      thirdPillLine.x1=mid.x;
+      thirdPillLine.y1=mid.y;
+      thirdPillLine.x2=mid.x;
+      thirdPillLine.y2=mid.y;
+      thirdPillLine.t=0;
+    }
+  }
+  if(fourthPillDotsAnim){
+    const t=Math.min(1,(ts-fourthPillDotsStartTime)/fourthPillDotsDuration), eo=1-Math.pow(1-t,3);
+    for(let i=0;i<fourthPillDots.length;i++){
+      fourthPillDots[i].x=fourthPillDotsStart[i].x+(fourthPillDotsTarget[i].x-fourthPillDotsStart[i].x)*eo;
+      fourthPillDots[i].y=fourthPillDotsStart[i].y+(fourthPillDotsTarget[i].y-fourthPillDotsStart[i].y)*eo;
+    }
+    if(t>=1){
+      fourthPillDotsAnim=false;
+      for(let i=0;i<fourthPillDots.length;i++){
+        fourthPillDots[i].x=fourthPillDotsTarget[i].x;
+        fourthPillDots[i].y=fourthPillDotsTarget[i].y;
+      }
+      fourthPillMergeAnim=true;
+      fourthPillMergeStartTime=ts;
+      const mid=fourthPillDots[1];
+      fourthPillLine.active=true;
+      fourthPillLine.x1=mid.x;
+      fourthPillLine.y1=mid.y;
+      fourthPillLine.x2=mid.x;
+      fourthPillLine.y2=mid.y;
+      fourthPillLine.t=0;
+    }
+  }
+}
+
+function updateFourthPillMerge(ts){
+  if(!fourthPillMergeAnim||!fourthPillLine.active) return;
+  const t=Math.min(1,(ts-fourthPillMergeStartTime)/fourthPillMergeDuration), ease=t*t*(3-2*t);
+  const center=fourthPillDots[1], topDot=fourthPillDots[0], bottomDot=fourthPillDots[2];
+  const targetHalfLen=Math.abs(bottomDot.y-topDot.y)*0.55, dotPhaseEnd=0.4;
+  center.r=DOT_R*(1+0.6*Math.min(1,ease/dotPhaseEnd));
+  center.alpha=1;
+  let lineT=0;
+  if(ease>dotPhaseEnd) lineT=Math.max(0,Math.min(1,(ease-dotPhaseEnd)/(1-dotPhaseEnd)));
+  fourthPillLine.x1=center.x;
+  fourthPillLine.y1=center.y-targetHalfLen*lineT;
+  fourthPillLine.x2=center.x;
+  fourthPillLine.y2=center.y+targetHalfLen*lineT;
+  fourthPillLine.t=lineT;
+  topDot.alpha=1;
+  bottomDot.alpha=1;
+  if(t>=1){
+    fourthPillMergeAnim=false;
+    mergeFadeHelper(topDot,bottomDot,center,()=>{
+      fourthPillDotsVisible=false;
+      topDot.alpha=0;
+      bottomDot.alpha=0;
+      center.alpha=1;
+    });
+    initTextStrokes();
+  }
+}
+
+function startFourthPillReverse(ts){
+  if(fourthPillReverseAnim||fourthPillSlideOutAnim) return;
+  fourthPillReverseAnim=true;
+  fourthPillReverseStartTime=ts||performance.now();
+  const center=fourthPillDots[1], gap=H*0.028;
+  fourthPillDotsVisible=true;
+  fourthPillDots[0]={x:center.x,y:center.y-gap,alpha:0,r:DOT_R};
+  fourthPillDots[1]={x:center.x,y:center.y,alpha:1,r:center.r??DOT_R*1.6};
+  fourthPillDots[2]={x:center.x,y:center.y+gap,alpha:0,r:DOT_R};
+  fourthPillLine.active=true;
+}
+function startFourthPillSlideOut(ts){
+  fourthPillSlideOutAnim=true;
+  fourthPillSlideOutStartTime=ts||performance.now();
+  const offX=-W*0.04;
+  fourthPillSlideOutFrom=fourthPillDots.map(d=>({x:d.x,y:d.y,alpha:d.alpha??1,r:d.r??DOT_R}));
+  fourthPillSlideOutTo=fourthPillDots.map(d=>({x:offX,y:d.y,alpha:1,r:DOT_R}));
+}
+function updateFourthPillReverse(ts){
+  if(!fourthPillReverseAnim) return;
+  const t=Math.min(1,(ts-fourthPillReverseStartTime)/fourthPillReverseDuration), ease=t*t*(3-2*t);
+  const center=fourthPillDots[1], topDot=fourthPillDots[0], bottomDot=fourthPillDots[2];
+  center.r=DOT_R*(1.6-0.6*ease);
+  topDot.alpha=ease;
+  bottomDot.alpha=ease;
+  const halfLen=H*0.028*1.1*(1-ease);
+  fourthPillLine.x1=center.x;
+  fourthPillLine.x2=center.x;
+  fourthPillLine.y1=center.y-halfLen;
+  fourthPillLine.y2=center.y+halfLen;
+  if(t>=1){
+    fourthPillReverseAnim=false;
+    fourthPillLine.active=false;
+    fourthPillDots[0].alpha=1;
+    fourthPillDots[1].alpha=1;
+    fourthPillDots[2].alpha=1;
+    fourthPillDots[1].r=DOT_R;
+    startFourthPillSlideOut(ts);
+  }
+}
+function updateFourthPillSlideOut(ts){
+  if(!fourthPillSlideOutAnim) return;
+  const t=Math.min(1,(ts-fourthPillSlideOutStartTime)/fourthPillSlideOutDuration), ease=t*t*(3-2*t);
+  for(let i=0;i<fourthPillDots.length;i++){
+    fourthPillDots[i].x=fourthPillSlideOutFrom[i].x+(fourthPillSlideOutTo[i].x-fourthPillSlideOutFrom[i].x)*ease;
+    fourthPillDots[i].y=fourthPillSlideOutFrom[i].y;
+    fourthPillDots[i].r=DOT_R;
+    fourthPillDots[i].alpha=1;
+  }
+  if(t>=1){
+    fourthPillSlideOutAnim=false;
+    fourthPillDotsVisible=false;
+  }
+}
+
+function mergeFadeHelper(topDot, bottomDot, center, onDone){
+  const fadeDuration=220, start=performance.now();
+  function fadeStep(now){
+    const ft=Math.min(1,(now-start)/fadeDuration), f=1-ft;
+    topDot.alpha=f;
+    bottomDot.alpha=f;
+    if(ft<1){
+      requestAnimationFrame(fadeStep);
+    } else {
+      onDone();
+    }
+    render();
+  }
+  requestAnimationFrame(fadeStep);
+}
+
+function updateCornerMerge(ts){
+  if(!cornerMergeAnim||!cornerLine.active) return;
+  const t=Math.min(1,(ts-cornerMergeStartTime)/cornerMergeDuration), ease=t*t*(3-2*t);
+  const center=cornerDots[1], topDot=cornerDots[0], bottomDot=cornerDots[2];
+  const targetHalfLen=Math.abs(bottomDot.y-topDot.y)*0.55, dotPhaseEnd=0.4;
+  center.r=DOT_R*(1+0.6*Math.min(1,ease/dotPhaseEnd));
+  center.alpha=1;
+  let lineT=0;
+  if(ease>dotPhaseEnd) lineT=Math.max(0,Math.min(1,(ease-dotPhaseEnd)/(1-dotPhaseEnd)));
+  cornerLine.x1=center.x;
+  cornerLine.y1=center.y-targetHalfLen*lineT;
+  cornerLine.x2=center.x;
+  cornerLine.y2=center.y+targetHalfLen*lineT;
+  cornerLine.t=lineT;
+  topDot.alpha=1;
+  bottomDot.alpha=1;
+  if(t>=1){
+    cornerMergeAnim=false;
+    cornerNumberVisible=true;
+    cornerNumberAnim=true;
+    cornerNumberReverseAnim=false;
+    cornerNumberStartTime=ts;
+    beltActive=true;
+    beltMouseEnabled=true;
+    mergeFadeHelper(topDot,bottomDot,center,()=>{
+      cornerDotsVisible=false;
+      topDot.alpha=0;
+      bottomDot.alpha=0;
+      center.alpha=1;
+    });
+  }
+}
+function updateLeftMerge(ts){
+  if(!leftMergeAnim||!leftLine.active) return;
+  const t=Math.min(1,(ts-leftMergeStartTime)/leftMergeDuration), ease=t*t*(3-2*t);
+  const center=leftDots[1], topDot=leftDots[0], bottomDot=leftDots[2];
+  const targetHalfLen=Math.abs(bottomDot.y-topDot.y)*0.55, dotPhaseEnd=0.4;
+  center.r=DOT_R*(1+0.6*Math.min(1,ease/dotPhaseEnd));
+  center.alpha=1;
+  let lineT=0;
+  if(ease>dotPhaseEnd) lineT=Math.max(0,Math.min(1,(ease-dotPhaseEnd)/(1-dotPhaseEnd)));
+  leftLine.x1=center.x;
+  leftLine.y1=center.y-targetHalfLen*lineT;
+  leftLine.x2=center.x;
+  leftLine.y2=center.y+targetHalfLen*lineT;
+  leftLine.t=lineT;
+  topDot.alpha=1;
+  bottomDot.alpha=1;
+  if(t>=1){
+    leftMergeAnim=false;
+    mergeFadeHelper(topDot,bottomDot,center,()=>{
+      leftDotsVisible=false;
+      topDot.alpha=0;
+      bottomDot.alpha=0;
+      center.alpha=1;
+    });
+  }
+}
+function updateCenterMerge(ts){
+  if(!centerMergeAnim||!centerLine.active) return;
+  const t=Math.min(1,(ts-centerMergeStartTime)/centerMergeDuration), ease=t*t*(3-2*t);
+  const center=centerDots[1], topDot=centerDots[0], bottomDot=centerDots[2];
+  const targetHalfLen=Math.abs(bottomDot.y-topDot.y)*0.55, dotPhaseEnd=0.4;
+  center.r=DOT_R*(1+0.6*Math.min(1,ease/dotPhaseEnd));
+  center.alpha=1;
+  let lineT=0;
+  if(ease>dotPhaseEnd) lineT=Math.max(0,Math.min(1,(ease-dotPhaseEnd)/(1-dotPhaseEnd)));
+  centerLine.x1=center.x;
+  centerLine.y1=center.y-targetHalfLen*lineT;
+  centerLine.x2=center.x;
+  centerLine.y2=center.y+targetHalfLen*lineT;
+  centerLine.t=lineT;
+  topDot.alpha=1;
+  bottomDot.alpha=1;
+  if(t>=1){
+    centerMergeAnim=false;
+    centerNumberVisible=true;
+    centerNumberAnim=true;
+    centerNumberStartTime=ts;
+    mergeFadeHelper(topDot,bottomDot,center,()=>{
+      centerDotsVisible=false;
+      topDot.alpha=0;
+      bottomDot.alpha=0;
+      center.alpha=1;
+    });
+  }
+}
+function updateBlankMerge(ts){
+  if(!blankMergeAnim||!blankLine.active) return;
+  const t=Math.min(1,(ts-blankMergeStartTime)/blankMergeDuration), ease=t*t*(3-2*t);
+  const center=blankDots[1], topDot=blankDots[0], bottomDot=blankDots[2];
+  const targetHalfLen=Math.abs(bottomDot.y-topDot.y)*0.55, dotPhaseEnd=0.4;
+  center.r=DOT_R*(1+0.6*Math.min(1,ease/dotPhaseEnd));
+  center.alpha=1;
+  let lineT=0;
+  if(ease>dotPhaseEnd) lineT=Math.max(0,Math.min(1,(ease-dotPhaseEnd)/(1-dotPhaseEnd)));
+  blankLine.x1=center.x;
+  blankLine.y1=center.y-targetHalfLen*lineT;
+  blankLine.x2=center.x;
+  blankLine.y2=center.y+targetHalfLen*lineT;
+  blankLine.t=lineT;
+  topDot.alpha=1;
+  bottomDot.alpha=1;
+  if(t>=1){
+    blankMergeAnim=false;
+    mergeFadeHelper(topDot,bottomDot,center,()=>{
+      blankDotsVisible=false;
+      topDot.alpha=0;
+      bottomDot.alpha=0;
+      center.alpha=1;
+    });
+  }
+}
+
+function updateThirdPillMerge(ts){
+  if(!thirdPillMergeAnim||!thirdPillLine.active) return;
+  const t=Math.min(1,(ts-thirdPillMergeStartTime)/thirdPillMergeDuration), ease=t*t*(3-2*t);
+  const center=thirdPillDots[1], topDot=thirdPillDots[0], bottomDot=thirdPillDots[2];
+  const targetHalfLen=Math.abs(bottomDot.y-topDot.y)*0.55, dotPhaseEnd=0.4;
+  center.r=DOT_R*(1+0.6*Math.min(1,ease/dotPhaseEnd));
+  center.alpha=1;
+  let lineT=0;
+  if(ease>dotPhaseEnd) lineT=Math.max(0,Math.min(1,(ease-dotPhaseEnd)/(1-dotPhaseEnd)));
+  thirdPillLine.x1=center.x;
+  thirdPillLine.y1=center.y-targetHalfLen*lineT;
+  thirdPillLine.x2=center.x;
+  thirdPillLine.y2=center.y+targetHalfLen*lineT;
+  thirdPillLine.t=lineT;
+  topDot.alpha=1;
+  bottomDot.alpha=1;
+  if(t>=1){
+    thirdPillMergeAnim=false;
+    thirdPillNumberVisible=true;
+    thirdPillNumberAnim=true;
+    thirdPillNumberStartTime=ts;
+    mergeFadeHelper(topDot,bottomDot,center,()=>{
+      thirdPillDotsVisible=false;
+      topDot.alpha=0;
+      bottomDot.alpha=0;
+      center.alpha=1;
+    });
+  }
+}
+
+function startThirdPillReverse(ts){
+  if(thirdPillReverseAnim||thirdPillSlideOutAnim) return;
+  thirdPillReverseAnim=true;
+  thirdPillReverseStartTime=ts||performance.now();
+  const center=thirdPillDots[1], gap=H*0.028;
+  thirdPillDotsVisible=true;
+  thirdPillDots[0]={x:center.x,y:center.y-gap,alpha:0,r:DOT_R};
+  thirdPillDots[1]={x:center.x,y:center.y,alpha:1,r:center.r??DOT_R*1.6};
+  thirdPillDots[2]={x:center.x,y:center.y+gap,alpha:0,r:DOT_R};
+  thirdPillLine.active=true;
+}
+function startThirdPillSlideOut(ts){
+  thirdPillSlideOutAnim=true;
+  thirdPillSlideOutStartTime=ts||performance.now();
+  const offX=W+W*0.04;
+  thirdPillSlideOutFrom=thirdPillDots.map(d=>({x:d.x,y:d.y,alpha:d.alpha??1,r:d.r??DOT_R}));
+  thirdPillSlideOutTo=thirdPillDots.map(d=>({x:offX,y:d.y,alpha:1,r:DOT_R}));
+}
+function updateThirdPillReverse(ts){
+  if(!thirdPillReverseAnim) return;
+  const t=Math.min(1,(ts-thirdPillReverseStartTime)/thirdPillReverseDuration), ease=t*t*(3-2*t);
+  const center=thirdPillDots[1], topDot=thirdPillDots[0], bottomDot=thirdPillDots[2];
+  center.r=DOT_R*(1.6-0.6*ease);
+  topDot.alpha=ease;
+  bottomDot.alpha=ease;
+  const halfLen=H*0.028*1.1*(1-ease);
+  thirdPillLine.x1=center.x;
+  thirdPillLine.x2=center.x;
+  thirdPillLine.y1=center.y-halfLen;
+  thirdPillLine.y2=center.y+halfLen;
+  if(t>=1){
+    thirdPillReverseAnim=false;
+    thirdPillLine.active=false;
+    thirdPillDots[0].alpha=1;
+    thirdPillDots[1].alpha=1;
+    thirdPillDots[2].alpha=1;
+    thirdPillDots[1].r=DOT_R;
+    startThirdPillSlideOut(ts);
+  }
+}
+function updateThirdPillSlideOut(ts){
+  if(!thirdPillSlideOutAnim) return;
+  const t=Math.min(1,(ts-thirdPillSlideOutStartTime)/thirdPillSlideOutDuration), ease=t*t*(3-2*t);
+  for(let i=0;i<thirdPillDots.length;i++){
+    thirdPillDots[i].x=thirdPillSlideOutFrom[i].x+(thirdPillSlideOutTo[i].x-thirdPillSlideOutFrom[i].x)*ease;
+    thirdPillDots[i].y=thirdPillSlideOutFrom[i].y;
+    thirdPillDots[i].r=DOT_R;
+    thirdPillDots[i].alpha=1;
+  }
+  if(t>=1){
+    thirdPillSlideOutAnim=false;
+    thirdPillDotsVisible=false;
+  }
+}
+
+/* ===========================
+   MASTER RENDER
+=========================== */
+function render(timestamp){
+  if(typeof timestamp==="number"){
+    updatePage2Animations(timestamp);
+    updateCornerMerge(timestamp);
+    updateLeftMerge(timestamp);
+    updateCenterMerge(timestamp);
+    updateBlankMerge(timestamp);
+    updateThirdPillMerge(timestamp);
+    updateFourthPillMerge(timestamp);
+    updateCornerReverse(timestamp);
+    updateCornerSlideOut(timestamp);
+    updateLeftReverse(timestamp);
+    updateLeftSlideOut(timestamp);
+    updateCenterReverse(timestamp);
+    updateCenterSlideOut(timestamp);
+    updateBlankReverse(timestamp);
+    updateBlankSlideOut(timestamp);
+    updateThirdPillReverse(timestamp);
+    updateThirdPillSlideOut(timestamp);
+    updateFourthPillReverse(timestamp);
+    updateFourthPillSlideOut(timestamp);
+
+    if(!lastTimestamp) lastTimestamp=timestamp;
+    const dt=timestamp-lastTimestamp;
+    lastTimestamp=timestamp;
+
+    sentenceLineProgress+=(sentenceLineTargetProgress-sentenceLineProgress)*0.25;
+    if(sentenceLineResolveAnim){
+      resolveHeadT=Math.min(1,resolveHeadT+dt*RESOLVE_SPEED);
+      if(resolveHeadT>=1){
+        sentenceLineResolveAnim=false;
+        sentenceLineResolved=true;
+      }
+    }
+
+    updateBlob(dt);
+    updateTextStrokes(dt);
+
+    if(blobRevealAnim){
+      blobRevealT = Math.min(1, (timestamp - blobRevealStartTime) / BLOB_REVEAL_DURATION);
+      if(blobRevealT >= 1){
+        blobRevealAnim = false;
+        blobRevealT = 1;
+      }
+    }
+
+    if(cornerLineLoading&&!cornerLineLoaded){
+      cornerLineLoad+=dt/cornerLineLoadDuration;
+      if(cornerLineLoad>=1){
+        cornerLineLoad=1;
+        cornerLineLoaded=true;
+        cornerLineLoading=false;
+        sentenceLineActive=true;
+        sentenceLineResolved=false;
+        sentenceLineResolveAnim=false;
+        sentenceLineProgress=0;
+        sentenceLineTargetProgress=0;
+        beltHighlightRow=0;
+        beltHighlightActive=true;
+        beltHighlightFade=0;
+        beltHighlightFadeIn=true;
+        beltHighlightFadeOut=false;
+        beltHighlightStartTime=timestamp||performance.now();
+        if(!leftSequenceStarted){
+          leftSequenceStarted=true;
+          leftArrowVisible=true;
+          leftArrowAnim=true;
+          leftArrowStartTime=timestamp||performance.now();
+          buildLeftDotsTargets();
+        }
+      }
+    }
+    if(leftLineLoading&&!leftLineLoaded){
+      leftLineLoad+=dt/leftLineLoadDuration;
+      if(leftLineLoad>=1){
+        leftLineLoad=1;
+        leftLineLoaded=true;
+        leftLineLoading=false;
+        beltHighlightFadeOut=true;
+        beltHighlightFadeIn=false;
+        beltHighlightFadeOutStartTime=timestamp||performance.now();
+        buildResolvePath();
+        sentenceLineResolveAnim=true;
+        setTimeout(()=>{
+          buildCenterDotsTargets();
+          centerDotsVisible=true;
+          centerDotsAnim=true;
+          centerDotsStartTime=performance.now();
+          render();
+        },2200);
+      }
+    }
+    if(centerLineLoading&&!centerLineLoaded){
+      centerLineLoad+=dt/centerLineLoadDuration;
+      if(centerLineLoad>=1){
+        centerLineLoad=1;
+        centerLineLoaded=true;
+        centerLineLoading=false;
+        beltHighlightRow=1;
+        beltHighlightActive=true;
+        beltHighlightFade=0;
+        beltHighlightFadeIn=true;
+        beltHighlightFadeOut=false;
+        beltHighlightStartTime=timestamp||performance.now();
+        rightArrowVisible=true;
+        rightArrowAnim=true;
+        rightArrowStartTime=timestamp||performance.now();
+        buildBlankDotsTargets();
+        blankDotsVisible=true;
+        blankDotsAnim=true;
+        blankDotsStartTime=timestamp||performance.now();
+      }
+    }
+    if(blankLineLoading&&!blankLineLoaded){
+      blankLineLoad+=dt/blankLineLoadDuration;
+      if(blankLineLoad>=1){
+        blankLineLoad=1;
+        blankLineLoaded=true;
+        blankLineLoading=false;
+        blobResolveAnim=true;
+        blobResolveT=0;
+        beltHighlightFadeOut=true;
+        beltHighlightFadeIn=false;
+        beltHighlightFadeOutStartTime=timestamp||performance.now();
+      }
+    }
+
+    if(thirdPillLineLoading&&!thirdPillLineLoaded){
+      thirdPillLineLoad+=dt/thirdPillLineLoadDuration;
+      if(thirdPillLineLoad>=1){
+        thirdPillLineLoad=1;
+        thirdPillLineLoaded=true;
+        thirdPillLineLoading=false;
+        beltHighlightRow=2;
+        beltHighlightActive=true;
+        beltHighlightFade=0;
+        beltHighlightFadeIn=true;
+        beltHighlightFadeOut=false;
+        beltHighlightStartTime=timestamp||performance.now();
+        buildFourthPillDotsTargets();
+        fourthPillDotsVisible=true;
+        fourthPillDotsAnim=true;
+        fourthPillDotsStartTime=timestamp||performance.now();
+      }
+    }
+    if(fourthPillLineLoading&&!fourthPillLineLoaded){
+      fourthPillLineLoad+=dt/fourthPillLineLoadDuration;
+      if(fourthPillLineLoad>=1){
+        fourthPillLineLoad=1;
+        fourthPillLineLoaded=true;
+        fourthPillLineLoading=false;
+        startTextStrokesResolve();
+      }
+    }
+
+    if(blobResolved&&!pillsResolveStarted){
+      pillsResolveStarted=true;
+      startCenterReverse(timestamp);
+      startBlankReverse(timestamp);
+    }
+    if(sentenceLineResolved&&!hoverReverseStarted){
+      hoverReverseStarted=true;
+      startCornerReverse(timestamp);
+      startLeftReverse(timestamp);
+    }
+
+    if(beltHighlightActive){
+      const now=timestamp||performance.now();
+      if(beltHighlightFadeIn){
+        const elapsed=now-beltHighlightStartTime, t=Math.min(1,elapsed/beltHighlightFadeDuration);
+        beltHighlightFade=t*t*(3-2*t);
+        if(t>=1) beltHighlightFadeIn=false;
+      }
+      if(beltHighlightFadeOut){
+        const elapsed=now-beltHighlightFadeOutStartTime, t=Math.min(1,elapsed/beltHighlightFadeOutDuration), ease=t*t*(3-2*t);
+        beltHighlightFade=1-ease;
+        if(t>=1){
+          beltHighlightFadeOut=false;
+          beltHighlightActive=false;
+          beltHighlightFade=0;
+        }
+      }
+    }
+  }
+
+  ctx.clearRect(0,0,W,H);
+
+  if(!playingTransition&&page1.classList.contains("active")&&strokePts.length>1){
+    ctx.strokeStyle="#F71F08";
+    ctx.lineWidth=LINE_W;
+    ctx.lineCap="round";
+    ctx.lineJoin="round";
+    ctx.beginPath();
+    ctx.moveTo(strokePts[0].x,strokePts[0].y);
+    for(let i=1;i<strokePts.length;i++) ctx.lineTo(strokePts[i].x,strokePts[i].y);
+    if(drawing&&strokePts.length) ctx.lineTo(pointer.x,pointer.y);
+    ctx.stroke();
+  }
+
+  drawDots();
+  drawCornerDots(); drawCornerLine(); drawCornerLineLoader(); drawCornerNumber(timestamp||performance.now());
+  drawCenterDots(); drawCenterLine(); drawCenterLineLoader(); drawCenterNumber(timestamp||performance.now()); drawRightArrow(timestamp||performance.now());
+  drawThirdPillDots(); drawThirdPillLine(); drawThirdPillLineLoader(); drawThirdPillNumber(timestamp||performance.now());
+  drawFourthPillDots(); drawFourthPillLine(); drawFourthPillLineLoader();
+  drawBlankDots(); drawBlankLine(); drawBlankLineLoader();
+  drawLeftDots(); drawLeftLine(); drawLeftLineLoader(); drawLeftArrow(timestamp||performance.now());
+  drawSentenceShape();
+  drawBlob();
+  drawTextStrokes();
+
+  if(blobActive && page2.classList.contains("active")){
+    ctx.save();
+    ctx.strokeStyle = "rgba(0,0,0,0.92)";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(sentenceBoxX + sentenceBoxR, sentenceBoxY);
+    ctx.lineTo(sentenceBoxX + sentenceBoxW - sentenceBoxR, sentenceBoxY);
+    ctx.arcTo(sentenceBoxX + sentenceBoxW, sentenceBoxY, sentenceBoxX + sentenceBoxW, sentenceBoxY + sentenceBoxR, sentenceBoxR);
+    ctx.lineTo(sentenceBoxX + sentenceBoxW, sentenceBoxY + sentenceBoxH - sentenceBoxR);
+    ctx.arcTo(sentenceBoxX + sentenceBoxW, sentenceBoxY + sentenceBoxH, sentenceBoxX + sentenceBoxW - sentenceBoxR, sentenceBoxY + sentenceBoxH, sentenceBoxR);
+    ctx.lineTo(sentenceBoxX + sentenceBoxR, sentenceBoxY + sentenceBoxH);
+    ctx.arcTo(sentenceBoxX, sentenceBoxY + sentenceBoxH, sentenceBoxX, sentenceBoxY + sentenceBoxH - sentenceBoxR, sentenceBoxR);
+    ctx.lineTo(sentenceBoxX, sentenceBoxY + sentenceBoxR);
+    ctx.arcTo(sentenceBoxX, sentenceBoxY, sentenceBoxX + sentenceBoxR, sentenceBoxY, sentenceBoxR);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  if(heroCircleVisible) drawHeroCircle();
+  if(page2.classList.contains("active")) requestAnimationFrame(render);
+}
+
+/* ===========================
+   TRANSITION
+=========================== */
+const FRAME_COUNT=35, FRAME_DELAY=100, frames=[]; let framesLoaded=0;
 for(let i=1;i<=FRAME_COUNT;i++){
-  const img = new Image();
-  img.src = frameSrc(i);
-  img.onload = () => { framesLoaded++; };
+  const img=new Image();
+  img.src=`Animation_${i}.png`;
+  img.onload=()=>{framesLoaded++;};
   frames.push(img);
 }
 
 function buildLineTargets(){
-  const n = dots.length;
-  const yLine = H * 0.78;
-  const x0 = W * 0.12, x1 = W * 0.88;
-  const targets = new Array(n);
+  const n=dots.length,yLine=H*0.78,x0=W*0.12,x1=W*0.88,targets=new Array(n);
   for(let i=0;i<n;i++){
-    const t = (n===1) ? 0.5 : (i/(n-1));
-    targets[i] = {x:lerp(x0,x1,t), y:yLine};
+    const t=(n===1)?0.5:(i/(n-1));
+    targets[i]={x:lerp(x0,x1,t),y:yLine};
   }
   return targets;
 }
 
-function startCircleAnimationAfterDelay(){
-  circleStartY = H * 0.00;
-  circleEndY = H * 0.45;
-  heroCircle.y = circleStartY;
-  heroCircleVisible = true;
+function resetAllPage2State(){
+  heroCircleVisible=false;
+  circleAnim=false;
+  dotsAnim=false;
+  beltActive=false;
+  beltMouseEnabled=false;
+  beltBaseOffsets=[59,59,59];
+  beltOffset=0;
+  beltTargetOffset=0;
+  beltY=0;
+  beltTargetY=0;
+  lastMouseX=null;
+  beltHighlightRow=0;
+  beltHighlightActive=false;
+  beltHighlightFade=0;
+  beltHighlightFadeIn=false;
+  beltHighlightFadeOut=false;
 
-  beltOffset = beltTargetOffset = 0;
-  beltY = beltTargetY = 0;
-  lastMouseX = null;
-  beltActive = false;
+  cornerDots=[];
+  cornerDotsVisible=false;
+  cornerDotsAnim=false;
+  cornerDotsStart=[];
+  cornerDotsTarget=[];
+  cornerMergeAnim=false;
+  cornerLine.active=false;
+  cornerLine.t=0;
+  cornerNumberVisible=false;
+  cornerNumberAnim=false;
+  cornerNumberReverseAnim=false;
+  cornerNumberReverseStartTime=0;
 
+  centerDots=[];
+  centerDotsVisible=false;
+  centerDotsAnim=false;
+  centerDotsStart=[];
+  centerDotsTarget=[];
+  centerMergeAnim=false;
+  centerLine.active=false;
+  centerLine.t=0;
+  centerNumberVisible=false;
+  centerNumberAnim=false;
+
+  blankDots=[];
+  blankDotsVisible=false;
+  blankDotsAnim=false;
+  blankDotsStart=[];
+  blankDotsTarget=[];
+  blankMergeAnim=false;
+  blankLine.active=false;
+  blankLine.t=0;
+
+  thirdPillDots=[];
+  thirdPillDotsVisible=false;
+  thirdPillDotsAnim=false;
+  thirdPillDotsStart=[];
+  thirdPillDotsTarget=[];
+  thirdPillMergeAnim=false;
+  thirdPillLine.active=false;
+  thirdPillLine.t=0;
+
+  fourthPillDots=[];
+  fourthPillDotsVisible=false;
+  fourthPillDotsAnim=false;
+  fourthPillDotsStart=[];
+  fourthPillDotsTarget=[];
+  fourthPillMergeAnim=false;
+  fourthPillLine.active=false;
+  fourthPillLine.t=0;
+  fourthPillLineHover=false;
+  fourthPillLineLoad=0;
+  fourthPillLineLoading=false;
+  fourthPillLineLoaded=false;
+
+  cornerLineHover=false;
+  cornerLineLoad=0;
+  cornerLineLoading=false;
+  cornerLineLoaded=false;
+  centerLineHover=false;
+  centerLineLoad=0;
+  centerLineLoading=false;
+  centerLineLoaded=false;
+  blankLineHover=false;
+  blankLineLoad=0;
+  blankLineLoading=false;
+  blankLineLoaded=false;
+  thirdPillLineHover=false;
+  thirdPillLineLoad=0;
+  thirdPillLineLoading=false;
+  thirdPillLineLoaded=false;
+  thirdPillNumberVisible=false;
+  thirdPillNumberAnim=false;
+  thirdPillReverseAnim=false;
+  thirdPillReverseStartTime=0;
+  thirdPillSlideOutAnim=false;
+  thirdPillSlideOutStartTime=0;
+  thirdPillSlideOutFrom=[];
+  thirdPillSlideOutTo=[];
+
+  fourthPillReverseAnim=false;
+  fourthPillReverseStartTime=0;
+  fourthPillSlideOutAnim=false;
+  fourthPillSlideOutStartTime=0;
+  fourthPillSlideOutFrom=[];
+  fourthPillSlideOutTo=[];
+  thirdPillSequenceStarted=false;
+
+  lastTimestamp=0;
+
+  leftArrowVisible=false;
+  leftArrowAnim=false;
+  leftArrowStartTime=0;
+  leftArrowReverseAnim=false;
+  leftArrowReverseStartTime=0;
+  rightArrowVisible=false;
+  rightArrowAnim=false;
+  rightArrowStartTime=0;
+  rightArrowReverseAnim=false;
+  rightArrowReverseStartTime=0;
+
+  leftDots=[];
+  leftDotsVisible=false;
+  leftDotsAnim=false;
+  leftDotsStart=[];
+  leftDotsTarget=[];
+  leftMergeAnim=false;
+  leftLine.active=false;
+  leftLine.t=0;
+  leftSequenceStarted=false;
+  leftLineHover=false;
+  leftLineLoad=0;
+  leftLineLoading=false;
+  leftLineLoaded=false;
+  hoverReverseStarted=false;
+
+  cornerReverseAnim=false;
+  cornerReverseStartTime=0;
+  cornerSlideOutAnim=false;
+  cornerSlideOutStartTime=0;
+  cornerSlideOutFrom=[];
+  cornerSlideOutTo=[];
+
+  leftReverseAnim=false;
+  leftReverseStartTime=0;
+  leftSlideOutAnim=false;
+  leftSlideOutStartTime=0;
+  leftSlideOutFrom=[];
+  leftSlideOutTo=[];
+
+  centerReverseAnim=false;
+  centerReverseStartTime=0;
+  centerSlideOutAnim=false;
+  centerSlideOutStartTime=0;
+  centerSlideOutFrom=[];
+  centerSlideOutTo=[];
+
+  blankReverseAnim=false;
+  blankReverseStartTime=0;
+  blankSlideOutAnim=false;
+  blankSlideOutStartTime=0;
+  blankSlideOutFrom=[];
+  blankSlideOutTo=[];
+
+  pillsResolveStarted=false;
+
+  sentenceLineActive=false;
+  sentenceLineResolved=false;
+  sentenceLineResolveAnim=false;
+  sentenceLineProgress=0;
+  sentenceLineTargetProgress=0;
+  sentenceLineCursorX=0;
+  resolvePath=[];
+  resolveHeadT=0;
+  snakeTrailPts=0;
+
+  blobActive=false;
+  blobResolved=false;
+  blobResolveAnim=false;
+  blobResolveT=0;
+  blobCX=0;
+  blobCY=0;
+  blobProgress=0;
+  blobTargetProgress=0;
+  blobFlyPath=[];
+  blobStretch=0;
+  blobTail=0;
+  blobDirX=-1;
+  blobDirY=0;
+  blobPhase=0;
+  blobMouseVX=0;
+  blobLastMouseX=null;
+  blobRevealT=0;
+  blobRevealAnim=false;
+  blobRevealStartTime=0;
+
+  textStrokesActive=false;
+  textStrokesResolved=false;
+  textStrokesResolving=false;
+  textStrokeProgress=0;
+  textStrokeTargetProgress=0;
+  continueParticles=[];
+  continueLetterPoints=[];
+  continueLetterPointsBuilt=false;
+}
+
+function startCircleAndDotsAnimationAfterDelay(){
+  resetAllPage2State();
+  heroCircleVisible=true;
+  circleStartY=H*0.00;
+  circleEndY=H*0.45;
+  heroCircle.y=circleStartY;
+  buildPage2DotTargets();
   setTimeout(()=>{
-    circleAnim = true;
-    circleStartTime = performance.now();
+    const now=performance.now();
+    circleAnim=true;
+    dotsAnim=true;
+    circleStartTime=now;
+    dotsAnimStartTime=now;
     requestAnimationFrame(render);
   },1200);
 }
 
 function playTransition(){
   if(playingTransition) return;
-  playingTransition = true;
-
+  playingTransition=true;
   showIntroWords(false);
-  drawing = false;
-  showDotLabels = false;
+  drawing=false;
+  showDotLabels=false;
   clearHintTimer();
   hideHint();
 
-  const startDots = dots.map(d => ({x:d.x, y:d.y, label:d.label}));
-  const targets = buildLineTargets();
-  let idx = 0;
+  const startDots=dots.map(d=>({x:d.x,y:d.y,label:d.label})), targets=buildLineTargets();
+  let idx=0;
 
   function drawFrame(){
     if(!playingTransition) return;
-    const t = (FRAME_COUNT <= 1) ? 1 : (idx / (FRAME_COUNT - 1));
+    const t=(FRAME_COUNT<=1)?1:(idx/(FRAME_COUNT-1));
     ctx.clearRect(0,0,W,H);
-    const img = frames[idx];
-    if(img && img.complete) ctx.drawImage(img,0,0,W,H);
+    const img=frames[idx];
+    if(img&&img.complete) ctx.drawImage(img,0,0,W,H);
 
     for(let i=0;i<dots.length;i++){
-      dots[i].x = lerp(startDots[i].x, targets[i].x, t);
-      dots[i].y = lerp(startDots[i].y, targets[i].y, t);
+      dots[i].x=lerp(startDots[i].x,targets[i].x,t);
+      dots[i].y=lerp(startDots[i].y,targets[i].y,t);
     }
 
     drawDots();
     idx++;
 
-    if(idx < FRAME_COUNT){
-      setTimeout(drawFrame, FRAME_DELAY);
+    if(idx<FRAME_COUNT){
+      setTimeout(drawFrame,FRAME_DELAY);
     } else {
       for(let i=0;i<dots.length;i++){
-        dots[i].x = targets[i].x;
-        dots[i].y = targets[i].y;
+        dots[i].x=targets[i].x;
+        dots[i].y=targets[i].y;
       }
-      playingTransition = false;
+      playingTransition=false;
       updateHeroCircle();
       goTo(2);
-      startCircleAnimationAfterDelay();
+      startCircleAndDotsAnimationAfterDelay();
       render();
     }
   }
@@ -884,42 +3021,38 @@ function playTransition(){
 }
 
 enterBtn.addEventListener("click",()=>{
-  if(!completed) return;
-  if(framesLoaded > 0){
+  if(!BYPASS_PUZZLE&&!completed) return;
+  if(framesLoaded>0){
     playTransition();
     return;
   }
 
-  playingTransition = true;
+  playingTransition=true;
   showIntroWords(false);
-  drawing = false;
-  showDotLabels = false;
+  drawing=false;
+  showDotLabels=false;
   clearHintTimer();
   hideHint();
 
-  const startDots = dots.map(d => ({x:d.x, y:d.y, label:d.label}));
-  const targets = buildLineTargets();
-  let idx = 0;
+  const startDots=dots.map(d=>({x:d.x,y:d.y,label:d.label})), targets=buildLineTargets();
+  let idx=0;
 
   function step(){
-    const t = (FRAME_COUNT <= 1) ? 1 : (idx / (FRAME_COUNT - 1));
+    const t=(FRAME_COUNT<=1)?1:(idx/(FRAME_COUNT-1));
     ctx.clearRect(0,0,W,H);
-
     for(let i=0;i<dots.length;i++){
-      dots[i].x = lerp(startDots[i].x, targets[i].x, t);
-      dots[i].y = lerp(startDots[i].y, targets[i].y, t);
+      dots[i].x=lerp(startDots[i].x,targets[i].x,t);
+      dots[i].y=lerp(startDots[i].y,targets[i].y,t);
     }
-
     drawDots();
     idx++;
-
-    if(idx < FRAME_COUNT){
-      setTimeout(step, FRAME_DELAY);
+    if(idx<FRAME_COUNT){
+      setTimeout(step,FRAME_DELAY);
     } else {
-      playingTransition = false;
+      playingTransition=false;
       updateHeroCircle();
       goTo(2);
-      startCircleAnimationAfterDelay();
+      startCircleAndDotsAnimationAfterDelay();
       render();
     }
   }
@@ -929,30 +3062,24 @@ enterBtn.addEventListener("click",()=>{
 
 backBtn.addEventListener("click",(e)=>{
   e.preventDefault();
-  playingTransition = false;
-
+  playingTransition=false;
   goTo(1);
   showIntroWords(true);
-  stageEl.style.background = STAGE_BG_PAGE1;
+  stageEl.style.background=STAGE_BG_PAGE1;
 
-  heroCircleVisible = false;
-  circleAnim = false;
-  beltActive = false;
-  beltOffset = beltTargetOffset = 0;
-  beltY = beltTargetY = 0;
-  lastMouseX = null;
-
-  showDotLabels = true;
+  resetAllPage2State();
+  showDotLabels=true;
   setDotsToHome();
-  completed = false;
-  hasStartedPuzzle = false;
+  completed=BYPASS_PUZZLE;
+  hasStartedPuzzle=false;
   reset();
   startHintTimer();
   render();
 });
 
+/* init */
 resize();
-window.addEventListener("resize", resize);
+window.addEventListener("resize",resize);
 startHintTimer();
 
 })();
