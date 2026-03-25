@@ -83,7 +83,8 @@ canvas{
   inset:0;
   z-index:3;
   pointer-events:none;
-  transition:opacity .3s ease;
+  opacity:0;
+  transition:opacity .8s ease;
 }
 
 .introWord{
@@ -95,6 +96,23 @@ canvas{
   text-transform:uppercase;
   color:var(--fg);
   white-space:nowrap;
+}
+
+@keyframes hintFadeIn{
+  from{ opacity:0; }
+  to{ opacity:1; }
+}
+@keyframes hintFadeOut{
+  from{ opacity:1; }
+  to{ opacity:0; }
+}
+@keyframes hintPulse{
+  0%,100%{ opacity:1; }
+  50%{ opacity:0.2; }
+}
+
+.hint.hiding{
+  animation: hintFadeOut .6s ease forwards;
 }
 
 .hint{
@@ -110,12 +128,11 @@ canvas{
   text-transform:uppercase;
   color:rgba(0,0,0,0.48);
   opacity:0;
-  transition:opacity .45s ease;
   white-space:nowrap;
 }
 
 .hint.visible{
-  opacity:1;
+  animation: hintFadeIn .8s ease forwards, hintPulse 2s ease-in-out .8s infinite;
 }
 
 .enter{
@@ -175,6 +192,13 @@ canvas{
     <div class="p2">
       <a href="#" class="back" id="backBtn">← back</a>
     </div>
+    <div class="enter" id="enterBtn2" style="opacity:0;pointer-events:none">→</div>
+  </section>
+
+  <section class="page" id="page3">
+    <div class="p2">
+      <a href="#" class="back" id="backBtn2">← back</a>
+    </div>
   </section>
 </div>
 
@@ -184,8 +208,11 @@ canvas{
 /* DOM refs */
 const page1 = document.getElementById("page1");
 const page2 = document.getElementById("page2");
+const page3 = document.getElementById("page3");
 const enterBtn = document.getElementById("enterBtn");
+const enterBtn2 = document.getElementById("enterBtn2");
 const backBtn = document.getElementById("backBtn");
+const backBtn2 = document.getElementById("backBtn2");
 const introLayer = document.getElementById("introManual");
 const hintText = document.getElementById("hintText");
 const canvas = document.getElementById("c");
@@ -200,14 +227,23 @@ function goTo(p){
   if(p===1){
     page1.classList.add("active");
     page2.classList.remove("active");
+    page3.classList.remove("active");
     canvas.style.pointerEvents = "auto";
     stageEl.style.background = STAGE_BG_PAGE1;
     startHintTimer();
-  } else {
+  } else if(p===2){
     page1.classList.remove("active");
     page2.classList.add("active");
+    page3.classList.remove("active");
     canvas.style.pointerEvents = "auto";
     stageEl.style.background = "#fff";
+    clearHintTimer();
+    hideHint();
+  } else {
+    page1.classList.remove("active");
+    page2.classList.remove("active");
+    page3.classList.add("active");
+    canvas.style.pointerEvents = "none";
     clearHintTimer();
     hideHint();
   }
@@ -237,11 +273,11 @@ function renderIntroWords(){
   }
 }
 function showIntroWords(show){
-  introLayer.style.transition = "none";
+  introLayer.style.transition = show ? "opacity .8s ease" : "none";
   introLayer.style.opacity = show ? "1" : "0";
 }
 renderIntroWords();
-showIntroWords(true);
+requestAnimationFrame(() => requestAnimationFrame(() => showIntroWords(true)));
 
 /* ===========================
    HINT
@@ -255,7 +291,16 @@ function showHint(){
     hintText.classList.add("visible");
   }
 }
-function hideHint(){ hintText.classList.remove("visible"); }
+function hideHint(){
+  if(!hintText.classList.contains("visible")) return;
+  hintText.classList.remove("visible");
+  hintText.style.opacity = "1";
+  hintText.classList.add("hiding");
+  setTimeout(()=>{
+    hintText.classList.remove("hiding");
+    hintText.style.opacity = "";
+  }, 600);
+}
 function clearHintTimer(){
   if(hintTimer){
     clearTimeout(hintTimer);
@@ -269,10 +314,13 @@ function startHintTimer(){
   hintTimer = setTimeout(showHint, HINT_DELAY);
 }
 function markPuzzleStarted(){
-  if(hasStartedPuzzle) return;
-  hasStartedPuzzle = true;
-  clearHintTimer();
-  hideHint();
+  if(!hasStartedPuzzle){
+    hasStartedPuzzle = true;
+    clearHintTimer();
+  }
+  if(nextIdx >= 3){
+    hideHint();
+  }
 }
 
 /* ===========================
@@ -325,7 +373,7 @@ let cornerLine={active:false,x1:0,y1:0,x2:0,y2:0,t:0};
 let cornerNumberVisible=false, cornerNumberAnim=false, cornerNumberStartTime=0; const cornerNumberDuration=420;
 let cornerNumberReverseAnim=false, cornerNumberReverseStartTime=0; const cornerNumberReverseDuration=420;
 let cornerLineHover=false, cornerLineLoad=0, cornerLineLoading=false, cornerLineLoaded=false, lastTimestamp=0;
-const cornerLineLoadDuration=1200;
+const cornerLineLoadDuration=700;
 
 let centerDots=[], centerDotsVisible=false, centerDotsAnim=false, centerDotsStartTime=0;
 const centerDotsDuration=420; let centerDotsStart=[], centerDotsTarget=[];
@@ -333,7 +381,7 @@ let centerMergeAnim=false, centerMergeStartTime=0; const centerMergeDuration=520
 let centerLine={active:false,x1:0,y1:0,x2:0,y2:0,t:0};
 let centerNumberVisible=false, centerNumberAnim=false, centerNumberStartTime=0; const centerNumberDuration=420;
 let centerLineHover=false, centerLineLoad=0, centerLineLoading=false, centerLineLoaded=false;
-const centerLineLoadDuration=1200;
+const centerLineLoadDuration=700;
 
 /* pill 5 — third belt pill, right side */
 let thirdPillDots=[], thirdPillDotsVisible=false, thirdPillDotsAnim=false, thirdPillDotsStartTime=0;
@@ -342,7 +390,7 @@ let thirdPillMergeAnim=false, thirdPillMergeStartTime=0; const thirdPillMergeDur
 let thirdPillLine={active:false,x1:0,y1:0,x2:0,y2:0,t:0};
 let thirdPillNumberVisible=false, thirdPillNumberAnim=false, thirdPillNumberStartTime=0; const thirdPillNumberDuration=420;
 let thirdPillLineHover=false, thirdPillLineLoad=0, thirdPillLineLoading=false, thirdPillLineLoaded=false;
-const thirdPillLineLoadDuration=1200;
+const thirdPillLineLoadDuration=700;
 let thirdPillReverseAnim=false, thirdPillReverseStartTime=0; const thirdPillReverseDuration=520;
 let thirdPillSlideOutAnim=false, thirdPillSlideOutStartTime=0; const thirdPillSlideOutDuration=650;
 let thirdPillSlideOutFrom=[], thirdPillSlideOutTo=[];
@@ -357,7 +405,7 @@ let fourthPillReverseAnim=false, fourthPillReverseStartTime=0; const fourthPillR
 let fourthPillSlideOutAnim=false, fourthPillSlideOutStartTime=0; const fourthPillSlideOutDuration=650;
 let fourthPillSlideOutFrom=[], fourthPillSlideOutTo=[];
 let fourthPillLineHover=false, fourthPillLineLoad=0, fourthPillLineLoading=false, fourthPillLineLoaded=false;
-const fourthPillLineLoadDuration=1200;
+const fourthPillLineLoadDuration=700;
 
 /* ===========================
    CONTINUE PARTICLES
@@ -368,6 +416,13 @@ let textStrokesResolving = false;
 let textStrokeProgress = 0;
 let textStrokeTargetProgress = 0;
 
+let strokeTextBleedT = 0;
+let strokeTextBleedDone = false;
+const STROKE_TEXT_BLEED_DURATION = 1100;
+let strokeTextBleedDelayT = 0;
+const STROKE_TEXT_BLEED_DELAY = 500;
+let _continueOtPath = null;
+
 const CONTINUE_PARTICLE_COUNT = 1600;
 const CONTINUE_PARTICLE_RADIUS = 0.72;
 const CONTINUE_PARTICLE_STEP = 1.35;
@@ -376,6 +431,30 @@ const CONTINUE_MORPH_DURATION = 1200;
 let continueParticles = [];
 let continueLetterPoints = [];
 let continueLetterPointsBuilt = false;
+let continueScribbleCount = 0;
+let continueButtonClicked = false;
+let continueExitAnim = false;
+let continueExitStarted = false;
+let continueExitStartTime = 0;
+const CONTINUE_EXIT_DURATION = 1100;
+let heroExitOffsetY = 0;
+let continueExitOffsetY = 0;
+let beltExitOffsetY = 0;
+let beltExitAnim = false;
+let beltExitStartTime = 0;
+const BELT_EXIT_DURATION = 800;
+
+/* new CONTINUITY dot animation */
+let newDots = [];        // [{x,y,targetX,targetY,fromX,fromY,delay,duration}]
+let newDotRadius = DOT_R;
+let newDotsReturnAnim = false;
+let newDotsReturnStartTime = 0;
+let newPuzzleActive = false;
+let bleedAnimT = 0, bleedAnimActive = false, bleedAnimStartTime = 0;
+const BLEED_ANIM_DURATION = 2400;
+let newDotSpacing = 0; // actual px distance between adjacent dots (set in buildNewPuzzleTargets)
+let diagPairSet    = new Set(); // explicit allowed diagonal bleed pairs (set in buildNewPuzzleTargets)
+let blockedPairSet = new Set(); // HV pairs that are too close but should NOT connect
 
 /* opentype.js font */
 let _otFont = null;
@@ -396,19 +475,22 @@ let leftArrowReverseAnim=false, leftArrowReverseStartTime=0; const leftArrowReve
 
 let rightArrowVisible=false, rightArrowAnim=false, rightArrowStartTime=0; const rightArrowDuration=360;
 let rightArrowReverseAnim=false, rightArrowReverseStartTime=0; const rightArrowReverseDuration=360;
+
+let thirdArrowVisible=false, thirdArrowAnim=false, thirdArrowStartTime=0; const thirdArrowDuration=360;
+let thirdArrowReverseAnim=false, thirdArrowReverseStartTime=0; const thirdArrowReverseDuration=360;
 let leftDots=[], leftDotsVisible=false, leftDotsAnim=false, leftDotsStartTime=0; const leftDotsDuration=650;
 let leftDotsStart=[], leftDotsTarget=[];
 let leftMergeAnim=false, leftMergeStartTime=0; const leftMergeDuration=520;
 let leftLine={active:false,x1:0,y1:0,x2:0,y2:0,t:0}; let leftSequenceStarted=false;
 let leftLineHover=false, leftLineLoad=0, leftLineLoading=false, leftLineLoaded=false;
-const leftLineLoadDuration=1200;
+const leftLineLoadDuration=700;
 
 let blankDots=[], blankDotsVisible=false, blankDotsAnim=false, blankDotsStartTime=0;
 const blankDotsDuration=420; let blankDotsStart=[], blankDotsTarget=[];
 let blankMergeAnim=false, blankMergeStartTime=0; const blankMergeDuration=520;
 let blankLine={active:false,x1:0,y1:0,x2:0,y2:0,t:0};
 let blankLineHover=false, blankLineLoad=0, blankLineLoading=false, blankLineLoaded=false;
-const blankLineLoadDuration=1200;
+const blankLineLoadDuration=700;
 
 let hoverReverseStarted=false;
 
@@ -430,10 +512,19 @@ let leftSlideOutFrom=[], leftSlideOutTo=[];
 /* squiggle */
 let sentenceLineActive=false, sentenceLineResolved=false, sentenceLineResolveAnim=false;
 let sentenceLineProgress=0, sentenceLineTargetProgress=0;
+let sentenceLineAutoPlay=false;
 const SNAKE_TRAIL=0.42, RESOLVE_SPEED=0.00065;
 let resolvePath=[], resolveHeadT=0, snakeTrailPts=0;
-let sentenceLineStartX=0, sentenceLineEndX=0, sentenceLineBaseY=0, sentenceLineCursorX=0;
+let sentenceLineStartX=0, sentenceLineEndX=0, sentenceLineBaseY=0, sentenceLineCursorX=0, sentenceLineCursorY=0;
 let sentenceBoxX=0, sentenceBoxY=0, sentenceBoxW=0, sentenceBoxH=0, sentenceBoxR=0;
+
+/* border snake */
+let borderSnakeActive=false, borderSnakeProgress=0, borderSnakeTargetProgress=0, borderSnakeHover=false;
+let borderSnakeResolving=false;
+let megaPath=[], megaProgress=0, megaLetterStart=0;
+const BORDER_SNAKE_TRAIL=0.38;
+const MEGA_RESOLVE_SPEED=0.00048;
+let boxSquigglePts=[];
 
 /* ===========================
    ORANGE BLOB
@@ -447,6 +538,10 @@ let blobStretch=0, blobTail=0, blobDirX=-1, blobDirY=0, blobPhase=0;
 
 let blobRevealT = 0;
 let blobRevealAnim = false;
+let blobAutoResolve = false;
+let blobAutoMorph = false;
+let blobAutoMorphT = 0;
+const BLOB_AUTO_MORPH_DURATION = 2200;
 let blobRevealStartTime = 0;
 const BLOB_REVEAL_DURATION = 900;
 let blobMouseVX=0, blobLastMouseX=null;
@@ -527,6 +622,8 @@ const beltHighlightFadeDuration=1200, beltHighlightFadeOutDuration=700;
 
 function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
 function lerp(a,b,t){ return a+(b-a)*t; }
+function easeOutQuart(t){ return 1-Math.pow(1-t,4); }
+function easeInOutQuart(t){ return t<0.5?8*t*t*t*t:1-Math.pow(-2*t+2,4)/2; }
 
 function quadraticPoint(p0,p1,p2,t){
   const mt = 1 - t;
@@ -749,11 +846,36 @@ function updateSentenceLineLayout(){
   sentenceLineStartX=W*0.955;
   sentenceLineEndX=W*0.30;
   sentenceLineBaseY=H*0.865;
-  sentenceBoxW=W*0.18;
-  sentenceBoxH=H*0.074;
+  sentenceBoxW=W*0.144;
+  sentenceBoxH=H*0.059;
   sentenceBoxX=W*0.5-sentenceBoxW*0.5;
   sentenceBoxY=H*0.828;
   sentenceBoxR=Math.min(sentenceBoxH*0.34,18);
+  buildBoxSquiggle();
+}
+
+function buildBoxSquiggle(){
+  const pad=sentenceBoxR*0.85;
+  const bx=sentenceBoxX+pad, bw=sentenceBoxW-pad*2;
+  const cy=sentenceBoxY+sentenceBoxH*0.5;
+  const ampY=sentenceBoxH*0.32, ampX=bw*0.09;
+  const N=420; boxSquigglePts=[];
+  for(let i=0;i<=N;i++){
+    const t=i/N;
+    const env=0.28+0.72*Math.sin(t*Math.PI);
+    const baseX=bx+bw*t;
+    const xChaos=Math.sin(t*Math.PI*5.4+0.8)*ampX*0.7*env
+      +Math.cos(t*Math.PI*9.1+1.6)*ampX*0.35*env;
+    const y=cy
+      +Math.sin(t*Math.PI*7.8+0.5)*ampY*0.75*env
+      +Math.cos(t*Math.PI*4.9+1.3)*ampY*0.50*env
+      +Math.sin(t*Math.PI*13.2+2.1)*ampY*0.25*env
+      +Math.cos(t*Math.PI*2.3+0.9)*ampY*0.18*env;
+    boxSquigglePts.push({
+      x:Math.max(sentenceBoxX+2,Math.min(sentenceBoxX+sentenceBoxW-2,baseX+xChaos)),
+      y:Math.max(sentenceBoxY+2,Math.min(sentenceBoxY+sentenceBoxH-2,y))
+    });
+  }
 }
 
 function drawSingleBelt(bandY,beltText,beltCharCount,extraOffset=0,highlight=false){
@@ -811,10 +933,11 @@ function drawTextBelt(){
   const {r}=heroCircle, maxBandY=r*BELT_MAX_Y;
   const centerBandY=Math.max(-maxBandY,Math.min(maxBandY,beltY));
   const rowGap=r*0.12;
+  const exitLat=beltExitOffsetY;
 
-  drawSingleBelt(centerBandY-rowGap,BELT_ROWS[0].text,BELT_ROWS[0].count,beltBaseOffsets[0],beltHighlightRow===0);
-  drawSingleBelt(centerBandY,       BELT_ROWS[1].text,BELT_ROWS[1].count,beltBaseOffsets[1],beltHighlightRow===1);
-  drawSingleBelt(centerBandY+rowGap,BELT_ROWS[2].text,BELT_ROWS[2].count,beltBaseOffsets[2],beltHighlightRow===2);
+  drawSingleBelt(centerBandY-rowGap+exitLat,BELT_ROWS[0].text,BELT_ROWS[0].count,beltBaseOffsets[0],beltHighlightRow===0);
+  drawSingleBelt(centerBandY+exitLat,       BELT_ROWS[1].text,BELT_ROWS[1].count,beltBaseOffsets[1],beltHighlightRow===1);
+  drawSingleBelt(centerBandY+rowGap+exitLat,BELT_ROWS[2].text,BELT_ROWS[2].count,beltBaseOffsets[2],beltHighlightRow===2);
 }
 
 function drawHeroCircle(){
@@ -823,6 +946,8 @@ function drawHeroCircle(){
   roughSeed=12345;
   const jitter=heroCircle.r*0.004;
 
+  ctx.save();
+  if(heroExitOffsetY!==0) ctx.translate(0, heroExitOffsetY);
   drawRoughCircle(heroCircle.x,heroCircle.y,heroCircle.r,jitter);
   ctx.fillStyle="#F71F08";
   ctx.fill();
@@ -834,6 +959,7 @@ function drawHeroCircle(){
   ctx.restore();
 
   drawTextBelt();
+  ctx.restore();
 }
 
 function pointInPill(px,py,line,dotsArr,reverseAnim,slideAnim){
@@ -855,14 +981,7 @@ window.addEventListener("mousemove",(e)=>{
   const x=(e.clientX-rect.left)/rect.width;
   const localX=e.clientX-rect.left, localY=e.clientY-rect.top;
   sentenceLineCursorX=localX;
-
-  if(blobActive&&!blobResolved&&!blobResolveAnim){
-    if(blobLastMouseX!==null){
-      const rawVX=localX-blobLastMouseX;
-      blobMouseVX+=(rawVX-blobMouseVX)*0.35;
-    }
-    blobLastMouseX=localX;
-  }
+  sentenceLineCursorY=localY;
 
   if(page2.classList.contains("active")&&beltMouseEnabled){
     beltTargetOffset=(x-0.5)*130*-1;
@@ -873,46 +992,24 @@ window.addEventListener("mousemove",(e)=>{
   }
 
   if(page2.classList.contains("active")){
-    if(sentenceLineActive&&!sentenceLineResolved&&!sentenceLineResolveAnim){
+    if(sentenceLineActive&&!sentenceLineResolved&&!sentenceLineResolveAnim&&!sentenceLineAutoPlay){
       sentenceLineTargetProgress=clamp((sentenceLineStartX-localX)/(sentenceLineStartX-sentenceLineEndX),0,1);
     }
-    if(blobActive&&!blobResolved&&!blobResolveAnim){
-      blobTargetProgress=clamp((W*0.955-localX)/(W*0.955-W*0.28),0,1);
-    }
-    if(textStrokesActive){
-      textStrokeTargetProgress = clamp((W*0.955 - localX) / (W*0.955 - W*0.28), 0, 1);
-    }
+    if(borderSnakeActive&&!textStrokesResolving){
+      borderSnakeTargetProgress=clamp(localX/W,0,1);
+      borderSnakeHover=(lx>=sentenceBoxX&&lx<=sentenceBoxX+sentenceBoxW&&ly>=sentenceBoxY&&ly<=sentenceBoxY+sentenceBoxH);
+    } else { borderSnakeHover=false; }
 
-    const cornerHit=pointInPill(localX,localY,cornerLine,cornerDots,cornerReverseAnim,cornerSlideOutAnim);
-    cornerLineHover=cornerHit;
-    if(cornerLineHover&&!cornerLineLoaded) cornerLineLoading=true;
-    else if(!cornerLineHover&&!cornerLineLoaded){ cornerLineLoading=false; cornerLineLoad=0; }
-
-    if(leftLine.active){
-      leftLineHover=pointInPill(localX,localY,leftLine,leftDots,leftReverseAnim,leftSlideOutAnim);
-      if(leftLineHover&&!leftLineLoaded) leftLineLoading=true;
-      else if(!leftLineHover&&!leftLineLoaded){ leftLineLoading=false; leftLineLoad=0; }
-    }
-    if(centerLine.active){
-      centerLineHover=pointInPill(localX,localY,centerLine,centerDots,false,false);
-      if(centerLineHover&&!centerLineLoaded) centerLineLoading=true;
-      else if(!centerLineHover&&!centerLineLoaded){ centerLineLoading=false; centerLineLoad=0; }
-    }
-    if(blankLine.active){
-      blankLineHover=pointInPill(localX,localY,blankLine,blankDots,false,false);
-      if(blankLineHover&&!blankLineLoaded) blankLineLoading=true;
-      else if(!blankLineHover&&!blankLineLoaded){ blankLineLoading=false; blankLineLoad=0; }
-    }
-    if(thirdPillLine.active){
-      thirdPillLineHover=pointInPill(localX,localY,thirdPillLine,thirdPillDots,thirdPillReverseAnim,thirdPillSlideOutAnim);
-      if(thirdPillLineHover&&!thirdPillLineLoaded) thirdPillLineLoading=true;
-      else if(!thirdPillLineHover&&!thirdPillLineLoaded){ thirdPillLineLoading=false; thirdPillLineLoad=0; }
-    }
-    if(fourthPillLine.active&&!fourthPillReverseAnim&&!fourthPillSlideOutAnim){
-      fourthPillLineHover=pointInPill(localX,localY,fourthPillLine,fourthPillDots,fourthPillReverseAnim,fourthPillSlideOutAnim);
-      if(fourthPillLineHover&&!fourthPillLineLoaded) fourthPillLineLoading=true;
-      else if(!fourthPillLineHover&&!fourthPillLineLoaded){ fourthPillLineLoading=false; fourthPillLineLoad=0; }
-    }
+    cornerLineHover=pointInPill(localX,localY,cornerLine,cornerDots,cornerReverseAnim,cornerSlideOutAnim);
+    if(leftLine.active) leftLineHover=pointInPill(localX,localY,leftLine,leftDots,leftReverseAnim,leftSlideOutAnim);
+    if(centerLine.active) centerLineHover=pointInPill(localX,localY,centerLine,centerDots,false,false);
+    if(blankLine.active) blankLineHover=pointInPill(localX,localY,blankLine,blankDots,false,false);
+    if(thirdPillLine.active) thirdPillLineHover=pointInPill(localX,localY,thirdPillLine,thirdPillDots,thirdPillReverseAnim,thirdPillSlideOutAnim);
+    if(fourthPillLine.active&&!fourthPillReverseAnim&&!fourthPillSlideOutAnim) fourthPillLineHover=pointInPill(localX,localY,fourthPillLine,fourthPillDots,fourthPillReverseAnim,fourthPillSlideOutAnim);
+    const continueReady=blobResolved&&strokeTextBleedDone&&!continueButtonClicked;
+    const continueHover=continueReady&&localX>=sentenceBoxX&&localX<=sentenceBoxX+sentenceBoxW&&localY>=sentenceBoxY&&localY<=sentenceBoxY+sentenceBoxH;
+    const anyPillHover=cornerLineHover||leftLineHover||centerLineHover||blankLineHover||thirdPillLineHover||fourthPillLineHover||borderSnakeHover||continueHover;
+    canvas.style.cursor=anyPillHover?"pointer":"default";
   }
 });
 
@@ -948,12 +1045,14 @@ function reset(){
 
 function buildDots(){
   const P=[
-    [0.06,0.18],[0.06,0.30],[0.06,0.44],[0.06,0.58],[0.22,0.58],[0.20,0.18],
-    [0.26,0.58],[0.26,0.18],[0.36,0.18],[0.42,0.18],[0.39,0.18],[0.39,0.58],
-    [0.54,0.18],[0.48,0.18],[0.48,0.36],[0.52,0.36],[0.48,0.58],[0.54,0.58],
-    [0.70,0.58],[0.68,0.18],[0.74,0.58],[0.74,0.18],[0.84,0.18],[0.90,0.18],[0.87,0.18],[0.87,0.58],
+    [0.06,0.18],[0.06,0.30],[0.06,0.44],[0.06,0.58],[0.20,0.58],[0.20,0.18],
+    [0.27,0.58],[0.27,0.18],[0.36,0.18],[0.42,0.18],[0.39,0.18],[0.39,0.58],
+    [0.54,0.18],[0.48,0.18],[0.48,0.36],[0.54,0.36],[0.48,0.58],[0.54,0.58],
+    [0.70,0.58],[0.70,0.18],[0.77,0.58],[0.77,0.18],[0.84,0.18],[0.90,0.18],[0.87,0.18],[0.87,0.58],
   ];
-  const bandTop=H*0.56, bandH=H*0.34, left=W*0.10, bandW=W*0.80;
+  const bandTop=H*0.56, bandH=H*0.34, bandW=W*0.80;
+  const xMin=Math.min(...P.map(p=>p[0])), xMax=Math.max(...P.map(p=>p[0]));
+  const left=(W-(xMin+xMax)*bandW)/2;
   dotsHome=P.map((p,i)=>({
     x:left+p[0]*bandW,
     y:bandTop+p[1]*bandH,
@@ -1018,10 +1117,10 @@ function maybeAddFreePoint(){
 let playingTransition=false;
 
 function onDown(e){
+  setPointer(e);
   if(BYPASS_PUZZLE) return;
   if(playingTransition||!page1.classList.contains("active")) return;
 
-  setPointer(e);
   pressStart.x=pointer.x;
   pressStart.y=pointer.y;
   movedSinceDown=false;
@@ -1045,10 +1144,10 @@ function onDown(e){
   render();
 }
 function onMove(e){
+  setPointer(e);
   if(BYPASS_PUZZLE) return;
   if(!drawing||playingTransition||!page1.classList.contains("active")) return;
 
-  setPointer(e);
   const dx0=pointer.x-pressStart.x,dy0=pointer.y-pressStart.y;
   if(dx0*dx0+dy0*dy0>CLICK_MOVE_TOL*CLICK_MOVE_TOL) movedSinceDown=true;
 
@@ -1062,13 +1161,12 @@ function onMove(e){
   render();
 }
 function onUp(e){
+  setPointer(e);
   if(BYPASS_PUZZLE) return;
   if(!page1.classList.contains("active")){
     drawing=false;
     return;
   }
-
-  setPointer(e);
 
   if(drawing){
     if(movedSinceDown){
@@ -1093,6 +1191,55 @@ window.addEventListener("touchend",e=>{
   const t=e.changedTouches[0];
   onUp({clientX:t.clientX,clientY:t.clientY});
 },{passive:false});
+
+/* pill click handler */
+window.addEventListener("click",(e)=>{
+  if(!page2.classList.contains("active")) return;
+  const rect=canvas.getBoundingClientRect();
+  const lx=e.clientX-rect.left, ly=e.clientY-rect.top;
+  if(pointInPill(lx,ly,cornerLine,cornerDots,cornerReverseAnim,cornerSlideOutAnim)&&!cornerLineLoaded&&!cornerLineLoading){
+    cornerLineLoading=true;
+  }
+  if(leftLine.active&&pointInPill(lx,ly,leftLine,leftDots,leftReverseAnim,leftSlideOutAnim)&&!leftLineLoaded&&!leftLineLoading){
+    leftLineLoading=true;
+  }
+  if(centerLine.active&&pointInPill(lx,ly,centerLine,centerDots,false,false)&&!centerLineLoaded&&!centerLineLoading){
+    centerLineLoading=true;
+  }
+  if(blankLine.active&&pointInPill(lx,ly,blankLine,blankDots,false,false)&&!blankLineLoaded&&!blankLineLoading){
+    blankLineLoading=true;
+  }
+  if(thirdPillLine.active&&pointInPill(lx,ly,thirdPillLine,thirdPillDots,thirdPillReverseAnim,thirdPillSlideOutAnim)&&!thirdPillLineLoaded&&!thirdPillLineLoading){
+    thirdPillLineLoading=true;
+  }
+  if(fourthPillLine.active&&!fourthPillReverseAnim&&!fourthPillSlideOutAnim&&pointInPill(lx,ly,fourthPillLine,fourthPillDots,fourthPillReverseAnim,fourthPillSlideOutAnim)&&!fourthPillLineLoaded&&!fourthPillLineLoading){
+    fourthPillLineLoading=true;
+  }
+  if(borderSnakeActive&&!textStrokesResolving){
+    if(lx>=sentenceBoxX&&lx<=sentenceBoxX+sentenceBoxW&&ly>=sentenceBoxY&&ly<=sentenceBoxY+sentenceBoxH){
+      borderSnakeActive=false;
+      borderSnakeHover=false;
+      startTextStrokesResolve();
+    }
+  }
+  if(blobResolved&&strokeTextBleedDone&&!continueButtonClicked){
+    if(lx>=sentenceBoxX&&lx<=sentenceBoxX+sentenceBoxW&&ly>=sentenceBoxY&&ly<=sentenceBoxY+sentenceBoxH){
+      continueButtonClicked=true;
+      beltMouseEnabled=false;
+      beltTargetOffset=beltOffset;
+      const ts=performance.now();
+      startThirdPillReverse(ts);
+      startFourthPillReverse(ts);
+      setTimeout(()=>{
+        if(!continueExitStarted){
+          continueExitStarted=true;
+          continueExitAnim=true;
+          continueExitStartTime=performance.now();
+        }
+      }, 1300);
+    }
+  }
+});
 
 /* ===========================
    DRAW HELPERS
@@ -1130,6 +1277,19 @@ function drawBlankDots(){ if(!blankDotsVisible) return; drawDotsArray(blankDots)
 function drawLeftDots(){ if(!leftDotsVisible) return; drawDotsArray(leftDots); }
 function drawThirdPillDots(){ if(!thirdPillDotsVisible) return; drawDotsArray(thirdPillDots); }
 function drawFourthPillDots(){ if(!fourthPillDotsVisible) return; drawDotsArray(fourthPillDots); }
+
+function drawNewPuzzleDots(){
+  if(!newDots.length||!page2.classList.contains("active")) return;
+  if(!newDotsReturnAnim&&!newPuzzleActive) return;
+
+  ctx.fillStyle = "rgba(0,0,0,0.92)";
+  const r = newDotRadius;
+  for(const d of newDots){
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, r, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
 
 function drawLine(line,dotsArr){
   if(!line.active||!page2.classList.contains("active")) return;
@@ -1328,6 +1488,51 @@ function drawRightArrow(timestamp){
     ctx.lineTo(x+arm*hp,y-arm*hp);
     ctx.stroke();
 
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    ctx.lineTo(x+arm*hp,y+arm*hp);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawThirdArrow(timestamp){
+  if(!thirdArrowVisible||!page2.classList.contains("active")) return;
+  const center=thirdPillDots[1];
+  if(!center) return;
+
+  let t=1;
+  if(thirdArrowAnim){
+    t=Math.min(1,(timestamp-thirdArrowStartTime)/thirdArrowDuration);
+    t=t*t*(3-2*t);
+    if(t>=1) thirdArrowAnim=false;
+  } else if(thirdArrowReverseAnim){
+    const rt=Math.min(1,(timestamp-thirdArrowReverseStartTime)/thirdArrowReverseDuration);
+    t=1-rt*rt*(3-2*rt);
+    if(rt>=1){
+      thirdArrowReverseAnim=false;
+      thirdArrowVisible=false;
+      return;
+    }
+  }
+
+  const x=center.x-(center.r??DOT_R)*4.5, y=center.y, arm=DOT_R*1.45, shaftLen=DOT_R*3.3, joinInset=DOT_R*0.22;
+  ctx.save();
+  ctx.strokeStyle="rgba(0,0,0,0.92)";
+  ctx.lineWidth=Math.max(2,DOT_R*0.32);
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+  const shaftPhase=Math.min(1,t/0.55);
+  ctx.beginPath();
+  ctx.moveTo(x+joinInset,y);
+  ctx.lineTo(x+joinInset+shaftLen*shaftPhase,y);
+  ctx.stroke();
+  if(t>0.55){
+    const hp=Math.min(1,(t-0.55)/0.45);
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    ctx.lineTo(x+arm*hp,y-arm*hp);
+    ctx.stroke();
     ctx.beginPath();
     ctx.moveTo(x,y);
     ctx.lineTo(x+arm*hp,y+arm*hp);
@@ -1606,7 +1811,9 @@ function buildResolvePath(){
     const t=i/90;
     tp.push(cubicPoint(startPt,cp1,cp2,rectStart,t));
   }
-  resolvePath=[...squiggleTail,...tp,...rect];
+  const rectExt=[];
+  for(let i=0;i<snakeTrailPts;i++) rectExt.push(rect[i%rect.length]);
+  resolvePath=[...squiggleTail,...tp,...rect,...rectExt];
   resolveHeadT=(squiggleTail.length-1)/(resolvePath.length-1);
 }
 function getSentenceShapePoints(){
@@ -1624,21 +1831,22 @@ function drawSentenceShape(){
   if(!sentenceLineActive||!page2.classList.contains("active")) return;
   const pts=getSentenceShapePoints();
   if(!pts.length) return;
+  const dy = continueExitOffsetY;
   ctx.save();
   ctx.strokeStyle="#111";
   ctx.lineWidth=2.2;
   ctx.lineCap="round";
   ctx.lineJoin="round";
   ctx.beginPath();
-  ctx.moveTo(pts[0].x,pts[0].y);
-  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+  ctx.moveTo(pts[0].x, pts[0].y + dy);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x, pts[i].y + dy);
   if(sentenceLineResolved) ctx.closePath();
   ctx.stroke();
   if(!sentenceLineResolved){
     const tip=pts[pts.length-1];
     ctx.fillStyle="#111";
     ctx.beginPath();
-    ctx.arc(tip.x,tip.y,0.55,0,Math.PI*2);
+    ctx.arc(tip.x, tip.y + dy, 0.55, 0, Math.PI*2);
     ctx.fill();
   }
   ctx.restore();
@@ -1664,6 +1872,22 @@ function updateBlob(dt){
           render();
         }, 1300);
       }
+    }
+    return;
+  }
+
+  if(blobAutoMorph){
+    blobAutoMorphT += dt;
+    const synthSpeed = 0.18 + Math.sin(blobAutoMorphT * 0.0003) * 0.08;
+    const speedNormAuto = clamp(synthSpeed / 14, 0, 1.6);
+    blobDirX = Math.sin(blobAutoMorphT * 0.0003) < 0 ? -1 : 1;
+    blobStretch += (speedNormAuto - blobStretch) * 0.18;
+    blobTail    += (speedNormAuto * 1.1 - blobTail) * 0.14;
+    blobPhase   += synthSpeed * 0.055;
+    if(blobAutoMorphT >= BLOB_AUTO_MORPH_DURATION){
+      blobAutoMorph = false;
+      blobResolveAnim = true;
+      blobResolveT = 0;
     }
     return;
   }
@@ -1704,6 +1928,7 @@ function drawBlob(){
   if(!blobActive||!page2.classList.contains("active")) return;
   const baseR=Math.min(sentenceBoxW,sentenceBoxH)*0.38;
   ctx.save();
+  if(continueExitOffsetY!==0) ctx.translate(0, continueExitOffsetY);
   ctx.fillStyle="#F71F08";
 
   if(blobResolved){
@@ -1824,148 +2049,231 @@ function drawBlob(){
 }
 
 /* ===========================
-   CONTINUE PARTICLES
+   CONTINUE STROKE TEXT
 =========================== */
+function buildContinueLetterPoints(){
+  if(continueLetterPointsBuilt || !_otFontReady) return;
+  continueLetterPointsBuilt = true;
+
+  const text = "CONTINUE";
+  const targetW = sentenceBoxW * 0.60;
+  const targetH = sentenceBoxH * 0.44;
+  const bx = sentenceBoxX + sentenceBoxW * 0.5;
+  const by = sentenceBoxY + sentenceBoxH * 0.5;
+  const upm = _otFont.unitsPerEm;
+  const glyphs = _otFont.stringToGlyphs(text);
+  let totalAdv = 0;
+  glyphs.forEach(g => totalAdv += g.advanceWidth || 0);
+  const fontSize = Math.min(targetW / (totalAdv / upm), targetH);
+  const scaledW = totalAdv * fontSize / upm;
+  let curX = bx - scaledW / 2;
+  const baseline = by + fontSize * 0.28;
+
+  const sampleC = (p0,p1,p2,p3,n) => { const r=[]; for(let i=1;i<=n;i++){const t=i/n,mt=1-t; r.push({x:mt*mt*mt*p0.x+3*mt*mt*t*p1.x+3*mt*t*t*p2.x+t*t*t*p3.x, y:mt*mt*mt*p0.y+3*mt*mt*t*p1.y+3*mt*t*t*p2.y+t*t*t*p3.y});} return r; };
+  const sampleQ = (p0,p1,p2,n) => { const r=[]; for(let i=1;i<=n;i++){const t=i/n,mt=1-t; r.push({x:mt*mt*p0.x+2*mt*t*p1.x+t*t*p2.x, y:mt*mt*p0.y+2*mt*t*p1.y+t*t*p2.y});} return r; };
+
+  const allPts = [];
+
+  for(const glyph of glyphs){
+    if(!glyph.path||!glyph.path.commands){ curX+=(glyph.advanceWidth||0)*fontSize/upm; continue; }
+    const toX = v => curX + v*fontSize/upm;
+    const toY = v => baseline - v*fontSize/upm;
+    let contour=[], contourStart=null, cx0=0, cy0=0;
+
+    const flush = () => {
+      if(contour.length < 2){ contour=[]; return; }
+      if(allPts.length > 0){
+        const last=allPts[allPts.length-1], first=contour[0];
+        const n=Math.max(2,Math.round(Math.hypot(first.x-last.x,first.y-last.y)/3));
+        for(let i=1;i<=n;i++) allPts.push({x:last.x+(first.x-last.x)*i/n, y:last.y+(first.y-last.y)*i/n, lift:true});
+      }
+      allPts.push({...contour[0], lift:true});
+      for(let i=1;i<contour.length;i++) allPts.push(contour[i]);
+      contour=[];
+    };
+
+    for(const cmd of glyph.path.commands){
+      if(cmd.type==='M'){
+        if(contour.length) flush();
+        const px=toX(cmd.x), py=toY(cmd.y);
+        contour=[{x:px,y:py}]; contourStart={x:px,y:py}; cx0=px; cy0=py;
+      } else if(cmd.type==='L'){
+        const px=toX(cmd.x), py=toY(cmd.y);
+        const segN=Math.max(1,Math.round(Math.hypot(px-cx0,py-cy0)/3));
+        for(let i=1;i<=segN;i++) contour.push({x:cx0+(px-cx0)*i/segN, y:cy0+(py-cy0)*i/segN});
+        cx0=px; cy0=py;
+      } else if(cmd.type==='C'){
+        const p0={x:cx0,y:cy0}, p1={x:toX(cmd.x1),y:toY(cmd.y1)}, p2={x:toX(cmd.x2),y:toY(cmd.y2)}, p3={x:toX(cmd.x),y:toY(cmd.y)};
+        const cChord=Math.hypot(p3.x-p0.x,p3.y-p0.y), cCtrl=Math.hypot(p1.x-p0.x,p1.y-p0.y)+Math.hypot(p2.x-p1.x,p2.y-p1.y)+Math.hypot(p3.x-p2.x,p3.y-p2.y);
+        const cSegN=Math.max(2,Math.round((cChord+cCtrl)*0.5/3));
+        for(const p of sampleC(p0,p1,p2,p3,cSegN)) contour.push(p);
+        cx0=p3.x; cy0=p3.y;
+      } else if(cmd.type==='Q'){
+        const p0={x:cx0,y:cy0}, p1={x:toX(cmd.x1),y:toY(cmd.y1)}, p2={x:toX(cmd.x),y:toY(cmd.y)};
+        const qChord=Math.hypot(p2.x-p0.x,p2.y-p0.y), qCtrl=Math.hypot(p1.x-p0.x,p1.y-p0.y)+Math.hypot(p2.x-p1.x,p2.y-p1.y);
+        const qSegN=Math.max(2,Math.round((qChord+qCtrl)*0.5/3));
+        for(const p of sampleQ(p0,p1,p2,qSegN)) contour.push(p);
+        cx0=p2.x; cy0=p2.y;
+      } else if(cmd.type==='Z'){
+        if(contourStart&&contour.length) contour.push({...contourStart});
+        flush();
+        if(contourStart){ cx0=contourStart.x; cy0=contourStart.y; }
+      }
+    }
+    if(contour.length) flush();
+    curX += (glyph.advanceWidth||0)*fontSize/upm;
+  }
+
+  /* ---- scribble prefix ---- */
+  const scribblePad = sentenceBoxR * 0.7;
+  const sX0 = sentenceBoxX + scribblePad, sX1 = sentenceBoxX + sentenceBoxW - scribblePad;
+  const sY0 = sentenceBoxY + scribblePad, sY1 = sentenceBoxY + sentenceBoxH - scribblePad;
+  const sCX = (sX0 + sX1) * 0.5, sCY = (sY0 + sY1) * 0.5;
+  const sHW = (sX1 - sX0) * 0.5, sHH = (sY1 - sY0) * 0.5;
+
+  const SCRIBBLE_N = 520;
+  const scribblePts = [];
+  for(let i = 0; i <= SCRIBBLE_N; i++){
+    const t = i / SCRIBBLE_N;
+    const px = sCX + (Math.sin(t * Math.PI * 2 * 3.7 + 0.4) * 0.72 + Math.sin(t * Math.PI * 2 * 1.3 + 1.9) * 0.28) * sHW;
+    const py = sCY + (Math.cos(t * Math.PI * 2 * 5.3 + 1.1) * 0.65 + Math.cos(t * Math.PI * 2 * 2.8 + 0.5) * 0.35) * sHH;
+    scribblePts.push({ x: Math.max(sX0, Math.min(sX1, px)), y: Math.max(sY0, Math.min(sY1, py)) });
+  }
+
+  /* bridge scribble end → first letter point */
+  if(allPts.length > 0){
+    const last = scribblePts[scribblePts.length - 1];
+    const first = allPts[0];
+    const bridgeN = Math.max(3, Math.round(Math.hypot(first.x - last.x, first.y - last.y) / 3));
+    for(let i = 1; i <= bridgeN; i++){
+      const bt = i / bridgeN;
+      scribblePts.push({ x: last.x + (first.x - last.x) * bt, y: last.y + (first.y - last.y) * bt });
+    }
+  }
+
+  continueScribbleCount = scribblePts.length;
+  continueLetterPoints = [...scribblePts, ...allPts];
+  _continueOtPath = _otFont.getPath(text, bx - scaledW/2, baseline, fontSize);
+}
+
 function initTextStrokes(){
   textStrokesActive = true;
   textStrokesResolved = false;
   textStrokesResolving = false;
   textStrokeProgress = 0;
-  textStrokeTargetProgress = 0;
-
+  strokeTextBleedT = 0;
+  strokeTextBleedDelayT = 0;
+  strokeTextBleedDone = false;
+  _continueOtPath = null;
   continueParticles = [];
   continueLetterPoints = [];
   continueLetterPointsBuilt = false;
-
-  const cx = sentenceBoxX + sentenceBoxW * 0.5;
-  const cy = sentenceBoxY + sentenceBoxH * 0.5;
-
-  for(let i=0;i<CONTINUE_PARTICLE_COUNT;i++){
-    const rx = (Math.random() - 0.5) * sentenceBoxW * 0.78;
-    const ry = (Math.random() - 0.5) * sentenceBoxH * 0.62;
-    const a = Math.random() * Math.PI * 2;
-    const s = 0.03 + Math.random() * 0.06;
-
-    continueParticles.push({
-      x: cx + rx,
-      y: cy + ry,
-      vx: Math.cos(a) * s,
-      vy: Math.sin(a) * s,
-      sx: cx + rx,
-      sy: cy + ry,
-      targetIndex: -1
-    });
-  }
-
+  continueScribbleCount = 0;
   if(_otFontReady) buildContinueLetterPoints();
 }
 
 function updateTextStrokes(dt){
-  if(!textStrokesActive) return;
-
-  if(_otFontReady && !continueLetterPointsBuilt){
-    buildContinueLetterPoints();
-  }
-
-  const cx = sentenceBoxX + sentenceBoxW * 0.5;
-  const cy = sentenceBoxY + sentenceBoxH * 0.5;
-  const rxBound = sentenceBoxW * 0.5 - 8;
-  const ryBound = sentenceBoxH * 0.5 - 8;
-
-  if(!textStrokesResolving){
-    const prev = textStrokeProgress;
-    textStrokeProgress += (textStrokeTargetProgress - textStrokeProgress) * 0.12;
-    const drive = clamp((textStrokeProgress - prev) * 18, -1, 1);
-    const absDrive = Math.abs(drive);
-
-    for(let i=0;i<continueParticles.length;i++){
-      const p = continueParticles[i];
-
-      p.vx += (Math.random() - 0.5) * 0.0020;
-      p.vy += (Math.random() - 0.5) * 0.0020;
-
-      p.vx += -drive * (0.010 + Math.random() * 0.010);
-      p.vy += (Math.random() - 0.5) * 0.003 * absDrive;
-
-      p.vx *= 0.985;
-      p.vy *= 0.985;
-
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-
-      const nx = (p.x - cx) / rxBound;
-      const ny = (p.y - cy) / ryBound;
-      const d = nx * nx + ny * ny;
-
-      if(d > 1){
-        const len = Math.sqrt(d);
-        p.x = cx + (nx / len) * rxBound * 0.985;
-        p.y = cy + (ny / len) * ryBound * 0.985;
-        p.vx *= -0.35;
-        p.vy *= -0.35;
-      }
+  if(!textStrokesActive || !textStrokesResolving) return;
+  if(_otFontReady && !continueLetterPointsBuilt) buildContinueLetterPoints();
+  if(continueLetterPoints.length < 2) return;
+  if(!textStrokesResolved){
+    textStrokeProgress = Math.min(1, textStrokeProgress + dt * 0.00022);
+    if(textStrokeProgress >= 1){ textStrokesResolved = true; strokeTextBleedDelayT = 0; }
+  } else if(!strokeTextBleedDone){
+    if(strokeTextBleedDelayT < STROKE_TEXT_BLEED_DELAY){
+      strokeTextBleedDelayT += dt;
+    } else {
+      strokeTextBleedT = Math.min(1, strokeTextBleedT + dt / STROKE_TEXT_BLEED_DURATION);
+      if(strokeTextBleedT >= 1) strokeTextBleedDone = true;
     }
-
-    return;
   }
-
-  textStrokeProgress = Math.min(1, textStrokeProgress + dt / CONTINUE_MORPH_DURATION);
-
-  if(!continueLetterPoints.length) return;
-
-  const morph = textStrokeProgress;
-
-  for(let i=0;i<continueParticles.length;i++){
-    const p = continueParticles[i];
-    const idx = ((p.targetIndex % continueLetterPoints.length) + continueLetterPoints.length) % continueLetterPoints.length;
-    const target = continueLetterPoints[idx];
-    p.x = p.sx + (target.x - p.sx) * morph;
-    p.y = p.sy + (target.y - p.sy) * morph;
-  }
-
-  textStrokesResolved = morph >= 0.999;
 }
 
 function startTextStrokesResolve(){
   if(!textStrokesActive || textStrokesResolving) return;
+  if(_otFontReady && !continueLetterPointsBuilt) buildContinueLetterPoints();
   textStrokesResolving = true;
   textStrokeProgress = 0;
+}
 
-  for(let i=0;i<continueParticles.length;i++){
-    continueParticles[i].sx = continueParticles[i].x;
-    continueParticles[i].sy = continueParticles[i].y;
-  }
-
-  if(_otFontReady && !continueLetterPointsBuilt){
-    buildContinueLetterPoints();
-  }
+function drawBorderSnake(){
+  if(!borderSnakeActive||!page2.classList.contains("active")) return;
+  const total=boxSquigglePts.length; if(total<2) return;
+  const headIdx=Math.min(total-1,Math.round(borderSnakeProgress*(total-1)));
+  const trailLen=Math.floor(BORDER_SNAKE_TRAIL*total);
+  const tailIdx=Math.max(0,headIdx-trailLen);
+  const pts=boxSquigglePts.slice(tailIdx,headIdx+1);
+  if(pts.length<2) return;
+  ctx.save();
+  ctx.strokeStyle="#111";
+  ctx.lineWidth=1.8;
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+  ctx.stroke();
+  const tip=pts[pts.length-1];
+  ctx.fillStyle="#111";
+  ctx.beginPath();
+  ctx.arc(tip.x,tip.y,2.5,0,Math.PI*2);
+  ctx.fill();
+  ctx.restore();
 }
 
 function drawTextStrokes(){
-  if(!textStrokesActive || !page2.classList.contains("active")) return;
-  if(!continueParticles.length) return;
+  if(!textStrokesActive || !textStrokesResolving || !page2.classList.contains("active")) return;
+  if(continueLetterPoints.length < 2) return;
+
+  const ss = t => t*t*(3-2*t);
+
+  // stroke drawing phase
+  const totalPts = continueLetterPoints.length;
+  const headIdx = Math.min(totalPts-1, Math.round(textStrokeProgress*(totalPts-1)));
+
+  const fillPhase = ss(strokeTextBleedT);
 
   ctx.save();
+  if(continueExitOffsetY!==0) ctx.translate(0, continueExitOffsetY);
 
-  ctx.beginPath();
-  ctx.moveTo(sentenceBoxX + sentenceBoxR, sentenceBoxY);
-  ctx.lineTo(sentenceBoxX + sentenceBoxW - sentenceBoxR, sentenceBoxY);
-  ctx.arcTo(sentenceBoxX + sentenceBoxW, sentenceBoxY, sentenceBoxX + sentenceBoxW, sentenceBoxY + sentenceBoxR, sentenceBoxR);
-  ctx.lineTo(sentenceBoxX + sentenceBoxW, sentenceBoxY + sentenceBoxH - sentenceBoxR);
-  ctx.arcTo(sentenceBoxX + sentenceBoxW, sentenceBoxY + sentenceBoxH, sentenceBoxX + sentenceBoxW - sentenceBoxR, sentenceBoxY + sentenceBoxH, sentenceBoxR);
-  ctx.lineTo(sentenceBoxX + sentenceBoxR, sentenceBoxY + sentenceBoxH);
-  ctx.arcTo(sentenceBoxX, sentenceBoxY + sentenceBoxH, sentenceBoxX, sentenceBoxY + sentenceBoxH - sentenceBoxR, sentenceBoxR);
-  ctx.lineTo(sentenceBoxX, sentenceBoxY + sentenceBoxR);
-  ctx.arcTo(sentenceBoxX, sentenceBoxY, sentenceBoxX + sentenceBoxR, sentenceBoxY, sentenceBoxR);
-  ctx.closePath();
-  ctx.clip();
+  // fill bleeding inward from the stroke edges
+  if(fillPhase > 0 && _continueOtPath){
+    ctx.globalAlpha = fillPhase;
+    ctx.fillStyle = "#111";
+    _continueOtPath.draw(ctx);
+    ctx.globalAlpha = 1;
+  }
 
-  ctx.fillStyle = "#111";
-  for(let i=0;i<continueParticles.length;i++){
-    const p = continueParticles[i];
+  ctx.strokeStyle = "#111";
+  ctx.lineWidth = 0.9;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  function strokePtsSegment(from, to){
+    if(to <= from) return;
+    const seg = continueLetterPoints.slice(from, to + 1);
+    if(seg.length < 2) return;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, CONTINUE_PARTICLE_RADIUS, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(seg[0].x, seg[0].y);
+    for(let i = 1; i < seg.length; i++){
+      if(seg[i].lift) ctx.moveTo(seg[i].x, seg[i].y);
+      else ctx.lineTo(seg[i].x, seg[i].y);
+    }
+    ctx.stroke();
+  }
+
+  const SCRIBBLE_TAIL = 110;
+
+  if(headIdx < continueScribbleCount){
+    // pure scribble phase: sliding tail only
+    strokePtsSegment(Math.max(0, headIdx - SCRIBBLE_TAIL), headIdx);
+  } else {
+    // letter phase: scribble tail (sliding off) + accumulated letter strokes
+    const tailStart = Math.max(0, headIdx - SCRIBBLE_TAIL);
+    if(tailStart < continueScribbleCount){
+      strokePtsSegment(tailStart, continueScribbleCount - 1);
+    }
+    strokePtsSegment(continueScribbleCount, headIdx);
   }
 
   ctx.restore();
@@ -1976,9 +2284,112 @@ function drawTextStrokes(){
 =========================== */
 function buildPage2DotTargets(){
   dotsAnimStart=dots.map(d=>({x:d.x,y:d.y}));
-  const bottomY=H*0.78,farRightStart=W*1.05,gap=W*0.035;
-  dotsAnimTarget=dots.map((d,i)=>({x:farRightStart+i*gap,y:bottomY}));
+  const bottomY=H*0.78, gap=W*0.035, midX=W/2;
+  const leftIdx=dots.map((_,i)=>i).filter(i=>dots[i].x<midX);
+  const rightIdx=dots.map((_,i)=>i).filter(i=>dots[i].x>=midX);
+  dotsAnimTarget=dots.map((d,i)=>{
+    if(d.x<midX){
+      const rank=leftIdx.length-1-leftIdx.indexOf(i);
+      return {x:-W*0.05-rank*gap, y:bottomY};
+    } else {
+      const rank=rightIdx.indexOf(i);
+      return {x:W*1.05+rank*gap, y:bottomY};
+    }
+  });
 }
+function buildNewPuzzleTargets(){
+  // 4-col × 5-row pixel-font grid: [col, row] where col∈[0..3], row∈[0..4]
+  const DOTS = {
+    'C': [[1,0],[2,0],[3,0],[0,1],[0,2],[0,3],[1,4],[2,4],[3,4]],
+    'O': [[1,0],[2,0],[0,1],[3,1],[0,2],[3,2],[0,3],[3,3],[1,4],[2,4]],
+    'N': [[0,0],[3,0],[0,1],[1,1],[3,1],[0,2],[2,2],[3,2],[0,3],[3,3],[0,4],[3,4]],
+    'T': [[0,0],[1,0],[2,0],[1,1],[1,2],[1,3],[1,4]],
+    'I': [[0,0],[1,0],[2,0],[1,1],[1,2],[1,3],[0,4],[1,4],[2,4]],
+    'U': [[0,0],[3,0],[0,1],[3,1],[0,2],[3,2],[0,3],[3,3],[1,4],[2,4]],
+    // Y: tips at cols 0 and 2, both make equal 45° diagonals to junction at (1,1), single stem
+    'Y': [[0,0],[2,0],[1,1],[1,2],[1,3],[1,4]],
+  };
+  // Explicit diagonal connections per letter: [c1,r1, c2,r2]
+  const DIAGS = {
+    // Last step goes directly to bottom-right CORNER (3,4) — skips (3,3)
+    'N': [[0,0,1,1],[1,1,2,2],[2,2,3,4]],
+    'Y': [[0,1,1,2],[3,1,2,2]],
+  };
+  // Horizontal connections to suppress (adjacent by grid but not part of the letter shape)
+  const BLOCKED = {
+    'N': [[0,1,1,1],[2,2,3,2]], // diagonal-dot "wings" touching the column dots
+  };
+
+  // Grid spacing: fit CONTINUITY (10 letters × 4 cols + 9 gaps of 3 cols = 67 units)
+  const gs = Math.min(W / 74, H / 35);
+  // Cross-letter gap = 7*gs - 3*dot_gs = 7*gs - 4.05*gs = 2.95*gs >> thresh 1.51*gs ✓
+  const dot_gs = gs * 1.35;
+  newDotRadius  = gs * 0.50;
+  newDotSpacing = dot_gs;
+
+  const cols = 4, rows = 5, colGap = 3; // wider gap between letters
+  const letterSlot = cols + colGap; // 7 units per letter slot
+  const WORD = 'CONTINUITY';
+  const totalCols = WORD.length * letterSlot - colGap; // 67 units
+  const totalW = totalCols * gs;
+  const startX = (W - totalW) / 2;
+  const totalH = (rows - 1) * dot_gs;
+  const startY = H * 0.60 - totalH / 2;
+  const xOff = (cols * gs - (cols - 1) * dot_gs) / 2;
+
+  const targets = [];
+  diagPairSet    = new Set(); // reset each time
+  blockedPairSet = new Set();
+
+  let dotIdx = 0;
+  for(let li = 0; li < WORD.length; li++){
+    const letter = WORD[li];
+    const pts = DOTS[letter];
+    const ox = startX + li * letterSlot * gs + xOff;
+    const letterStart = dotIdx;
+
+    // Build pos→index map for this letter's dots
+    const posMap = new Map();
+    for(let pi = 0; pi < pts.length; pi++){
+      const [c, row] = pts[pi];
+      posMap.set(`${c}_${row}`, letterStart + pi);
+      targets.push({ x: ox + c * dot_gs, y: startY + row * dot_gs });
+    }
+    dotIdx += pts.length;
+
+    // Register allowed diagonal pairs
+    if(DIAGS[letter]){
+      for(const [c1,r1,c2,r2] of DIAGS[letter]){
+        const a = posMap.get(`${c1}_${r1}`);
+        const b = posMap.get(`${c2}_${r2}`);
+        if(a !== undefined && b !== undefined)
+          diagPairSet.add(a < b ? `${a}_${b}` : `${b}_${a}`);
+      }
+    }
+
+    // Register HV pairs to suppress (adjacent but not part of letter shape)
+    if(BLOCKED[letter]){
+      for(const [c1,r1,c2,r2] of BLOCKED[letter]){
+        const a = posMap.get(`${c1}_${r1}`);
+        const b = posMap.get(`${c2}_${r2}`);
+        if(a !== undefined && b !== undefined)
+          blockedPairSet.add(a < b ? `${a}_${b}` : `${b}_${a}`);
+      }
+    }
+  }
+
+  newDots = targets.map(t => {
+    const fromLeft = Math.random() < 0.5;
+    const fromX = fromLeft
+      ? -W * 0.06 - Math.random() * W * 0.08
+      :  W * 1.06 + Math.random() * W * 0.08;
+    const fromY = H * 0.60 + (Math.random() - 0.5) * H * 0.20;
+    const delay    = Math.random() * 2200;
+    const duration = 800 + Math.random() * 500;
+    return { x: fromX, y: fromY, targetX: t.x, targetY: t.y, fromX, fromY, delay, duration };
+  });
+}
+
 function buildCornerDotsTargets(){
   const x=W*0.955,y0=H*0.300,gap=H*0.028,sX=W+W*0.04;
   cornerDotsStart=[{x:sX,y:y0},{x:sX,y:y0+gap},{x:sX,y:y0+gap*2}];
@@ -2133,23 +2544,6 @@ function updatePage2Animations(ts){
       blankLine.x2=mid.x;
       blankLine.y2=mid.y;
       blankLine.t=0;
-
-      blobActive=true;
-      blobCX=sentenceBoxX+sentenceBoxW*0.5;
-      blobCY=sentenceBoxY+sentenceBoxH*0.5;
-      blobProgress=0;
-      blobTargetProgress=0;
-      blobPhase=0;
-      blobStretch=0;
-      blobTail=0;
-      blobDirX=-1;
-      blobDirY=0;
-      blobMouseVX=0;
-      blobLastMouseX=null;
-      blobFlyPath=[];
-      blobRevealT=0;
-      blobRevealAnim=true;
-      blobRevealStartTime=performance.now();
     }
   }
   if(thirdPillDotsAnim){
@@ -2445,6 +2839,10 @@ function updateThirdPillMerge(ts){
 
 function startThirdPillReverse(ts){
   if(thirdPillReverseAnim||thirdPillSlideOutAnim) return;
+  if(thirdArrowVisible&&!thirdArrowReverseAnim){
+    thirdArrowReverseAnim=true;
+    thirdArrowReverseStartTime=ts||performance.now();
+  }
   thirdPillReverseAnim=true;
   thirdPillReverseStartTime=ts||performance.now();
   const center=thirdPillDots[1], gap=H*0.028;
@@ -2501,6 +2899,20 @@ function updateThirdPillSlideOut(ts){
 /* ===========================
    MASTER RENDER
 =========================== */
+function syncPillCursor(){
+  if(!cornerLine.active||cornerReverseAnim||cornerSlideOutAnim) cornerLineHover=false;
+  if(!leftLine.active||leftReverseAnim||leftSlideOutAnim) leftLineHover=false;
+  if(!centerLine.active||centerReverseAnim||centerSlideOutAnim) centerLineHover=false;
+  if(!blankLine.active||blankReverseAnim||blankSlideOutAnim) blankLineHover=false;
+  if(!thirdPillLine.active||thirdPillReverseAnim||thirdPillSlideOutAnim) thirdPillLineHover=false;
+  if(!fourthPillLine.active||fourthPillReverseAnim||fourthPillSlideOutAnim) fourthPillLineHover=false;
+  if(!borderSnakeActive||textStrokesResolving) borderSnakeHover=false;
+  const continueReady=blobResolved&&strokeTextBleedDone&&!continueButtonClicked;
+  const continueHover=continueReady&&sentenceLineCursorX>=sentenceBoxX&&sentenceLineCursorX<=sentenceBoxX+sentenceBoxW&&sentenceLineCursorY>=sentenceBoxY&&sentenceLineCursorY<=sentenceBoxY+sentenceBoxH;
+  const anyHover=cornerLineHover||leftLineHover||centerLineHover||blankLineHover||thirdPillLineHover||fourthPillLineHover||borderSnakeHover||continueHover;
+  canvas.style.cursor=anyHover?"pointer":"default";
+}
+
 function render(timestamp){
   if(typeof timestamp==="number"){
     updatePage2Animations(timestamp);
@@ -2522,12 +2934,22 @@ function render(timestamp){
     updateThirdPillSlideOut(timestamp);
     updateFourthPillReverse(timestamp);
     updateFourthPillSlideOut(timestamp);
+    syncPillCursor();
 
     if(!lastTimestamp) lastTimestamp=timestamp;
     const dt=timestamp-lastTimestamp;
     lastTimestamp=timestamp;
 
+    if(sentenceLineAutoPlay && !sentenceLineResolveAnim && !sentenceLineResolved){
+      sentenceLineTargetProgress = Math.min(1, sentenceLineTargetProgress + dt * 0.00055);
+    }
     sentenceLineProgress+=(sentenceLineTargetProgress-sentenceLineProgress)*0.25;
+    if(sentenceLineAutoPlay && !sentenceLineResolveAnim && !sentenceLineResolved && sentenceLineProgress>=0.97){
+      sentenceLineAutoPlay=false;
+      buildResolvePath();
+      sentenceLineResolveAnim=true;
+    }
+    if(borderSnakeActive) borderSnakeProgress+=(borderSnakeTargetProgress-borderSnakeProgress)*0.22;
     if(sentenceLineResolveAnim){
       resolveHeadT=Math.min(1,resolveHeadT+dt*RESOLVE_SPEED);
       if(resolveHeadT>=1){
@@ -2539,11 +2961,63 @@ function render(timestamp){
     updateBlob(dt);
     updateTextStrokes(dt);
 
+    if(continueExitAnim){
+      const et=Math.min(1,(timestamp-continueExitStartTime)/CONTINUE_EXIT_DURATION);
+      heroExitOffsetY=(circleStartY-heroCircle.y)*et;
+      continueExitOffsetY=(H-sentenceBoxY+sentenceBoxH)*et;
+      if(et>=1){
+        continueExitAnim=false;
+        beltExitAnim=true;
+        beltExitStartTime=timestamp;
+        buildNewPuzzleTargets();
+        newDotsReturnAnim=true;
+        newDotsReturnStartTime=timestamp;
+      }
+    }
+
+    if(beltExitAnim){
+      const elapsed=Math.min(BELT_EXIT_DURATION,timestamp-beltExitStartTime);
+      beltExitOffsetY=(circleStartY-heroCircle.y)/CONTINUE_EXIT_DURATION*elapsed;
+      if(elapsed>=BELT_EXIT_DURATION) beltExitAnim=false;
+    }
+
+    if(newDotsReturnAnim){
+      const elapsed = timestamp - newDotsReturnStartTime;
+      let allDone = true;
+      for(const d of newDots){
+        const t = Math.max(0, Math.min(1, (elapsed - d.delay) / d.duration));
+        const ease = t * t * (3 - 2 * t);
+        d.x = d.fromX + (d.targetX - d.fromX) * ease;
+        d.y = d.fromY + (d.targetY - d.fromY) * ease;
+        if(t < 1) allDone = false;
+      }
+      if(allDone){
+        newDotsReturnAnim = false;
+        newPuzzleActive = true;
+        for(const d of newDots){ d.x = d.targetX; d.y = d.targetY; }
+        bleedAnimActive = true;
+        bleedAnimStartTime = timestamp;
+        bleedAnimT = 0;
+        enterBtn2.style.opacity = '';
+        enterBtn2.style.pointerEvents = '';
+        enterBtn2.classList.add('ready');
+      }
+    }
+
+    if(bleedAnimActive){
+      const bt = Math.min(1, (timestamp - bleedAnimStartTime) / BLEED_ANIM_DURATION);
+      bleedAnimT = bt * bt * (3 - 2 * bt); // smooth-step
+      if(bt >= 1){
+        bleedAnimActive = false;
+      }
+    }
+
     if(blobRevealAnim){
       blobRevealT = Math.min(1, (timestamp - blobRevealStartTime) / BLOB_REVEAL_DURATION);
       if(blobRevealT >= 1){
         blobRevealAnim = false;
         blobRevealT = 1;
+        if(blobAutoResolve){ blobAutoResolve=false; blobAutoMorph=true; blobAutoMorphT=0; }
       }
     }
 
@@ -2553,11 +3027,6 @@ function render(timestamp){
         cornerLineLoad=1;
         cornerLineLoaded=true;
         cornerLineLoading=false;
-        sentenceLineActive=true;
-        sentenceLineResolved=false;
-        sentenceLineResolveAnim=false;
-        sentenceLineProgress=0;
-        sentenceLineTargetProgress=0;
         beltHighlightRow=0;
         beltHighlightActive=true;
         beltHighlightFade=0;
@@ -2582,15 +3051,19 @@ function render(timestamp){
         beltHighlightFadeOut=true;
         beltHighlightFadeIn=false;
         beltHighlightFadeOutStartTime=timestamp||performance.now();
-        buildResolvePath();
-        sentenceLineResolveAnim=true;
+        sentenceLineActive=true;
+        sentenceLineResolved=false;
+        sentenceLineResolveAnim=false;
+        sentenceLineProgress=0;
+        sentenceLineTargetProgress=0;
+        sentenceLineAutoPlay=true;
         setTimeout(()=>{
           buildCenterDotsTargets();
           centerDotsVisible=true;
           centerDotsAnim=true;
           centerDotsStartTime=performance.now();
           render();
-        },2200);
+        },4200);
       }
     }
     if(centerLineLoading&&!centerLineLoaded){
@@ -2620,8 +3093,23 @@ function render(timestamp){
         blankLineLoad=1;
         blankLineLoaded=true;
         blankLineLoading=false;
-        blobResolveAnim=true;
-        blobResolveT=0;
+        blobActive=true;
+        blobCX=sentenceBoxX+sentenceBoxW*0.5;
+        blobCY=sentenceBoxY+sentenceBoxH*0.5;
+        blobProgress=0;
+        blobTargetProgress=0;
+        blobPhase=0;
+        blobStretch=0;
+        blobTail=0;
+        blobDirX=-1;
+        blobDirY=0;
+        blobMouseVX=0;
+        blobLastMouseX=null;
+        blobFlyPath=[];
+        blobRevealT=0;
+        blobRevealAnim=true;
+        blobRevealStartTime=timestamp||performance.now();
+        blobAutoResolve=true;
         beltHighlightFadeOut=true;
         beltHighlightFadeIn=false;
         beltHighlightFadeOutStartTime=timestamp||performance.now();
@@ -2634,6 +3122,9 @@ function render(timestamp){
         thirdPillLineLoad=1;
         thirdPillLineLoaded=true;
         thirdPillLineLoading=false;
+        thirdArrowVisible=true;
+        thirdArrowAnim=true;
+        thirdArrowStartTime=timestamp||performance.now();
         beltHighlightRow=2;
         beltHighlightActive=true;
         beltHighlightFade=0;
@@ -2652,6 +3143,11 @@ function render(timestamp){
         fourthPillLineLoad=1;
         fourthPillLineLoaded=true;
         fourthPillLineLoading=false;
+        borderSnakeActive=false;
+        borderSnakeHover=false;
+        beltHighlightFadeOut=true;
+        beltHighlightFadeIn=false;
+        beltHighlightFadeOutStartTime=timestamp||performance.now();
         startTextStrokesResolve();
       }
     }
@@ -2703,16 +3199,18 @@ function render(timestamp){
   drawDots();
   drawCornerDots(); drawCornerLine(); drawCornerLineLoader(); drawCornerNumber(timestamp||performance.now());
   drawCenterDots(); drawCenterLine(); drawCenterLineLoader(); drawCenterNumber(timestamp||performance.now()); drawRightArrow(timestamp||performance.now());
-  drawThirdPillDots(); drawThirdPillLine(); drawThirdPillLineLoader(); drawThirdPillNumber(timestamp||performance.now());
+  drawThirdPillDots(); drawThirdPillLine(); drawThirdPillLineLoader(); drawThirdPillNumber(timestamp||performance.now()); drawThirdArrow(timestamp||performance.now());
   drawFourthPillDots(); drawFourthPillLine(); drawFourthPillLineLoader();
   drawBlankDots(); drawBlankLine(); drawBlankLineLoader();
   drawLeftDots(); drawLeftLine(); drawLeftLineLoader(); drawLeftArrow(timestamp||performance.now());
   drawSentenceShape();
   drawBlob();
+  drawBorderSnake();
   drawTextStrokes();
 
   if(blobActive && page2.classList.contains("active")){
     ctx.save();
+    if(continueExitOffsetY!==0) ctx.translate(0, continueExitOffsetY);
     ctx.strokeStyle = "rgba(0,0,0,0.92)";
     ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -2731,6 +3229,9 @@ function render(timestamp){
   }
 
   if(heroCircleVisible) drawHeroCircle();
+
+  drawNewPuzzleDots();
+
   if(page2.classList.contains("active")) requestAnimationFrame(render);
 }
 
@@ -2743,6 +3244,14 @@ for(let i=1;i<=FRAME_COUNT;i++){
   img.src=`Animation_${i}.png`;
   img.onload=()=>{framesLoaded++;};
   frames.push(img);
+}
+
+const FRAME_COUNT2=19, FRAME_DELAY2=50, frames2=[]; let framesLoaded2=0;
+for(let i=1;i<=FRAME_COUNT2;i++){
+  const img=new Image();
+  img.src=`2Animation_${i}.png`;
+  img.onload=()=>{framesLoaded2++;};
+  frames2.push(img);
 }
 
 function buildLineTargets(){
@@ -2843,6 +3352,10 @@ function resetAllPage2State(){
   thirdPillLineLoad=0;
   thirdPillLineLoading=false;
   thirdPillLineLoaded=false;
+  thirdArrowVisible=false;
+  thirdArrowAnim=false;
+  thirdArrowStartTime=0;
+  thirdArrowReverseAnim=false;
   thirdPillNumberVisible=false;
   thirdPillNumberAnim=false;
   thirdPillReverseAnim=false;
@@ -2923,6 +3436,7 @@ function resetAllPage2State(){
   sentenceLineResolveAnim=false;
   sentenceLineProgress=0;
   sentenceLineTargetProgress=0;
+  sentenceLineAutoPlay=false;
   sentenceLineCursorX=0;
   resolvePath=[];
   resolveHeadT=0;
@@ -2932,6 +3446,9 @@ function resetAllPage2State(){
   blobResolved=false;
   blobResolveAnim=false;
   blobResolveT=0;
+  blobAutoResolve=false;
+  blobAutoMorph=false;
+  blobAutoMorphT=0;
   blobCX=0;
   blobCY=0;
   blobProgress=0;
@@ -2948,14 +3465,47 @@ function resetAllPage2State(){
   blobRevealAnim=false;
   blobRevealStartTime=0;
 
+  borderSnakeActive=false;
+  borderSnakeProgress=0;
+  borderSnakeTargetProgress=0;
+  borderSnakeHover=false;
+
   textStrokesActive=false;
   textStrokesResolved=false;
   textStrokesResolving=false;
   textStrokeProgress=0;
   textStrokeTargetProgress=0;
+  strokeTextBleedT=0;
+  strokeTextBleedDelayT=0;
+  strokeTextBleedDone=false;
+  _continueOtPath=null;
   continueParticles=[];
   continueLetterPoints=[];
   continueLetterPointsBuilt=false;
+  continueButtonClicked=false;
+  continueExitAnim=false;
+  continueExitStarted=false;
+  continueExitStartTime=0;
+  heroExitOffsetY=0;
+  continueExitOffsetY=0;
+  beltExitOffsetY=0;
+  beltExitAnim=false;
+  beltExitStartTime=0;
+
+  newDots=[];
+  newDotRadius=DOT_R;
+  newDotsReturnAnim=false;
+  newDotsReturnStartTime=0;
+  newPuzzleActive=false;
+  bleedAnimT=0;
+  bleedAnimActive=false;
+  bleedAnimStartTime=0;
+  newDotSpacing=0;
+  diagPairSet=new Set();
+  blockedPairSet=new Set();
+  enterBtn2.classList.remove('ready');
+  enterBtn2.style.opacity='0';
+  enterBtn2.style.pointerEvents='none';
 }
 
 function startCircleAndDotsAnimationAfterDelay(){
@@ -3020,6 +3570,436 @@ function playTransition(){
   drawFrame();
 }
 
+/* ===========================
+   PAGE 3 — RIVER ANIMATION
+=========================== */
+let riverActive=false, riverRafId=null, riverStartTime=0, riverPhase=0;
+let riverBallPrevX=0, riverBallPrevY=0, riverBallVX=0, riverBallVY=0;
+const RIVER_ENTRY_DELAY=700, RIVER_SLIDE_DUR=900, RIVER_BREATHE_DUR=1000, RIVER_MORPH_DUR=1900;
+
+function drawBallShape(px,py,r,vx,vy,t){
+  const speed=Math.sqrt(vx*vx+vy*vy);
+  const stretch=clamp(speed*0.09,0,0.055);
+  const angle=speed>0.3?Math.atan2(vy,vx):0;
+  const w1=Math.sin(t*9.1)*0.018;
+  const w2=Math.sin(t*6.4+1.4)*0.012;
+  const rx=Math.max(r*(1+stretch+w1),1);
+  const ry=Math.max(r*(1-stretch*0.5+w2),1);
+  ctx.beginPath();
+  ctx.ellipse(px,py,rx,ry,angle,0,Math.PI*2);
+  ctx.fillStyle='#111';
+  ctx.fill();
+}
+
+function drawRiverShape(px,py,halfW,halfH,phase,organic){
+  const capR=halfH;
+  const sw=halfW-capR;
+  const STEPS=120, CAP_STEPS=18;
+  const pts=[];
+
+  // top edge L→R
+  for(let i=0;i<=STEPS;i++){
+    const u=i/STEPS, x=(px-sw)+u*sw*2;
+    const blend=Math.sin(u*Math.PI);
+    const w1=Math.sin(u*Math.PI*3+phase*1.1)*capR*0.18*organic*blend;
+    const w2=Math.sin(u*Math.PI*5.5-phase*0.7)*capR*0.09*organic*blend;
+    pts.push({x, y:py-capR+w1+w2});
+  }
+  // right cap top→bottom
+  for(let i=1;i<=CAP_STEPS;i++){
+    const a=-Math.PI/2+Math.PI*i/CAP_STEPS;
+    pts.push({x:px+sw+Math.cos(a)*capR, y:py+Math.sin(a)*capR});
+  }
+  // bottom edge R→L
+  for(let i=STEPS;i>=0;i--){
+    const u=i/STEPS, x=(px-sw)+u*sw*2;
+    const blend=Math.sin(u*Math.PI);
+    const w1=Math.sin(u*Math.PI*3+phase*1.1+1.1)*capR*0.18*organic*blend;
+    const w2=Math.sin(u*Math.PI*5.5-phase*0.7+0.6)*capR*0.09*organic*blend;
+    pts.push({x, y:py+capR+w1+w2});
+  }
+  // left cap bottom→top
+  for(let i=1;i<=CAP_STEPS;i++){
+    const a=Math.PI/2+Math.PI*i/CAP_STEPS;
+    pts.push({x:px-sw+Math.cos(a)*capR, y:py+Math.sin(a)*capR});
+  }
+
+  ctx.beginPath();
+  const n=pts.length;
+  ctx.moveTo((pts[0].x+pts[n-1].x)/2,(pts[0].y+pts[n-1].y)/2);
+  for(let i=0;i<n;i++){
+    const a=pts[i], b=pts[(i+1)%n];
+    ctx.quadraticCurveTo(a.x,a.y,(a.x+b.x)/2,(a.y+b.y)/2);
+  }
+  ctx.closePath();
+  ctx.fillStyle='#111';
+  ctx.fill();
+}
+
+function riverTick(timestamp){
+  if(!riverActive) return;
+  ctx.clearRect(0,0,W,H);
+
+  const elapsed=timestamp-riverStartTime;
+  riverPhase=elapsed*0.0009;
+
+  const cx=W*0.5, cy=H*0.5;
+  const DOT_R=7, EXPAND_R=55;
+  const RIVER_HW=W*0.70, RIVER_HH=Math.max(H*0.13,50);
+  const SLIDE_END=RIVER_ENTRY_DELAY+RIVER_SLIDE_DUR;
+  const BREATHE_END=SLIDE_END+RIVER_BREATHE_DUR;
+  const MORPH_END=BREATHE_END+RIVER_MORPH_DUR;
+
+  let px=cx, py=cy, halfW, halfH, organic;
+  let useBall=false, ballR=0;
+
+  if(elapsed<RIVER_ENTRY_DELAY){
+    // nothing visible yet
+
+  } else if(elapsed<SLIDE_END){
+    const t=easeOutQuart((elapsed-RIVER_ENTRY_DELAY)/RIVER_SLIDE_DUR);
+    px=lerp(-DOT_R,cx,t);
+    useBall=true; ballR=DOT_R;
+
+  } else if(elapsed<BREATHE_END){
+    const t=(elapsed-SLIDE_END)/RIVER_BREATHE_DUR;
+    const env=4*t*(1-t);
+    px=cx+Math.sin(t*Math.PI*2.5)*W*0.03*env;
+    py=cy+Math.cos(t*Math.PI*1.8)*H*0.022*env;
+    // track velocity for squash/stretch
+    riverBallVX=px-riverBallPrevX;
+    riverBallVY=py-riverBallPrevY;
+    riverBallPrevX=px; riverBallPrevY=py;
+    ballR=lerp(DOT_R,EXPAND_R,easeOutQuart(clamp(t*1.5,0,1)));
+    useBall=true;
+
+  } else if(elapsed<MORPH_END){
+    const tTotal=(elapsed-BREATHE_END)/RIVER_MORPH_DUR;
+    const tW=clamp(tTotal/0.40,0,1);
+    halfW=lerp(EXPAND_R,RIVER_HW,easeOutQuart(tW));
+    const tH=clamp((tTotal-0.15)/0.85,0,1);
+    halfH=lerp(EXPAND_R,RIVER_HH,easeInOutQuart(tH));
+    organic=lerp(0.12,1,tTotal);
+
+  } else {
+    halfW=RIVER_HW; halfH=RIVER_HH; organic=1;
+  }
+
+  if(useBall){
+    drawBallShape(px,py,ballR,riverBallVX,riverBallVY,elapsed*0.001);
+  } else if(halfW>0){
+    drawRiverShape(px,py,halfW,halfH,riverPhase,organic);
+  }
+  riverRafId=requestAnimationFrame(riverTick);
+}
+
+function startRiverAnimation(){
+  stopRiverAnimation();
+  riverBallPrevX=W*0.5; riverBallPrevY=H*0.5;
+  riverBallVX=0; riverBallVY=0;
+  riverActive=true;
+  riverStartTime=performance.now();
+  riverRafId=requestAnimationFrame(riverTick);
+}
+
+function stopRiverAnimation(){
+  riverActive=false;
+  if(riverRafId){cancelAnimationFrame(riverRafId);riverRafId=null;}
+}
+
+/* merge CONTINUITY dots → single dot → river
+   NEW VERSION: sequential absorption + impact reaction */
+let mergeActive=false, mergeRafId=null, mergeStartTime=0;
+let mergeCapturedDots=[], mergeCapturedDotR=0;
+let mergeOrderedDots=[];
+let mergeAbsorbedCount=0;
+let mergeCenterX=0, mergeCenterY=0; 
+let mergeBaseBallR=0;
+let mergeCurrentBallR=0;
+let mergeTargetBallR=0;
+let mergeImpacts=[];
+
+const MERGE_DOT_STAGGER = 65;     // slower, one-by-one timing
+const MERGE_DOT_TRAVEL_DUR = 440; // each dot travel time
+const MERGE_AFTER_LAST_HOLD = 520;
+const MERGE_TO_RIVER_DUR = 1500;
+
+function buildMergeSequence(dots){
+  const cx = W * 0.5;
+  const cy = H * 0.5;
+
+  // sort by distance descending so outer dots come in first
+  const ordered = dots.map(d => {
+    const dx = d.x - cx;
+    const dy = d.y - cy;
+    return {
+      x: d.x,
+      y: d.y,
+      startX: d.x,
+      startY: d.y,
+      angle: Math.atan2(dy, dx),
+      dist: Math.hypot(dx, dy),
+      absorbed: false,
+      hidden: false
+    };
+  }).sort((a,b) => a.dist - b.dist);
+
+  // small alternating timing offsets so it feels less robotic
+  for(let i=0;i<ordered.length;i++){
+    ordered[i].delay = i * MERGE_DOT_STAGGER + ((i % 2) ? 22 : 0);
+  }
+
+  return ordered;
+}
+
+function startMergeAnimation(dots, dotR){
+  stopMergeAnimation();
+
+  mergeCapturedDots = dots.map(d => ({ x:d.x, y:d.y }));
+  mergeCapturedDotR = dotR;
+  mergeOrderedDots = buildMergeSequence(mergeCapturedDots);
+  mergeAbsorbedCount = 0;
+  mergeImpacts = [];
+
+  mergeCenterX = W * 0.5;
+  mergeCenterY = H * 0.5;
+
+  // no pre-spawned ball:
+  // the first absorbed dot becomes the base ball
+  mergeBaseBallR = dotR;
+  mergeCurrentBallR = 0;
+  mergeTargetBallR = 0;
+
+  mergeActive = true;
+  mergeStartTime = performance.now();
+  mergeRafId = requestAnimationFrame(mergeTick);
+}
+
+function stopMergeAnimation(){
+  mergeActive = false;
+  if(mergeRafId){
+    cancelAnimationFrame(mergeRafId);
+    mergeRafId = null;
+  }
+}
+
+function drawReactiveBall(cx, cy, baseR, impacts, tNow){
+  if(baseR <= 0.01) return;
+
+  const N = 72;
+  const pts = [];
+
+  for(let i=0;i<N;i++){
+    const a = (i / N) * Math.PI * 2;
+    const nx = Math.cos(a);
+    const ny = Math.sin(a);
+
+    let localR = baseR;
+
+    // softer breathing
+    localR += Math.sin(a * 2 + tNow * 0.0032) * baseR * 0.008;
+    localR += Math.cos(a * 3 - tNow * 0.0021) * baseR * 0.005;
+
+    // softer impact reaction
+    for(const imp of impacts){
+      const age = tNow - imp.time;
+      if(age < 0 || age > 420) continue;
+
+      const life = age / 420;
+      const strength = 1 - life;
+      const dirDot = nx * imp.nx + ny * imp.ny;
+
+      const dent = Math.exp(-Math.pow((dirDot - 1) / 0.26, 2)) * (-imp.power * strength * baseR * 0.10);
+      const ring = Math.exp(-Math.pow((dirDot - 0.58) / 0.34, 2)) * ( imp.power * strength * baseR * 0.035);
+
+      localR += dent + ring;
+    }
+
+    pts.push({
+      x: cx + nx * localR,
+      y: cy + ny * localR
+    });
+  }
+
+  ctx.beginPath();
+  ctx.moveTo((pts[N-1].x + pts[0].x) * 0.5, (pts[N-1].y + pts[0].y) * 0.5);
+  for(let i=0;i<N;i++){
+    const curr = pts[i];
+    const next = pts[(i + 1) % N];
+    ctx.quadraticCurveTo(curr.x, curr.y, (curr.x + next.x) * 0.5, (curr.y + next.y) * 0.5);
+  }
+  ctx.closePath();
+  ctx.fillStyle = '#111';
+  ctx.fill();
+}
+
+function mergeTick(timestamp){
+  if(!mergeActive) return;
+
+  ctx.clearRect(0,0,W,H);
+
+  const elapsed = timestamp - mergeStartTime;
+  const cx = mergeCenterX;
+  const cy = mergeCenterY;
+
+  // update ball size smoothly toward target
+  mergeCurrentBallR += (mergeTargetBallR - mergeCurrentBallR) * 0.12;
+
+  // remove old impacts
+  mergeImpacts = mergeImpacts.filter(imp => (timestamp - imp.time) < 520);
+
+  let allAbsorbed = true;
+
+  // draw moving dots
+  ctx.fillStyle = 'rgba(0,0,0,0.92)';
+  for(let i=0;i<mergeOrderedDots.length;i++){
+    const d = mergeOrderedDots[i];
+    if(d.hidden) continue;
+
+    const localT = elapsed - d.delay;
+
+    if(localT <= 0){
+      allAbsorbed = false;
+      ctx.beginPath();
+      ctx.arc(d.startX, d.startY, mergeCapturedDotR, 0, Math.PI * 2);
+      ctx.fill();
+      continue;
+    }
+
+    if(d.absorbed) continue;
+
+    if(localT < MERGE_DOT_TRAVEL_DUR){
+      allAbsorbed = false;
+
+      const t = localT / MERGE_DOT_TRAVEL_DUR;
+      const e = easeInOutQuart(t);
+
+      // slight curved fall toward the center
+      const mx = (d.startX + cx) * 0.5 + Math.cos(d.angle + Math.PI * 0.5) * W * 0.025 * (1 - e);
+      const my = (d.startY + cy) * 0.5 + Math.sin(d.angle + Math.PI * 0.5) * H * 0.025 * (1 - e);
+
+      const x = (1-e)*(1-e)*d.startX + 2*(1-e)*e*mx + e*e*cx;
+      const y = (1-e)*(1-e)*d.startY + 2*(1-e)*e*my + e*e*cy;
+
+      ctx.beginPath();
+      ctx.arc(x, y, mergeCapturedDotR, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+            // impact / absorption moment
+      d.absorbed = true;
+      d.hidden = true;
+
+      const dx = d.startX - cx;
+      const dy = d.startY - cy;
+      const len = Math.max(0.0001, Math.hypot(dx, dy));
+
+      // first absorbed dot becomes the ball
+      if(mergeAbsorbedCount === 0){
+        mergeAbsorbedCount = 1;
+        mergeCurrentBallR = mergeCapturedDotR;
+        mergeTargetBallR = mergeCapturedDotR;
+
+        mergeImpacts.push({
+          time: timestamp,
+          nx: dx / len,
+          ny: dy / len,
+          power: 0.45
+        });
+      } else {
+        mergeAbsorbedCount++;
+
+        const area = mergeAbsorbedCount * Math.PI * mergeCapturedDotR * mergeCapturedDotR * 0.94;
+        mergeTargetBallR = Math.sqrt(area / Math.PI);
+
+        mergeImpacts.push({
+          time: timestamp,
+          nx: dx / len,
+          ny: dy / len,
+          power: 0.45
+        });
+      }
+
+      allAbsorbed = false;
+    }
+  }
+
+  // draw center ball after dots so the absorbed dots feel like they enter it
+    if(mergeAbsorbedCount > 0){
+    drawReactiveBall(cx, cy, mergeCurrentBallR, mergeImpacts, timestamp);
+  }
+
+  // after all dots absorbed, hold a bit, then expand into river
+  const lastDotTime = mergeOrderedDots.length
+    ? mergeOrderedDots[mergeOrderedDots.length - 1].delay + MERGE_DOT_TRAVEL_DUR
+    : 0;
+
+  if(allAbsorbed && elapsed > lastDotTime + MERGE_AFTER_LAST_HOLD){
+    const morphT = Math.min(1, (elapsed - lastDotTime - MERGE_AFTER_LAST_HOLD) / MERGE_TO_RIVER_DUR);
+    const e = easeInOutQuart(morphT);
+
+    const targetHalfW = W * 0.70;
+    const targetHalfH = Math.max(H * 0.13, 50);
+
+    const halfW = lerp(mergeCurrentBallR, targetHalfW, e);
+    const halfH = lerp(mergeCurrentBallR, targetHalfH, Math.pow(e, 1.15));
+    const organic = lerp(0.15, 1, e);
+
+    ctx.clearRect(0,0,W,H);
+    drawRiverShape(cx, cy, halfW, halfH, timestamp * 0.0009, organic);
+
+    if(morphT >= 1){
+      mergeActive = false;
+      stopRiverAnimation();
+      riverBallPrevX = W * 0.5;
+      riverBallPrevY = H * 0.5;
+      riverBallVX = 0;
+      riverBallVY = 0;
+      riverActive = true;
+      riverStartTime = performance.now() - (RIVER_ENTRY_DELAY + RIVER_SLIDE_DUR + RIVER_BREATHE_DUR + RIVER_MORPH_DUR);
+      riverRafId = requestAnimationFrame(riverTick);
+      return;
+    }
+  }
+
+  mergeRafId = requestAnimationFrame(mergeTick);
+}
+
+function playTransition2(){
+  // capture dot positions before leaving page 2
+  const capturedDots=newDots.map(d=>({x:d.x,y:d.y}));
+  const capturedDotR=newDotRadius||7.5;
+
+  goTo(3);
+  let idx=0;
+  function drawFrame2(){
+    ctx.clearRect(0,0,W,H);
+    const img=frames2[idx];
+    if(img&&img.complete) ctx.drawImage(img,0,0,W,H);
+    // keep CONTINUITY dots visible on top of the transition frames
+    if(capturedDots.length>0){
+      ctx.fillStyle='rgba(0,0,0,0.92)';
+      for(const d of capturedDots){
+        ctx.beginPath();
+        ctx.arc(d.x,d.y,capturedDotR,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+    idx++;
+    if(idx<FRAME_COUNT2){
+      setTimeout(drawFrame2,FRAME_DELAY2);
+    } else {
+      ctx.clearRect(0,0,W,H);
+      stageEl.style.background='url("2Animation_19.png") center/cover no-repeat';
+      if(capturedDots.length>0){
+        startMergeAnimation(capturedDots,capturedDotR);
+      } else {
+        startRiverAnimation();
+      }
+    }
+  }
+  drawFrame2();
+}
+
 enterBtn.addEventListener("click",()=>{
   if(!BYPASS_PUZZLE&&!completed) return;
   if(framesLoaded>0){
@@ -3058,6 +4038,19 @@ enterBtn.addEventListener("click",()=>{
   }
 
   step();
+});
+
+enterBtn2.addEventListener("click",()=>{
+  playTransition2();
+});
+
+backBtn2.addEventListener("click",(e)=>{
+  e.preventDefault();
+  stopRiverAnimation();
+  stopMergeAnimation();
+  ctx.clearRect(0,0,W,H);
+  goTo(2);
+  requestAnimationFrame(render);
 });
 
 backBtn.addEventListener("click",(e)=>{
