@@ -127,7 +127,7 @@ canvas{
   position:absolute;
   transform:translate(-50%, -50%);
   font-family:"Supreme", system-ui, sans-serif;
-  font-size:20px;
+  font-size:clamp(12px,1.4vw,22px);
   letter-spacing:-0.01em;
   text-transform:uppercase;
   color:var(--fg);
@@ -159,7 +159,7 @@ canvas{
   z-index:3;
   pointer-events:none;
   font-family:"Supreme", system-ui, sans-serif;
-  font-size:14px;
+  font-size:clamp(10px,1vw,16px);
   letter-spacing:0.01em;
   text-transform:uppercase;
   color:rgba(0,0,0,0.48);
@@ -244,7 +244,7 @@ canvas{
   z-index:3;
   pointer-events:none;
   font-family:"Supreme", system-ui, sans-serif;
-  font-size:14px;
+  font-size:clamp(10px,1vw,16px);
   letter-spacing:0.01em;
   text-transform:uppercase;
   color:#000;
@@ -345,10 +345,10 @@ canvas{
   box-sizing:border-box;
   overflow:hidden;
 }
-.p4-col1{ left:2%; right:68%; padding:0 16px 0 4px; text-align:justify; }
-.p4-col2a{ position:absolute; left:34.5%; right:34.5%; top:32%; bottom:46%; padding:0 16px; text-align:justify; overflow:hidden; font-family:'Times New Roman',Times,serif; font-size:clamp(10px,0.82vw,12.5px); line-height:1.4; color:rgba(255,255,255,0.82); box-sizing:border-box; }
-.p4-col2b{ position:absolute; left:34.5%; right:34.5%; top:72%; bottom:2%; padding:1.5em 16px 0; text-align:justify; overflow:hidden; font-family:'Times New Roman',Times,serif; font-size:clamp(10px,0.82vw,12.5px); line-height:1.4; color:rgba(255,255,255,0.82); box-sizing:border-box; }
-.p4-col3{ left:68%; right:2%; top:56%; padding:0 4px 0 16px; text-align:justify; overflow:hidden; }
+.p4-col1{ left:2%; right:68%; padding:0 clamp(6px,1.1vw,16px) 0 clamp(2px,0.4vw,4px); text-align:justify; }
+.p4-col2a{ position:absolute; left:34.5%; right:34.5%; top:32%; bottom:46%; padding:0 clamp(6px,1.1vw,16px); text-align:justify; overflow:hidden; font-family:'Times New Roman',Times,serif; font-size:clamp(10px,0.82vw,12.5px); line-height:1.4; color:rgba(255,255,255,0.82); box-sizing:border-box; }
+.p4-col2b{ position:absolute; left:34.5%; right:34.5%; top:72%; bottom:2%; padding:1.5em clamp(6px,1.1vw,16px) 0; text-align:justify; overflow:hidden; font-family:'Times New Roman',Times,serif; font-size:clamp(10px,0.82vw,12.5px); line-height:1.4; color:rgba(255,255,255,0.82); box-sizing:border-box; }
+.p4-col3{ left:68%; right:2%; top:56%; padding:0 clamp(2px,0.4vw,4px) 0 clamp(6px,1.1vw,16px); text-align:justify; overflow:hidden; }
 .p4-bottom-mask{
   position:absolute; bottom:0; left:0; right:0; height:2em; background:#000; pointer-events:none; z-index:10;
 }
@@ -476,7 +476,7 @@ canvas{
   z-index:6;
   pointer-events:none;
   font-family:"Supreme",system-ui,sans-serif;
-  font-size:13px;
+  font-size:clamp(10px,1vw,16px);
   letter-spacing:0.09em;
   text-transform:uppercase;
   color:#F71F08;
@@ -748,9 +748,9 @@ let segmentStartIdx = 0; // strokePts.length after last successfully hit dot
 
 let showDotLabels = true;
 
-const DOT_R = 7.5;
-const CLICK_HIT_R = 18;
-const DRAG_HIT_R = 9;
+let DOT_R = 7.5;
+let CLICK_HIT_R = 18;
+let DRAG_HIT_R = 9;
 const LINE_W = 2.2;
 
 let pressStart = { x:0, y:0 };
@@ -1441,6 +1441,15 @@ function resize(){
   ctx.setTransform(dpr,0,0,dpr,0,0);
   W=rect.width;
   H=rect.height;
+
+  // Scale interaction constants proportionally to viewport
+  // Calibrated to 13.6" MacBook Air M4 (CSS H≈832) where DOT_R=7.5 looked correct
+  DOT_R       = Math.max(4, Math.min(14, H * 0.00901)); // 7.5px at H=832, scales up/down
+  CLICK_HIT_R = DOT_R * 2.4;
+  DRAG_HIT_R  = DOT_R * 1.2;
+  P4_BRUSH_RADIUS = Math.max(30, Math.min(80, W * 0.024));    // ~46 at 1920p
+  P4_TRACE_DIST   = Math.max(25, W * 0.0208);                 // ~40 at 1920p
+
   if(!expandCanvas) expandCanvas=document.createElement('canvas');
   expandCanvas.width=canvas.width;
   expandCanvas.height=canvas.height;
@@ -4945,7 +4954,7 @@ function p4Tick(){
 }
 
 /* ─── PAGE 4 PAINT BRUSH ──────────────────────────── */
-const P4_BRUSH_RADIUS = 46;
+let P4_BRUSH_RADIUS = 46;
 let p4Painting = false;
 let p4PaintLastX = 0, p4PaintLastY = 0;
 let p4HintShownP4 = false;
@@ -5250,7 +5259,7 @@ let p4ArrowReverseAnim = [false,false,false,false];
 let p4ArrowRevStart    = [0,0,0,0];
 let p4ArrowDone        = [false,false,false,false];
 
-const P4_TRACE_DIST    = 40;
+let P4_TRACE_DIST      = 40;
 const P4_GUIDE_ANIM_MS = 2200;
 const P4_ARROW_DUR     = 360; // ms — same as p2
 
@@ -5273,7 +5282,7 @@ function p4ProjOnSeg(px, py, x1, y1, x2, y2){
    Rotates into the line direction so it works for any angle. */
 function p4DrawTraceArrow(ax, ay, ndx, ndy, t){
   if(t <= 0) return;
-  const arm = 9, shaftLen = 22, joinInset = 2;
+  const arm = Math.max(6, W * 0.0065), shaftLen = Math.max(14, W * 0.016), joinInset = Math.max(1, W * 0.0015);
   ctx.save();
   ctx.translate(ax, ay);
   ctx.rotate(Math.atan2(ndy, ndx));
@@ -5377,8 +5386,9 @@ function p4TraceRaf(timestamp){
       const dx = x2-x1, dy = y2-y1, len = Math.hypot(dx, dy);
       const ndx = dx/len, ndy = dy/len;
       const npx = -ndy, npy = ndx; // 90° CCW perpendicular
-      const ax = x1 + ndx * 40 + npx * 28; // 40px forward (keeps full shaft in viewport), 28px beside line
-      const ay = y1 + ndy * 40 + npy * 28;
+      const fwd = Math.max(28, W * 0.021), perp = Math.max(18, W * 0.016);
+      const ax = x1 + ndx * fwd + npx * perp;
+      const ay = y1 + ndy * fwd + npy * perp;
 
       p4DrawTraceArrow(ax, ay, -ndx, -ndy, t);
     }
