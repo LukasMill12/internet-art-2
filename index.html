@@ -7,6 +7,18 @@
 
 <style>
 @font-face{
+  font-family:"DxBurst-Regular";
+  src:url("DxBurst-Regular.otf") format("opentype");
+  font-weight:normal;
+  font-style:normal;
+}
+@font-face{
+  font-family:"Comico-Regular";
+  src:url("Comico-Regular.otf") format("opentype");
+  font-weight:normal;
+  font-style:normal;
+}
+@font-face{
   font-family:"Supreme";
   src:url("Supreme-Regular.otf") format("opentype");
   font-weight:400;
@@ -17,6 +29,30 @@
   src:url("Supreme-Bold.otf") format("opentype");
   font-weight:700;
   font-style:normal;
+}
+@font-face{
+  font-family:"Supreme";
+  src:url("Supreme-Extrabold.otf") format("opentype");
+  font-weight:800;
+  font-style:normal;
+}
+@font-face{
+  font-family:"Olondon";
+  src:url("Olondon_.otf") format("opentype");
+  font-weight:normal;
+  font-style:normal;
+}
+@font-face{
+  font-family:"Cheltenham";
+  src:url("Cheltenham Regular.ttf") format("truetype");
+  font-weight:normal;
+  font-style:normal;
+}
+@font-face{
+  font-family:"Cheltenham";
+  src:url("Cheltenham Italic.otf") format("opentype");
+  font-weight:normal;
+  font-style:italic;
 }
 
 :root{
@@ -157,6 +193,29 @@ canvas{
   transform:translateY(-2px);
 }
 
+.undo-btn{
+  position:absolute;
+  left:6vw;
+  bottom:8vh;
+  z-index:4;
+  font-size: clamp(34px,3.2vw,52px);
+  line-height:1;
+  color:rgba(0,0,0,.18);
+  opacity:.25;
+  transition:all .35s ease;
+  cursor:default;
+  user-select:none;
+  pointer-events:none;
+}
+
+.undo-btn.visible{
+  color:rgba(0,0,0,.85);
+  opacity:1;
+  cursor:pointer;
+  pointer-events:auto;
+  transform:translateY(-2px);
+}
+
 .p2{
   padding:9vh 9vw;
   color:var(--fg);
@@ -170,7 +229,259 @@ canvas{
   color:rgba(0,0,0,.75);
   border-bottom:1px solid rgba(0,0,0,.3);
   padding-bottom:3px;
+  pointer-events:none;
+}
+
+.page.active .back{
   pointer-events:auto;
+}
+
+.p3-hint{
+  position:absolute;
+  left:50%;
+  bottom:12vh;
+  transform:translateX(-50%);
+  z-index:3;
+  pointer-events:none;
+  font-family:"Supreme", system-ui, sans-serif;
+  font-size:14px;
+  letter-spacing:0.01em;
+  text-transform:uppercase;
+  color:#000;
+  opacity:0;
+  white-space:nowrap;
+  transition:opacity .7s ease;
+}
+
+/* ─── PAGE 4 NEWSPAPER ──────────────────────────────── */
+.p4-newspaper{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  pointer-events:none;
+  z-index:3;
+  box-sizing:border-box;
+}
+/* Masthead: 0–13%H — bounded below by canvas MAST line */
+.p4-masthead{
+  position:absolute;
+  left:0; right:0;
+  top:0; bottom:87%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:0 5%;
+  box-sizing:border-box;
+  gap:3px;
+  overflow:hidden;
+}
+.p4-masthead-meta{
+  font-family:"Supreme",system-ui,sans-serif;
+  font-weight:400;
+  font-size:clamp(7px,0.58vw,9px);
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.4);
+}
+.p4-masthead-title{
+  font-family:"Olondon",serif;
+  font-weight:normal;
+  font-size:clamp(26px,5.2vw,76px);
+  line-height:1;
+  color:#fff;
+}
+.p4-masthead-sub{
+  font-family:"Supreme",system-ui,sans-serif;
+  font-weight:400;
+  font-size:clamp(7px,0.58vw,9px);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.4);
+  font-style:italic;
+}
+/* Headline: 13–30%H — bounded below by canvas HEAD line */
+.p4-headline-area{
+  position:absolute;
+  left:2%; right:2%;
+  top:13%; bottom:70%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:0;
+  box-sizing:border-box;
+  padding:0 3%;
+  overflow:hidden;
+}
+.p4-headline{
+  font-family:"Cheltenham",Georgia,serif;
+  font-weight:normal;
+  font-style:italic;
+  font-size:clamp(16px,min(4.2vw,7.2vh),62px);
+  line-height:0.93;
+  letter-spacing:-0.01em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  color:#fff;
+  margin:0;
+}
+.p4-byline{
+  font-family:'Times New Roman',Times,serif;
+  font-size:clamp(8px,0.72vw,11px);
+  font-style:italic;
+  color:rgba(255,255,255,0.5);
+  letter-spacing:0.03em;
+  margin:0 0 2px;
+}
+/* Columns — divided by canvas vertical lines at W/3 and W*2/3 */
+.p4-col{
+  position:absolute;
+  top:32%; bottom:2%;
+  font-family:'Times New Roman',Times,serif;
+  font-size:clamp(10px,0.82vw,12.5px);
+  line-height:1.4;
+  color:rgba(255,255,255,0.82);
+  box-sizing:border-box;
+  overflow:hidden;
+}
+.p4-col1{ left:2%; right:68%; padding:0 16px 0 4px; text-align:justify; }
+.p4-col2a{ position:absolute; left:34.5%; right:34.5%; top:32%; bottom:46%; padding:0 16px; text-align:justify; overflow:hidden; font-family:'Times New Roman',Times,serif; font-size:clamp(10px,0.82vw,12.5px); line-height:1.4; color:rgba(255,255,255,0.82); box-sizing:border-box; }
+.p4-col2b{ position:absolute; left:34.5%; right:34.5%; top:72%; bottom:2%; padding:1.5em 16px 0; text-align:justify; overflow:hidden; font-family:'Times New Roman',Times,serif; font-size:clamp(10px,0.82vw,12.5px); line-height:1.4; color:rgba(255,255,255,0.82); box-sizing:border-box; }
+.p4-col3{ left:68%; right:2%; top:56%; padding:0 4px 0 16px; text-align:justify; overflow:hidden; }
+.p4-bottom-mask{
+  position:absolute; bottom:0; left:0; right:0; height:2em; background:#000; pointer-events:none; z-index:10;
+}
+.p4-bottom-mask-lg{
+  position:absolute; bottom:0; left:0; right:0; height:3em; background:#000; pointer-events:none; z-index:10;
+}
+.p4-col2a-mask{
+  position:absolute; left:34.5%; right:34.5%; bottom:46%; height:1.5em; background:#000; pointer-events:none; z-index:10;
+}
+.p4-col p, .p4-col2a p, .p4-col2b p{ margin:0 !important; padding:0 !important; }
+.p4-col-hed{
+  font-family:"Cheltenham",Georgia,serif;
+  font-weight:normal;
+  font-style:italic;
+  font-size:clamp(11px,1.05vw,15px);
+  line-height:1.2;
+  color:#fff;
+  margin:0 0 2px;
+  text-transform:none;
+}
+/* Pull quote in col 2 */
+.p4-pull-quote{
+  position:absolute;
+  left:34.5%; right:34.5%;
+  top:54%; bottom:28%;
+  background:#000;
+  border-top:1px solid #F71F08;
+  border-bottom:1px solid #F71F08;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 14px;
+  box-sizing:border-box;
+}
+.p4-pull-quote p{
+  font-family:'Times New Roman',Times,serif;
+  font-size:clamp(11px,1.1vw,16px);
+  font-style:italic;
+  line-height:1.4;
+  color:#fff;
+  text-align:center;
+  margin:0;
+}
+/* Image box — top of col 3 */
+.p4-image-box{
+  position:absolute;
+  left:68%; right:2%;
+  top:32%; bottom:46%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  box-sizing:border-box;
+  padding-bottom:4px;
+}
+.p4-image-placeholder{
+  width:100%;
+  flex:1;
+  border:1px solid rgba(247,31,8,0.4);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.p4-image-placeholder span{
+  font-family:"Supreme",system-ui,sans-serif;
+  font-size:clamp(7px,0.65vw,9px);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.25);
+}
+.p4-image-caption{
+  font-family:'Times New Roman',Times,serif;
+  font-size:clamp(7px,0.6vw,9px);
+  font-style:italic;
+  color:rgba(255,255,255,0.35);
+  text-align:center;
+  width:100%;
+}
+/* Footer */
+.p4-footer{
+  position:absolute;
+  left:2%; right:2%;
+  top:88%; bottom:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.p4-footer p{
+  font-family:"Supreme",system-ui,sans-serif;
+  font-size:clamp(7px,0.6vw,9px);
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.3);
+  margin:0;
+  text-align:center;
+}
+
+/* ─── PAGE 4 PAINT CANVAS ───────────────────────────── */
+#p4-paint{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:none;
+  touch-action:none;
+  z-index:5;
+  pointer-events:auto;
+  cursor: default;
+}
+
+/* ─── PAGE 4 HINT ───────────────────────────────────── */
+@keyframes p4CharRise{
+  from{ transform:translateY(115%); }
+  to{   transform:translateY(0);    }
+}
+@keyframes p4CharFall{
+  from{ transform:translateY(0);    }
+  to{   transform:translateY(115%); }
+}
+.p4-hint{
+  position:absolute;
+  left:50%;
+  bottom:8vh;
+  transform:translateX(-50%);
+  z-index:6;
+  pointer-events:none;
+  font-family:"Supreme",system-ui,sans-serif;
+  font-size:13px;
+  letter-spacing:0.09em;
+  text-transform:uppercase;
+  color:#F71F08;
+  white-space:nowrap;
+  line-height:1.3;
 }
 </style>
 </head>
@@ -185,12 +496,17 @@ canvas{
   <section class="page active" id="page1">
     <div class="introManual" id="introManual"></div>
     <div class="hint" id="hintText">Connect the dots to reveal a word</div>
+    <div class="undo-btn" id="undoBtn" aria-label="undo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 44" width="1em" height="0.8em" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M 8 30 L 36 30 Q 48 30 48 18 L 48 12"/>
+        <polyline points="18,20 8,30 18,40"/>
+      </svg>
+    </div>
     <div class="enter" id="enterBtn" aria-label="next">→</div>
   </section>
 
   <section class="page" id="page2">
     <div class="p2">
-      <a href="#" class="back" id="backBtn">← back</a>
     </div>
     <div class="enter" id="enterBtn2" style="opacity:0;pointer-events:none">→</div>
   </section>
@@ -199,6 +515,67 @@ canvas{
     <div class="p2">
       <a href="#" class="back" id="backBtn2">← back</a>
     </div>
+    <div class="p3-hint" id="p3Hint">↓ scroll</div>
+  </section>
+
+  <section class="page" id="page4">
+    <div class="p4-hint" id="p4Hint"></div>
+    <div class="p4-newspaper" id="p4Newspaper">
+
+      <!-- Masthead -->
+      <div class="p4-masthead">
+        <div class="p4-masthead-title">The Design Review</div>
+      </div>
+
+      <!-- Headline -->
+      <div class="p4-headline-area">
+        <h1 class="p4-headline">Structure: The Invisible Architecture</h1>
+      </div>
+
+      <!-- Column 1 -->
+      <div class="p4-col p4-col1">
+        <div class="p4-byline">By Lukas Miliauskis</div>
+        <h2 class="p4-col-hed">The Foundation Beneath Every Design Decision</h2>
+        Structure in design is the underlying framework that governs how visual elements relate to one another. It is, by definition, invisible — yet its presence or absence determines whether a composition communicates or confuses. Every decision about placement, spacing, and alignment is a structural decision. The reader never sees the grid, but they feel its effect in the ease with which their eye moves through the page, pausing at the right moments, absorbing hierarchy without effort. Before a wall can be built, a foundation must be laid. Before type can flow across a page, a baseline grid must be established. Structure precedes everything else. Rhythm in a composition is structural. The repeated interval between baseline and cap height, the consistent margin that frames each column, the predictable weight shift from heading to body — these are the invisible beats that allow a reader to navigate without conscious effort. The most sophisticated structural systems appear effortless precisely because they are working at their highest capacity. The reader is unaware of the grid because it is doing its job perfectly. Complexity made invisible is the highest achievement of structural thinking in design. White space is not empty. It is a structural element as deliberate as any mark on the page. The pause between paragraphs, the margin that separates text from edge, the gutter between columns — each is a calculated interval that gives the eye room to rest. To impose structure is not to impose a style. Structure is prior to style, deeper than preference. A page may be spare or ornate, classical or experimental — but beneath any surface decision there must be an organising logic if the composition is to hold together under the pressures of reading. The grid does not dictate expression; it enables it. Without a ground, there is no figure. Without a consistent interval, there is no rhythm. The designer who masters structure does not lose freedom — they discover a far greater range of meaningful choices than the designer who works without one. Every typeface carries its own internal structure: the proportional relationships between cap height, x-height, ascender, and descender. When type is set on a grid, these internal rhythms align with the external rhythms of the page, creating a coherence that operates below the threshold of conscious perception yet is immediately felt as quality. Margins are not waste. The unprinted field around the text block is what allows the printed field to exist as a distinct object of attention. Remove the margin and the text collapses into the edge of the page, losing its frame, its authority, its claim on the reader's focus. Structure is always relational. A column measure is a structural decision with typographic consequences. Too wide and the eye struggles to return from the end of one line to the start of the next. Too narrow and word spacing becomes erratic, rhythm dissolves. The correct measure is not arbitrary — it is derived from the typeface, the size, and the leading, a calculation that good structural thinking makes almost intuitive with practice.
+        <div class="p4-bottom-mask"></div>
+      </div>
+
+      <!-- Column 2 upper (above pull quote) -->
+      <div class="p4-col2a">
+        <h2 class="p4-col-hed">Swiss Rationalism and the Codified Grid</h2>
+        The origins of structural thinking in design trace back to the Swiss Style of the 1950s, where designers like Josef Müller-Brockmann codified the grid as the foundation of rational, universal communication. This paradox lies at the heart of structural thinking: the rules create the possibility of expression, not its limitation. Constraint and freedom are not opposites — one enables the other. A well-structured composition communicates effortlessly. The eye moves through the page as if following a natural path, orienting itself without conscious effort at every turn. Structure is not imposed on content — it emerges from it. The designer's task is to read the inherent logic of the material and give it visible form, making the invisible architecture of meaning apparent to the reader. When structure fails, the reader senses it immediately, even without the vocabulary to name the cause. Something feels wrong, the eye stumbles, the hierarchy collapses. Good structure is felt as ease.
+      </div>
+      <div class="p4-col2a-mask"></div>
+
+      <!-- Column 2 lower (below pull quote) -->
+      <div class="p4-col2b">
+        The baseline grid, invisible to the reader, is perhaps the most fundamental structural tool in typography. It ensures that columns of text, set side by side, share the same horizontal rhythms — a visual coherence that no amount of decoration can substitute. Typographic structure is ultimately about trust. The reader trusts that headings signal hierarchy, that white space signals pause, that consistent measure signals continuity. Break that trust and the entire system collapses. Müller-Brockmann's own grids were not expressions of personal taste but of methodological rigour. Each column width, each gutter, each size relationship was the result of calculation rather than intuition — and yet the results possessed a warmth and clarity that purely intuitive work rarely achieves. The Swiss designers understood that the grid was not an end in itself but a means to communication. It served the message rather than competing with it. This hierarchy of purpose — content first, structure second, style third — remains the most reliable principle in editorial design. International Typographic Style spread beyond Switzerland because it solved a genuine problem: how to communicate across language barriers and cultural differences with maximum clarity. The structural rigour of the grid provided a visual language that needed no translation. Later designers reacted against the Swiss grid, finding it cold and inhuman. But the most effective of these reactions did not abandon structure — they enriched it. They introduced asymmetry within the grid, tension between structure and deviation, playing the rule against its own exception to produce compositions that were both legible and surprising.
+        <div class="p4-bottom-mask"></div>
+      </div>
+
+      <!-- Pull quote -->
+      <div class="p4-pull-quote">
+        <p>"Structure is not a constraint&thinsp;—&thinsp;it is the condition that makes freedom possible."</p>
+      </div>
+
+      <!-- Column 3 (image box overlays the top portion) -->
+      <div class="p4-col p4-col3">
+        <h2 class="p4-col-hed">Structure in the Digital Age</h2>
+        The newspaper itself is the oldest surviving demonstration of structure in print. Columns, gutters, headline scales, and section breaks — all are structural decisions refined over centuries to guide reading in a predictable, efficient flow. This page is itself an artefact of structure. The lines that drew themselves into existence as you scrolled are the selfsame lines that now hold this content in place. In digital environments, the grid has not become obsolete — it has become more critical. The proliferation of screen sizes and interaction states demands a structural logic capable of adapting without losing coherence. Responsive design is, at its core, a structural discipline. The challenge is not to create different layouts for different screens but to build one structural system flexible enough to express itself appropriately across every context it encounters. The component-based architecture of modern interface design is structure made explicit. Each reusable element carries its own internal logic: spacing, proportion, typographic scale. When components compose cleanly, it is because their underlying structural rules are consistent. When they clash, it is because those rules were never properly defined. Motion, too, is subject to structural thinking. The timing and easing of a transition is a rhythmic decision. An animation that disrupts reading flow has failed structurally, regardless of how polished it appears in isolation. Good motion design is invisible precisely because it reinforces the structural logic of the interface rather than contradicting it.
+        <div class="p4-bottom-mask"></div>
+      </div>
+
+      <!-- Image box -->
+      <div class="p4-image-box">
+        <div class="p4-image-placeholder"><span>Image</span></div>
+        <div class="p4-image-caption">Fig. 1 — Grid systems in editorial design</div>
+      </div>
+
+      <!-- Footer -->
+      <div class="p4-footer"></div>
+
+    </div>
+    <canvas id="p4-paint"></canvas>
   </section>
 </div>
 
@@ -211,16 +588,25 @@ const page2 = document.getElementById("page2");
 const page3 = document.getElementById("page3");
 const enterBtn = document.getElementById("enterBtn");
 const enterBtn2 = document.getElementById("enterBtn2");
-const backBtn = document.getElementById("backBtn");
 const backBtn2 = document.getElementById("backBtn2");
 const introLayer = document.getElementById("introManual");
 const hintText = document.getElementById("hintText");
+const undoBtn = document.getElementById("undoBtn");
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 const stageEl = document.getElementById("stage");
+const p3Hint = document.getElementById("p3Hint");
+const page4 = document.getElementById("page4");
+const p4Newspaper = document.getElementById("p4Newspaper");
+const p4PaintCanvas = document.getElementById("p4-paint");
+const p4PaintCtx = p4PaintCanvas.getContext("2d");
+const p4HintEl = document.getElementById("p4Hint");
 
 const STAGE_BG_PAGE1 = 'url("Background.png") center/cover no-repeat';
 const BYPASS_PUZZLE = false;
+const PENCIL_CURSOR = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' stroke='white' stroke-width='2' fill='none'/%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' fill='%23222'/%3E%3C/svg%3E\") 3 21, crosshair";
+const BYPASS_PAGE2 = false;
+const BYPASS_PAGE3 = false;  // set false to restore full page 3 flow
 
 /* page switch */
 function goTo(p){
@@ -235,17 +621,41 @@ function goTo(p){
     page1.classList.remove("active");
     page2.classList.add("active");
     page3.classList.remove("active");
+    // Kill page 1's arrow so it can't be clicked while invisible
+    enterBtn.style.pointerEvents = "none";
+    enterBtn.style.display = "none";
     canvas.style.pointerEvents = "auto";
     stageEl.style.background = "#fff";
     clearHintTimer();
     hideHint();
-  } else {
+  } else if(p===3){
     page1.classList.remove("active");
     page2.classList.remove("active");
     page3.classList.add("active");
+    page4.classList.remove("active");
+    // Kill both enter buttons so neither is reachable on page 3
+    enterBtn.style.pointerEvents = "none";
+    enterBtn.style.display = "none";
+    enterBtn2.style.pointerEvents = "none";
+    enterBtn2.style.display = "none";
     canvas.style.pointerEvents = "none";
     clearHintTimer();
     hideHint();
+  } else if(p===4){
+    page1.classList.remove("active");
+    page2.classList.remove("active");
+    page3.classList.remove("active");
+    page4.classList.add("active");
+    enterBtn.style.pointerEvents = "none";
+    enterBtn.style.display = "none";
+    enterBtn2.style.pointerEvents = "none";
+    enterBtn2.style.display = "none";
+    canvas.style.pointerEvents = "none";
+    stageEl.style.background = "#000";
+    clearHintTimer();
+    hideHint();
+    stopRiverAnimation();
+    startP4();
   }
 }
 
@@ -287,7 +697,7 @@ let hasStartedPuzzle = false;
 const HINT_DELAY = 5000;
 
 function showHint(){
-  if(!hasStartedPuzzle && page1.classList.contains("active")){
+  if(page1.classList.contains("active")){
     hintText.classList.add("visible");
   }
 }
@@ -316,9 +726,8 @@ function startHintTimer(){
 function markPuzzleStarted(){
   if(!hasStartedPuzzle){
     hasStartedPuzzle = true;
-    clearHintTimer();
   }
-  if(nextIdx >= 3){
+  if(completed){
     hideHint();
   }
 }
@@ -335,6 +744,7 @@ let dots = [];
 let dotsHome = [];
 let nextIdx = 0;
 let completed = BYPASS_PUZZLE;
+let segmentStartIdx = 0; // strokePts.length after last successfully hit dot
 
 let showDotLabels = true;
 
@@ -345,6 +755,7 @@ const LINE_W = 2.2;
 
 let pressStart = { x:0, y:0 };
 let movedSinceDown = false;
+let pressRegisteredDot = false; // dot was registered on mousedown; skip re-registration on mouseup
 const CLICK_MOVE_TOL = 8;
 
 /* ===========================
@@ -433,6 +844,8 @@ let continueLetterPoints = [];
 let continueLetterPointsBuilt = false;
 let continueScribbleCount = 0;
 let continueButtonClicked = false;
+let continueHover = false;
+let continueHoverScale = 1;
 let continueExitAnim = false;
 let continueExitStarted = false;
 let continueExitStartTime = 0;
@@ -991,7 +1404,9 @@ window.addEventListener("mousemove",(e)=>{
     lastMouseX=null;
   }
 
-  if(page2.classList.contains("active")){
+  if(page1.classList.contains("active")&&!playingTransition){
+    document.body.style.cursor=PENCIL_CURSOR;
+  } else if(page2.classList.contains("active")){
     if(sentenceLineActive&&!sentenceLineResolved&&!sentenceLineResolveAnim&&!sentenceLineAutoPlay){
       sentenceLineTargetProgress=clamp((sentenceLineStartX-localX)/(sentenceLineStartX-sentenceLineEndX),0,1);
     }
@@ -1007,9 +1422,11 @@ window.addEventListener("mousemove",(e)=>{
     if(thirdPillLine.active) thirdPillLineHover=pointInPill(localX,localY,thirdPillLine,thirdPillDots,thirdPillReverseAnim,thirdPillSlideOutAnim);
     if(fourthPillLine.active&&!fourthPillReverseAnim&&!fourthPillSlideOutAnim) fourthPillLineHover=pointInPill(localX,localY,fourthPillLine,fourthPillDots,fourthPillReverseAnim,fourthPillSlideOutAnim);
     const continueReady=blobResolved&&strokeTextBleedDone&&!continueButtonClicked;
-    const continueHover=continueReady&&localX>=sentenceBoxX&&localX<=sentenceBoxX+sentenceBoxW&&localY>=sentenceBoxY&&localY<=sentenceBoxY+sentenceBoxH;
+    continueHover=continueReady&&localX>=sentenceBoxX&&localX<=sentenceBoxX+sentenceBoxW&&localY>=sentenceBoxY&&localY<=sentenceBoxY+sentenceBoxH;
     const anyPillHover=cornerLineHover||leftLineHover||centerLineHover||blankLineHover||thirdPillLineHover||fourthPillLineHover||borderSnakeHover||continueHover;
-    canvas.style.cursor=anyPillHover?"pointer":"default";
+    document.body.style.cursor=anyPillHover?"pointer":"default";
+  } else {
+    document.body.style.cursor="default";
   }
 });
 
@@ -1024,6 +1441,11 @@ function resize(){
   ctx.setTransform(dpr,0,0,dpr,0,0);
   W=rect.width;
   H=rect.height;
+  if(!expandCanvas) expandCanvas=document.createElement('canvas');
+  expandCanvas.width=canvas.width;
+  expandCanvas.height=canvas.height;
+  expandCtx=expandCanvas.getContext('2d');
+  expandCtx.setTransform(dpr,0,0,dpr,0,0);
 
   buildDots();
   setDotsToHome();
@@ -1031,13 +1453,32 @@ function resize(){
   updateSentenceLineLayout();
   reset();
   render();
+
+  // Resize paint canvas to match viewport (clears painted content — acceptable)
+  p4PaintCanvas.width = canvas.width;
+  p4PaintCanvas.height = canvas.height;
+  p4PaintCtx.setTransform(dpr,0,0,dpr,0,0);
 }
+
+let mistakeNextIdx = 0;
+let mistakeSegStart = 0;
+function showUndoBtn(){
+  if(!undoBtn.classList.contains("visible")){
+    mistakeNextIdx=nextIdx;
+    mistakeSegStart=segmentStartIdx;
+  }
+  undoBtn.classList.add("visible");
+}
+function hideUndoBtn(){ undoBtn.classList.remove("visible"); }
 
 function reset(){
   drawing=false;
   strokePts=[];
   nextIdx=completed?dots.length:0;
+  segmentStartIdx=0;
   movedSinceDown=false;
+  pressRegisteredDot=false;
+  hideUndoBtn();
 
   if(BYPASS_PUZZLE||completed) enterBtn.classList.add("ready");
   else enterBtn.classList.remove("ready");
@@ -1085,6 +1526,8 @@ function hitCurrentDotClick(){
   if(dist2(pointer.x,pointer.y,d.x,d.y)<=CLICK_HIT_R*CLICK_HIT_R){
     appendPoint(d.x,d.y);
     nextIdx++;
+    segmentStartIdx=strokePts.length;
+    if(!undoBtn.classList.contains("visible")) hideUndoBtn();
     completeIfDone();
     markPuzzleStarted();
     return true;
@@ -1097,6 +1540,8 @@ function hitCurrentDotDrag(){
   if(dist2(pointer.x,pointer.y,d.x,d.y)<=DRAG_HIT_R*DRAG_HIT_R){
     appendPoint(pointer.x,pointer.y);
     nextIdx++;
+    segmentStartIdx=strokePts.length;
+    if(!undoBtn.classList.contains("visible")) hideUndoBtn();
     completeIfDone();
     markPuzzleStarted();
     return true;
@@ -1124,6 +1569,7 @@ function onDown(e){
   pressStart.x=pointer.x;
   pressStart.y=pointer.y;
   movedSinceDown=false;
+  pressRegisteredDot=false;
   drawing=true;
 
   if(nextIdx===0){
@@ -1138,11 +1584,37 @@ function onDown(e){
     }
     drawing=false;
   } else {
-    appendPoint(pointer.x,pointer.y);
-    if(strokePts.length>0) markPuzzleStarted();
+    const d=dots[nextIdx];
+    if(d && dist2(pointer.x,pointer.y,d.x,d.y)<=CLICK_HIT_R*CLICK_HIT_R){
+      // Pressed directly on the current target dot — register it now so that
+      // dragging immediately after targets the next dot without triggering a mistake
+      appendPoint(d.x,d.y);
+      nextIdx++;
+      segmentStartIdx=strokePts.length;
+      if(!undoBtn.classList.contains("visible")) hideUndoBtn();
+      completeIfDone();
+      markPuzzleStarted();
+      pressRegisteredDot=true;
+    } else {
+      appendPoint(pointer.x,pointer.y);
+      if(strokePts.length>0) markPuzzleStarted();
+    }
   }
   render();
 }
+
+const PASSTHROUGH_DOTS = new Set([10, 14, 24]); // 0-based indices for dots 11, 15, 25
+
+function hitWrongDotDrag(){
+  if(completed) return false;
+  // only check future dots (not yet reached) — past dots are already connected and irrelevant
+  for(let i=nextIdx+1;i<dots.length;i++){
+    if(PASSTHROUGH_DOTS.has(i)) continue;
+    if(dist2(pointer.x,pointer.y,dots[i].x,dots[i].y)<=DRAG_HIT_R*DRAG_HIT_R) return true;
+  }
+  return false;
+}
+
 function onMove(e){
   setPointer(e);
   if(BYPASS_PUZZLE) return;
@@ -1153,8 +1625,9 @@ function onMove(e){
 
   if(movedSinceDown){
     maybeAddFreePoint();
-    hitCurrentDotDrag();
+    const hitCorrect=hitCurrentDotDrag();
     if(strokePts.length>0) markPuzzleStarted();
+    if(!hitCorrect&&hitWrongDotDrag()) showUndoBtn();
   } else {
     maybeAddFreePoint();
   }
@@ -1163,17 +1636,23 @@ function onMove(e){
 function onUp(e){
   setPointer(e);
   if(BYPASS_PUZZLE) return;
-  if(!page1.classList.contains("active")){
+  if(playingTransition||!page1.classList.contains("active")){
     drawing=false;
     return;
   }
 
   if(drawing){
+    const prevNextIdx=nextIdx;
     if(movedSinceDown){
       appendPoint(pointer.x,pointer.y);
       hitCurrentDotDrag();
-    } else {
+    } else if(!pressRegisteredDot){
       hitCurrentDotClick();
+    }
+    // If pointer is on a wrong dot at release → mistake
+    // Skip if dot was already registered on mousedown (no false positive)
+    if(nextIdx===prevNextIdx && !pressRegisteredDot && hitWrongDotDrag()){
+      showUndoBtn();
     }
   }
 
@@ -1282,7 +1761,7 @@ function drawNewPuzzleDots(){
   if(!newDots.length||!page2.classList.contains("active")) return;
   if(!newDotsReturnAnim&&!newPuzzleActive) return;
 
-  ctx.fillStyle = "rgba(0,0,0,0.92)";
+  ctx.fillStyle = "#000";
   const r = newDotRadius;
   for(const d of newDots){
     ctx.beginPath();
@@ -1828,7 +2307,7 @@ function getSentenceShapePoints(){
   return fullSq.slice(tailIdx,headIdx+1);
 }
 function drawSentenceShape(){
-  if(!sentenceLineActive||!page2.classList.contains("active")) return;
+  if(!sentenceLineActive||!page2.classList.contains("active")||blobResolved) return;
   const pts=getSentenceShapePoints();
   if(!pts.length) return;
   const dy = continueExitOffsetY;
@@ -1932,8 +2411,12 @@ function drawBlob(){
   ctx.fillStyle="#F71F08";
 
   if(blobResolved){
-    const r = sentenceBoxR;
-    const x = sentenceBoxX, y = sentenceBoxY, w = sentenceBoxW, h = sentenceBoxH;
+    const s = continueHoverScale;
+    const cx = sentenceBoxX + sentenceBoxW * 0.5;
+    const cy = sentenceBoxY + sentenceBoxH * 0.5;
+    const r = sentenceBoxR * s;
+    const w = sentenceBoxW * s, h = sentenceBoxH * s;
+    const x = cx - w * 0.5, y = cy - h * 0.5;
     ctx.beginPath();
     ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
     ctx.arcTo(x + w, y, x + w, y + r, r); ctx.lineTo(x + w, y + h - r);
@@ -1942,6 +2425,9 @@ function drawBlob(){
     ctx.arcTo(x, y, x + r, y, r);
     ctx.closePath();
     ctx.fill();
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
     ctx.restore();
     return;
   }
@@ -2235,6 +2721,14 @@ function drawTextStrokes(){
 
   ctx.save();
   if(continueExitOffsetY!==0) ctx.translate(0, continueExitOffsetY);
+  // scale around button centre to match hover shrink on the background
+  if(continueHoverScale !== 1){
+    const _bcx = sentenceBoxX + sentenceBoxW * 0.5;
+    const _bcy = sentenceBoxY + sentenceBoxH * 0.5;
+    ctx.translate(_bcx, _bcy);
+    ctx.scale(continueHoverScale, continueHoverScale);
+    ctx.translate(-_bcx, -_bcy);
+  }
 
   // fill bleeding inward from the stroke edges
   if(fillPhase > 0 && _continueOtPath){
@@ -2940,6 +3434,9 @@ function render(timestamp){
     const dt=timestamp-lastTimestamp;
     lastTimestamp=timestamp;
 
+    const continueHoverTarget = continueHover ? 0.96 : 1;
+    continueHoverScale += (continueHoverTarget - continueHoverScale) * Math.min(1, dt * 0.018);
+
     if(sentenceLineAutoPlay && !sentenceLineResolveAnim && !sentenceLineResolved){
       sentenceLineTargetProgress = Math.min(1, sentenceLineTargetProgress + dt * 0.00055);
     }
@@ -3000,6 +3497,7 @@ function render(timestamp){
         bleedAnimT = 0;
         enterBtn2.style.opacity = '';
         enterBtn2.style.pointerEvents = '';
+        enterBtn2.style.display = '';
         enterBtn2.classList.add('ready');
       }
     }
@@ -3209,20 +3707,25 @@ function render(timestamp){
   drawTextStrokes();
 
   if(blobActive && page2.classList.contains("active")){
+    const s = blobResolved ? continueHoverScale : 1;
+    const _bcx = sentenceBoxX + sentenceBoxW * 0.5;
+    const _bcy = sentenceBoxY + sentenceBoxH * 0.5;
+    const _r = sentenceBoxR * s, _w = sentenceBoxW * s, _h = sentenceBoxH * s;
+    const _x = _bcx - _w * 0.5, _y = _bcy - _h * 0.5;
     ctx.save();
     if(continueExitOffsetY!==0) ctx.translate(0, continueExitOffsetY);
     ctx.strokeStyle = "rgba(0,0,0,0.92)";
     ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.moveTo(sentenceBoxX + sentenceBoxR, sentenceBoxY);
-    ctx.lineTo(sentenceBoxX + sentenceBoxW - sentenceBoxR, sentenceBoxY);
-    ctx.arcTo(sentenceBoxX + sentenceBoxW, sentenceBoxY, sentenceBoxX + sentenceBoxW, sentenceBoxY + sentenceBoxR, sentenceBoxR);
-    ctx.lineTo(sentenceBoxX + sentenceBoxW, sentenceBoxY + sentenceBoxH - sentenceBoxR);
-    ctx.arcTo(sentenceBoxX + sentenceBoxW, sentenceBoxY + sentenceBoxH, sentenceBoxX + sentenceBoxW - sentenceBoxR, sentenceBoxY + sentenceBoxH, sentenceBoxR);
-    ctx.lineTo(sentenceBoxX + sentenceBoxR, sentenceBoxY + sentenceBoxH);
-    ctx.arcTo(sentenceBoxX, sentenceBoxY + sentenceBoxH, sentenceBoxX, sentenceBoxY + sentenceBoxH - sentenceBoxR, sentenceBoxR);
-    ctx.lineTo(sentenceBoxX, sentenceBoxY + sentenceBoxR);
-    ctx.arcTo(sentenceBoxX, sentenceBoxY, sentenceBoxX + sentenceBoxR, sentenceBoxY, sentenceBoxR);
+    ctx.moveTo(_x + _r, _y);
+    ctx.lineTo(_x + _w - _r, _y);
+    ctx.arcTo(_x + _w, _y, _x + _w, _y + _r, _r);
+    ctx.lineTo(_x + _w, _y + _h - _r);
+    ctx.arcTo(_x + _w, _y + _h, _x + _w - _r, _y + _h, _r);
+    ctx.lineTo(_x + _r, _y + _h);
+    ctx.arcTo(_x, _y + _h, _x, _y + _h - _r, _r);
+    ctx.lineTo(_x, _y + _r);
+    ctx.arcTo(_x, _y, _x + _r, _y, _r);
     ctx.closePath();
     ctx.stroke();
     ctx.restore();
@@ -3246,7 +3749,7 @@ for(let i=1;i<=FRAME_COUNT;i++){
   frames.push(img);
 }
 
-const FRAME_COUNT2=19, FRAME_DELAY2=50, frames2=[]; let framesLoaded2=0;
+const FRAME_COUNT2=17, FRAME_DELAY2=50, frames2=[]; let framesLoaded2=0;
 for(let i=1;i<=FRAME_COUNT2;i++){
   const img=new Image();
   img.src=`2Animation_${i}.png`;
@@ -3510,6 +4013,21 @@ function resetAllPage2State(){
 
 function startCircleAndDotsAnimationAfterDelay(){
   resetAllPage2State();
+  if(BYPASS_PAGE2){
+    heroCircleVisible=true;
+    heroCircle.x=W*0.50;
+    heroCircle.r=W*0.15;
+    heroCircle.y=H*0.45;
+    buildNewPuzzleTargets();
+    for(const d of newDots){ d.x=d.targetX; d.y=d.targetY; }
+    newPuzzleActive=true;
+    bleedAnimT=1;
+    enterBtn2.style.opacity='';
+    enterBtn2.style.pointerEvents='';
+    enterBtn2.classList.add('ready');
+    requestAnimationFrame(render);
+    return;
+  }
   heroCircleVisible=true;
   circleStartY=H*0.00;
   circleEndY=H*0.45;
@@ -3533,6 +4051,7 @@ function playTransition(){
   showDotLabels=false;
   clearHintTimer();
   hideHint();
+  hideUndoBtn();
 
   const startDots=dots.map(d=>({x:d.x,y:d.y,label:d.label})), targets=buildLineTargets();
   let idx=0;
@@ -3574,6 +4093,7 @@ function playTransition(){
    PAGE 3 — RIVER ANIMATION
 =========================== */
 let riverActive=false, riverRafId=null, riverStartTime=0, riverPhase=0;
+let expandCanvas=null, expandCtx=null;
 let riverBallPrevX=0, riverBallPrevY=0, riverBallVX=0, riverBallVY=0;
 const RIVER_ENTRY_DELAY=700, RIVER_SLIDE_DUR=900, RIVER_BREATHE_DUR=1000, RIVER_MORPH_DUR=1900;
 
@@ -3581,23 +4101,18 @@ function drawBallShape(px,py,r,vx,vy,t){
   const speed=Math.sqrt(vx*vx+vy*vy);
   const stretch=clamp(speed*0.09,0,0.055);
   const angle=speed>0.3?Math.atan2(vy,vx):0;
-  const w1=Math.sin(t*9.1)*0.018;
-  const w2=Math.sin(t*6.4+1.4)*0.012;
-  const rx=Math.max(r*(1+stretch+w1),1);
-  const ry=Math.max(r*(1-stretch*0.5+w2),1);
+  const rx=Math.max(r*(1+stretch),1);
+  const ry=Math.max(r*(1-stretch*0.5),1);
   ctx.beginPath();
   ctx.ellipse(px,py,rx,ry,angle,0,Math.PI*2);
-  ctx.fillStyle='#111';
+  ctx.fillStyle='#000';
   ctx.fill();
 }
 
-function drawRiverShape(px,py,halfW,halfH,phase,organic){
-  const capR=halfH;
-  const sw=halfW-capR;
+function buildRiverPath(c,px,py,halfW,halfH,phase,organic){
+  const capR=halfH, sw=halfW-capR;
   const STEPS=120, CAP_STEPS=18;
   const pts=[];
-
-  // top edge L→R
   for(let i=0;i<=STEPS;i++){
     const u=i/STEPS, x=(px-sw)+u*sw*2;
     const blend=Math.sin(u*Math.PI);
@@ -3605,12 +4120,10 @@ function drawRiverShape(px,py,halfW,halfH,phase,organic){
     const w2=Math.sin(u*Math.PI*5.5-phase*0.7)*capR*0.09*organic*blend;
     pts.push({x, y:py-capR+w1+w2});
   }
-  // right cap top→bottom
   for(let i=1;i<=CAP_STEPS;i++){
     const a=-Math.PI/2+Math.PI*i/CAP_STEPS;
     pts.push({x:px+sw+Math.cos(a)*capR, y:py+Math.sin(a)*capR});
   }
-  // bottom edge R→L
   for(let i=STEPS;i>=0;i--){
     const u=i/STEPS, x=(px-sw)+u*sw*2;
     const blend=Math.sin(u*Math.PI);
@@ -3618,22 +4131,58 @@ function drawRiverShape(px,py,halfW,halfH,phase,organic){
     const w2=Math.sin(u*Math.PI*5.5-phase*0.7+0.6)*capR*0.09*organic*blend;
     pts.push({x, y:py+capR+w1+w2});
   }
-  // left cap bottom→top
   for(let i=1;i<=CAP_STEPS;i++){
     const a=Math.PI/2+Math.PI*i/CAP_STEPS;
     pts.push({x:px-sw+Math.cos(a)*capR, y:py+Math.sin(a)*capR});
   }
-
-  ctx.beginPath();
+  c.beginPath();
   const n=pts.length;
-  ctx.moveTo((pts[0].x+pts[n-1].x)/2,(pts[0].y+pts[n-1].y)/2);
+  c.moveTo((pts[0].x+pts[n-1].x)/2,(pts[0].y+pts[n-1].y)/2);
   for(let i=0;i<n;i++){
     const a=pts[i], b=pts[(i+1)%n];
-    ctx.quadraticCurveTo(a.x,a.y,(a.x+b.x)/2,(a.y+b.y)/2);
+    c.quadraticCurveTo(a.x,a.y,(a.x+b.x)/2,(a.y+b.y)/2);
   }
-  ctx.closePath();
-  ctx.fillStyle='#111';
-  ctx.fill();
+  c.closePath();
+}
+function drawRiverShapeOnCtx(c,px,py,halfW,halfH,phase,organic,fillCol){
+  buildRiverPath(c,px,py,halfW,halfH,phase,organic);
+  c.fillStyle=fillCol||'#000';
+  c.fill();
+}
+function drawRiverShape(px,py,halfW,halfH,phase,organic){
+  drawRiverShapeOnCtx(ctx,px,py,halfW,halfH,phase,organic,'#000');
+}
+
+function drawExpansion(t,cx,cy,phase){
+  const RIVER_HW=W*0.70, RIVER_HH=Math.max(H*0.13,50);
+  const ease=easeInOutQuart(t);
+
+  const targetHH=H*0.62;
+  const targetHW=targetHH+W*0.54;
+  const curHW=lerp(RIVER_HW,targetHW,ease);
+  const curHH=lerp(RIVER_HH,targetHH,ease);
+  const waveOrganic=lerp(1,0.1,ease);
+
+  // Draw expanding flood onto the offscreen composite canvas
+  expandCtx.clearRect(0,0,W,H);
+  drawRiverShapeOnCtx(expandCtx,cx,cy,curHW,curHH,phase,waveOrganic,'#000');
+
+  // Cut 'STRUCTURE' from the flood — background colour shows through the letters
+  const fontSize=Math.round(W*0.115);
+  expandCtx.save();
+  expandCtx.globalCompositeOperation='destination-out';
+  expandCtx.font=`700 ${fontSize}px "Supreme",system-ui,sans-serif`;
+  expandCtx.letterSpacing='-0.03em';
+  expandCtx.textAlign='center';
+  expandCtx.textBaseline='top';
+  expandCtx.fillStyle='#000';
+  expandCtx.fillText('STRUCTURE',cx,H*0.05);
+  expandCtx.restore();
+
+  // Solid orange base — text holes show this colour; flood covers the rest
+  ctx.fillStyle='#F71F08';
+  ctx.fillRect(0,0,W,H);
+  ctx.drawImage(expandCanvas,0,0,W,H);
 }
 
 function riverTick(timestamp){
@@ -3679,16 +4228,32 @@ function riverTick(timestamp){
     halfW=lerp(EXPAND_R,RIVER_HW,easeOutQuart(tW));
     const tH=clamp((tTotal-0.15)/0.85,0,1);
     halfH=lerp(EXPAND_R,RIVER_HH,easeInOutQuart(tH));
-    organic=lerp(0.12,1,tTotal);
+    organic=easeInOutQuart(clamp((tTotal-0.45)/0.55,0,1));
 
   } else {
     halfW=RIVER_HW; halfH=RIVER_HH; organic=1;
+    if(!p3RiverReady){
+      p3RiverReady=true;
+      p3WordsEnabled=true;
+      p3ScheduleHint();
+    }
   }
 
   if(useBall){
     drawBallShape(px,py,ballR,riverBallVX,riverBallVY,elapsed*0.001);
   } else if(halfW>0){
-    drawRiverShape(px,py,halfW,halfH,riverPhase,organic);
+    if(p3RiverReady&&p3ScrollPos>=1){
+      const expandT=Math.min(1,(p3ScrollPos-1)/0.5);
+      drawExpansion(expandT,cx,cy,riverPhase);
+    } else {
+      drawRiverShape(px,py,halfW,halfH,riverPhase,organic);
+      if(p3RiverReady) p3DrawWords(px,py,halfW,halfH,riverPhase,organic);
+    }
+  }
+  // hide hint the instant the black expansion shape reaches its position (bottom:12vh ≈ y=H*0.88)
+  if(p3HintShown && p3ScrollPos >= 1.30){
+    p3Hint.style.transition = 'none';
+    p3Hint.style.opacity = '0';
   }
   riverRafId=requestAnimationFrame(riverTick);
 }
@@ -3699,6 +4264,7 @@ function startRiverAnimation(){
   riverBallVX=0; riverBallVY=0;
   riverActive=true;
   riverStartTime=performance.now();
+  p3RiverReady=false;
   riverRafId=requestAnimationFrame(riverTick);
 }
 
@@ -3829,7 +4395,7 @@ function drawReactiveBall(cx, cy, baseR, impacts, tNow){
     ctx.quadraticCurveTo(curr.x, curr.y, (curr.x + next.x) * 0.5, (curr.y + next.y) * 0.5);
   }
   ctx.closePath();
-  ctx.fillStyle = '#111';
+  ctx.fillStyle = '#000';
   ctx.fill();
 }
 
@@ -3851,7 +4417,7 @@ function mergeTick(timestamp){
   let allAbsorbed = true;
 
   // draw moving dots
-  ctx.fillStyle = 'rgba(0,0,0,0.92)';
+  ctx.fillStyle = '#000';
   for(let i=0;i<mergeOrderedDots.length;i++){
     const d = mergeOrderedDots[i];
     if(d.hidden) continue;
@@ -3955,7 +4521,7 @@ function mergeTick(timestamp){
       riverBallVX = 0;
       riverBallVY = 0;
       riverActive = true;
-      riverStartTime = performance.now() - (RIVER_ENTRY_DELAY + RIVER_SLIDE_DUR + RIVER_BREATHE_DUR + RIVER_MORPH_DUR);
+      riverStartTime = 0; // elapsed = timestamp, so riverPhase = timestamp*0.0009 matches mergeTick's last frame
       riverRafId = requestAnimationFrame(riverTick);
       return;
     }
@@ -3965,6 +4531,19 @@ function mergeTick(timestamp){
 }
 
 function playTransition2(){
+  if(BYPASS_PAGE3){
+    // goTo(4) removes page2.active which stops the render loop — but one
+    // final render frame still fires and overwrites the canvas with the
+    // hero circle. Use a double-rAF so drawExpansion runs AFTER that last
+    // frame, then rebuild the mask from the correct STRUCTURE pixels.
+    goTo(4);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      drawExpansion(1, W * 0.5, H * 0.5, 0);
+      buildP4Mask();
+    }));
+    return;
+  }
+
   // capture dot positions before leaving page 2
   const capturedDots=newDots.map(d=>({x:d.x,y:d.y}));
   const capturedDotR=newDotRadius||7.5;
@@ -3989,7 +4568,7 @@ function playTransition2(){
       setTimeout(drawFrame2,FRAME_DELAY2);
     } else {
       ctx.clearRect(0,0,W,H);
-      stageEl.style.background='url("2Animation_19.png") center/cover no-repeat';
+      stageEl.style.background='url("2Animation_17.png") center/cover no-repeat';
       if(capturedDots.length>0){
         startMergeAnimation(capturedDots,capturedDotR);
       } else {
@@ -4000,8 +4579,20 @@ function playTransition2(){
   drawFrame2();
 }
 
+undoBtn.addEventListener("click",()=>{
+  if(!undoBtn.classList.contains("visible")) return;
+  strokePts.length = mistakeSegStart;
+  nextIdx = mistakeNextIdx;
+  segmentStartIdx = mistakeSegStart;
+  hideUndoBtn();
+  render();
+});
+
 enterBtn.addEventListener("click",()=>{
   if(!BYPASS_PUZZLE&&!completed) return;
+  document.body.style.cursor="default";
+  enterBtn.style.pointerEvents = "none";
+  enterBtn.style.display = "none";
   if(framesLoaded>0){
     playTransition();
     return;
@@ -4013,6 +4604,7 @@ enterBtn.addEventListener("click",()=>{
   showDotLabels=false;
   clearHintTimer();
   hideHint();
+  hideUndoBtn();
 
   const startDots=dots.map(d=>({x:d.x,y:d.y,label:d.label})), targets=buildLineTargets();
   let idx=0;
@@ -4041,6 +4633,8 @@ enterBtn.addEventListener("click",()=>{
 });
 
 enterBtn2.addEventListener("click",()=>{
+  enterBtn2.style.pointerEvents = "none";
+  enterBtn2.style.display = "none";
   playTransition2();
 });
 
@@ -4048,27 +4642,1004 @@ backBtn2.addEventListener("click",(e)=>{
   e.preventDefault();
   stopRiverAnimation();
   stopMergeAnimation();
+  p3ResetState();
   ctx.clearRect(0,0,W,H);
   goTo(2);
   requestAnimationFrame(render);
 });
 
-backBtn.addEventListener("click",(e)=>{
-  e.preventDefault();
-  playingTransition=false;
-  goTo(1);
-  showIntroWords(true);
-  stageEl.style.background=STAGE_BG_PAGE1;
 
-  resetAllPage2State();
-  showDotLabels=true;
-  setDotsToHome();
-  completed=BYPASS_PUZZLE;
-  hasStartedPuzzle=false;
-  reset();
-  startHintTimer();
-  render();
+/* ===========================
+   PAGE 3 — SCROLL-DRIVEN RIVER WORDS
+=========================== */
+
+// Fixed word layout: [text, t(0–1 along scroll), baseLane(-1..1), fontSize, waveAmp(frac of halfH), waveLen(px), wavePhase]
+// t=0 → first word enters right; t=1 → last word exits left. Right-to-left flow.
+// Words with close t values appear on screen at the same time and can be read together left-to-right.
+// waveAmp/waveLen/wavePhase drive each word's undulating vertical path as it drifts through the river.
+// Words are grouped so 2–3 enter simultaneously at different river heights.
+// Same t value = enter at the same moment. Lanes spread top/mid/bottom.
+// Mix of triples (3 at once), pairs (2 at once), and solos for rhythm.
+const P3_LAYOUT = [
+  // Words within each group have small t offsets so they stagger horizontally
+  // instead of stacking in a column. ~0.008–0.015 offset ≈ 50–100px apart.
+  ["time",          0.020,  0.55, 0, 0.09, 580, 0.0],
+  ["and",           0.031, -0.05, 0, 0.14, 230, 2.1],
+  ["into",          0.010, -0.55, 0, 0.12, 490, 4.5],
+
+  ["past",          0.044, -0.45, 0, 0.18, 155, 1.3],
+  ["never",         0.058,  0.42, 0, 0.08, 640, 3.8],
+
+  ["present",       0.078,  0.08, 0, 0.15, 310, 0.6],
+
+  ["both",          0.118,  0.52, 0, 0.19, 195, 5.2],
+  ["take",          0.104, -0.40, 0, 0.10, 720, 2.7],
+
+  ["are",           0.140, -0.18, 0, 0.17, 260, 1.0],
+
+  ["towards",       0.158,  0.55, 0, 0.13, 420, 4.2],
+  ["perhaps",       0.174, -0.05, 0, 0.20, 145, 3.1],
+  ["down",          0.188, -0.55, 0, 0.09, 555, 5.7],
+
+  ["future",        0.210,  0.28, 0, 0.16, 215, 1.8],
+
+  ["end",           0.248, -0.50, 0, 0.11, 680, 0.3],
+  ["in",            0.234,  0.45, 0, 0.14, 175, 4.8],
+
+  ["contained",     0.270, -0.12, 0, 0.19, 340, 2.4],
+
+  ["not",           0.288,  0.50, 0, 0.08, 610, 1.2],
+  ["if",            0.304, -0.48, 0, 0.17, 190, 5.0],
+
+  ["which",         0.338,  0.55, 0, 0.12, 455, 3.5],
+  ["all",           0.322,  0.02, 0, 0.20, 160, 0.8],
+  ["we",            0.350, -0.55, 0, 0.09, 700, 4.1],
+
+  ["is",            0.366,  0.22, 0, 0.15, 240, 2.6],
+
+  ["did",           0.396, -0.45, 0, 0.18, 510, 1.4],
+  ["eternally",     0.380,  0.50, 0, 0.11, 290, 5.4],
+
+  ["the",           0.420, -0.08, 0, 0.08, 630, 0.2],
+
+  ["unredeemable",  0.444,  0.48, 0, 0.16, 170, 3.9],
+  ["thus",          0.460, -0.52, 0, 0.20, 385, 2.2],
+
+  ["what",          0.488,  0.52, 0, 0.13, 540, 1.7],
+  ["might",         0.474, -0.38, 0, 0.17, 200, 4.6],
+
+  ["have",          0.500, -0.52, 0, 0.10, 660, 0.5],
+  ["been",          0.516,  0.40, 0, 0.19, 150, 3.0],
+
+  ["an",            0.538, -0.08, 0, 0.14, 475, 5.8],
+
+  ["abstraction",   0.578, -0.50, 0, 0.08, 580, 1.6],
+  ["of",            0.562,  0.52, 0, 0.17, 220, 4.3],
+
+  ["remaining",     0.592,  0.38, 0, 0.12, 350, 0.9],
+  ["a",             0.606, -0.42, 0, 0.20, 180, 3.4],
+
+  ["your",          0.624,  0.55, 0, 0.09, 620, 2.0],
+  ["perpetual",     0.640,  0.02, 0, 0.15, 255, 5.3],
+  ["possibility",   0.632, -0.55, 0, 0.18, 430, 1.1],
+
+  ["only",          0.660,  0.25, 0, 0.11, 700, 4.7],
+
+  ["world",         0.698,  0.52, 0, 0.16, 185, 2.3],
+  ["speculation",   0.678, -0.48, 0, 0.13, 565, 0.7],
+
+  ["my",            0.726, -0.28, 0, 0.19, 310, 5.1],
+  ["has",           0.712,  0.50, 0, 0.08, 650, 3.6],
+
+  ["point",         0.740,  0.55, 0, 0.17, 165, 1.9],
+  ["to",            0.756, -0.02, 0, 0.14, 490, 4.4],
+  ["one",           0.768, -0.55, 0, 0.20, 240, 0.4],
+
+  ["mind",          0.790, -0.45, 0, 0.10, 720, 3.2],
+  ["always",        0.776,  0.42, 0, 0.16, 195, 1.5],
+
+  ["footfalls",     0.804, -0.52, 0, 0.13, 400, 5.6],
+  ["echo",          0.820,  0.38, 0, 0.19, 145, 2.8],
+
+  ["memory",        0.844,  0.50, 0, 0.09, 590, 0.1],
+  ["passage",       0.830, -0.42, 0, 0.15, 230, 4.0],
+
+  ["opened",        0.870,  0.12, 0, 0.12, 470, 2.5],
+  ["door",          0.900, -0.32, 0, 0.18, 170, 5.9],
+  ["rose-garden",   0.930,  0.45, 0, 0.08, 680, 1.2],
+  ["words",         0.990, -0.08, 0, 0.14, 320, 3.7],
+];
+
+const P3_WORD_SIZE = 26; // uniform font size for all river words
+
+// Scroll position: 0 (start) → 1 (end, all words gone). Clamped, finite.
+let p3ScrollPos = 0;
+const P3_TOTAL_DELTA = 10000; // higher = slower word movement per scroll unit
+
+let p3WordsEnabled = false;
+let p3RiverReady = false;
+let p3HintShown = false;
+let p3HintTimer = null;
+
+// Word screen-x formula (right-to-left flow):
+//   screenX = (1.05 + t * 3.5 - p3ScrollPos * 4.75) * W
+// At scrollPos=0, t=0: screenX = 1.05W (just off screen right)
+// At scrollPos=1, t=1: screenX = (1.05+3.5-4.75)*W = -0.2W (just exited left) ✓
+
+function p3ScheduleHint(){
+  if(p3HintTimer) clearTimeout(p3HintTimer);
+  p3HintTimer = setTimeout(()=>{
+    if(!p3HintShown){
+      p3HintShown = true;
+      p3Hint.style.opacity = "1";
+    }
+  }, 600);
+}
+
+// Glyph cache — each character is pre-rendered at P3_GLYPH_SCALE× so that
+// drawImage (which does bilinear interpolation) can position letters at
+// sub-pixel y coordinates, giving smooth animation instead of pixel-stepping.
+const P3_GLYPH_SCALE = 4;
+const p3GlyphCache = new Map();
+function p3GetGlyph(ch){
+  if(p3GlyphCache.has(ch)) return p3GlyphCache.get(ch);
+  const S = P3_GLYPH_SCALE;
+  const font = `${P3_WORD_SIZE}px "Supreme", system-ui, sans-serif`;
+  ctx.font = font;
+  const dw = ctx.measureText(ch).width;
+  const dh = P3_WORD_SIZE * 2; // generous vertical space
+  const oc = document.createElement('canvas');
+  oc.width  = Math.ceil(dw * S) + 2;
+  oc.height = Math.ceil(dh * S);
+  const gc = oc.getContext('2d');
+  gc.scale(S, S);
+  gc.font = font;
+  gc.fillStyle = '#fff';
+  gc.textAlign = 'left';
+  gc.textBaseline = 'middle';
+  gc.fillText(ch, 0, dh / 2);
+  const entry = {oc, dw, dh};
+  p3GlyphCache.set(ch, entry);
+  return entry;
+}
+
+function p3DrawWords(px,py,halfW,halfH,phase,organic){
+  // Build river clip path (same geometry as drawRiverShape)
+  const capR=halfH, sw=halfW-capR;
+  const STEPS=120, CAP_STEPS=18;
+  const pts=[];
+  for(let i=0;i<=STEPS;i++){
+    const u=i/STEPS, x=(px-sw)+u*sw*2, blend=Math.sin(u*Math.PI);
+    const w1=Math.sin(u*Math.PI*3+phase*1.1)*capR*0.18*organic*blend;
+    const w2=Math.sin(u*Math.PI*5.5-phase*0.7)*capR*0.09*organic*blend;
+    pts.push({x, y:py-capR+w1+w2});
+  }
+  for(let i=1;i<=CAP_STEPS;i++){
+    const a=-Math.PI/2+Math.PI*i/CAP_STEPS;
+    pts.push({x:px+sw+Math.cos(a)*capR, y:py+Math.sin(a)*capR});
+  }
+  for(let i=STEPS;i>=0;i--){
+    const u=i/STEPS, x=(px-sw)+u*sw*2, blend=Math.sin(u*Math.PI);
+    const w1=Math.sin(u*Math.PI*3+phase*1.1+1.1)*capR*0.18*organic*blend;
+    const w2=Math.sin(u*Math.PI*5.5-phase*0.7+0.6)*capR*0.09*organic*blend;
+    pts.push({x, y:py+capR+w1+w2});
+  }
+  for(let i=1;i<=CAP_STEPS;i++){
+    const a=Math.PI/2+Math.PI*i/CAP_STEPS;
+    pts.push({x:px-sw+Math.cos(a)*capR, y:py+Math.sin(a)*capR});
+  }
+
+  ctx.save();
+  ctx.beginPath();
+  const n=pts.length;
+  ctx.moveTo((pts[0].x+pts[n-1].x)/2,(pts[0].y+pts[n-1].y)/2);
+  for(let i=0;i<n;i++){
+    const a=pts[i], b=pts[(i+1)%n];
+    ctx.quadraticCurveTo(a.x,a.y,(a.x+b.x)/2,(a.y+b.y)/2);
+  }
+  ctx.closePath();
+  ctx.clip();
+
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+
+  for(const [text, t, baseLane, size, waveAmp, waveLen, wavePhase] of P3_LAYOUT){
+    const sx = (1.05 + t*4.5 - p3ScrollPos*5.75) * W;
+    if(sx < -320 || sx > W+320) continue;
+
+    const alpha = 0.88;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    // font must be set so measureText inside p3GetGlyph uses the right metrics
+    ctx.font = `${P3_WORD_SIZE}px "Supreme", system-ui, sans-serif`;
+
+    // measure total word width using cached glyph widths
+    let totalW = 0;
+    for(const ch of text) totalW += p3GetGlyph(ch).dw;
+    let lx = sx - totalW / 2;
+
+    // Pre-compute river geometry constants (same as drawRiverShape)
+    const capR = halfH, sw = halfW - capR;
+    // baseLane: -1=top edge, 0=centre, 1=bottom edge → blend factor 0→1
+    const laneT = (baseLane + 1) / 2;
+
+    // draw each letter via drawImage so fractional ly is interpolated (no pixel-stepping)
+    for(const ch of text){
+      const {oc, dw, dh} = p3GetGlyph(ch);
+      // Map letter x to normalised river position u ∈ [0,1]
+      const u = Math.max(0, Math.min(1, (lx - (px - sw)) / (sw * 2)));
+      const blend = Math.sin(u * Math.PI);
+      // Top-edge wiggle (same formula as drawRiverShape top pass)
+      const wTop = Math.sin(u*Math.PI*3 + phase*1.1)   * capR*0.18*organic*blend
+                 + Math.sin(u*Math.PI*5.5 - phase*0.7) * capR*0.09*organic*blend;
+      // Bottom-edge wiggle (same formula as drawRiverShape bottom pass)
+      const wBot = Math.sin(u*Math.PI*3 + phase*1.1 + 1.1) * capR*0.18*organic*blend
+                 + Math.sin(u*Math.PI*5.5 - phase*0.7 + 0.6) * capR*0.09*organic*blend;
+      // Blend between edges based on the word's lane so each lane follows its own edge
+      const riverDisp = wTop * (1 - laneT) + wBot * laneT;
+      const ly = py + baseLane * halfH + riverDisp;
+      // drawImage with bilinear interpolation honours sub-pixel ly values smoothly
+      ctx.drawImage(oc, 0, 0, oc.width, oc.height, lx, ly - dh / 2, oc.width / P3_GLYPH_SCALE, dh);
+      lx += dw;
+    }
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function p3ResetState(){
+  p3ScrollPos = 0;
+  p3WordsEnabled = false;
+  p3RiverReady = false;
+  p3HintShown = false;
+  if(p3HintTimer){clearTimeout(p3HintTimer); p3HintTimer=null;}
+  p3Hint.style.transition = "none";
+  p3Hint.style.opacity = "0";
+  // restore transition after a tick so next show animates
+  requestAnimationFrame(()=>{ p3Hint.style.transition = "opacity .7s ease"; });
+}
+
+/* ─── PAGE 4 ──────────────────────────────────────────── */
+let p4ScrollPos = 0;
+let p4Active = false;
+let p4RafId = null;
+const P4_TOTAL_DELTA = 4000;
+
+function p4DrawLines(globalProgress){
+  // globalProgress 0→1 drives all lines sequentially with stagger
+  ctx.strokeStyle = '#F71F08';
+  ctx.lineWidth = Math.max(1, W * 0.0012);
+  ctx.lineCap = 'square';
+  const lines = getP4Lines();
+  for(const [x1,y1,x2,y2,t0,t1] of lines){
+    if(globalProgress < t0) continue;
+    const prog = Math.min(1,(globalProgress-t0)/(t1-t0));
+    const ex = x1+(x2-x1)*prog, ey = y1+(y2-y1)*prog;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(ex,ey); ctx.stroke();
+  }
+}
+
+function getP4Lines(){
+  const MAST = 0.13*H;
+  const HEAD = 0.30*H;
+  const C1 = W/3, C2 = W*2/3;
+  // [x1, y1, x2, y2, t0, t1]
+  // Horizontals alternate start side; verticals staggered loosely
+  return [
+    [W,  MAST, 0,  MAST, 0.00, 0.08], // info strip ← (right to left)
+    [0,  HEAD, W,  HEAD, 0.04, 0.14], // headline bottom → (left to right)
+    [C1, H,    C1, HEAD, 0.06, 0.22], // left col divider ↑ (bottom to top)
+    [C2, HEAD, C2, H,    0.11, 0.27], // right col divider ↓ (top to bottom)
+  ];
+}
+
+function p4Tick(){
+  // Static one-shot draw when lines are re-enabled later.
+  // Currently not called — canvas retains the last page 3 frame (STRUCTURE).
+  if(!p4Active) return;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0,0,W,H);
+  // p4DrawLines(p4ScrollPos);  ← kept for later use
+}
+
+/* ─── PAGE 4 PAINT BRUSH ──────────────────────────── */
+const P4_BRUSH_RADIUS = 46;
+let p4Painting = false;
+let p4PaintLastX = 0, p4PaintLastY = 0;
+let p4HintShownP4 = false;
+let p4MaskCanvas = null;
+let p4OrangeBounds = null; // bounding box of orange pixels in CSS px
+let p4OrangePixelCount = 0; // total orange pixels (for coverage calc)
+let p4CompletionTriggered = false;
+
+/* Build a pixel mask from the current canvas frame.
+   Orange pixels (STRUCTURE letters) → opaque white in mask.
+   Everything else → transparent. */
+function buildP4Mask(){
+  const pw = canvas.width, ph = canvas.height;
+  const src = ctx.getImageData(0, 0, pw, ph);
+  const sd = src.data;
+
+  p4MaskCanvas = document.createElement('canvas');
+  p4MaskCanvas.width = pw;
+  p4MaskCanvas.height = ph;
+  const mc = p4MaskCanvas.getContext('2d');
+  const md = mc.createImageData(pw, ph);
+  const m = md.data;
+
+  let minX = pw, minY = ph, maxX = 0, maxY = 0;
+  let orangeCount = 0;
+
+  for(let i = 0; i < sd.length; i += 4){
+    const r = sd[i], g = sd[i+1], b = sd[i+2], a = sd[i+3];
+    // Orange/red: high red, low green, low blue.
+    // Threshold is low (40) to include anti-aliased edge pixels of the letters.
+    const isOrange = r > 40 && g < 90 && b < 90 && a > 40;
+    m[i] = m[i+1] = m[i+2] = 255;
+    m[i+3] = isOrange ? 255 : 0;
+    if(isOrange){
+      orangeCount++;
+      const px = (i / 4) % pw;
+      const py = Math.floor((i / 4) / pw);
+      if(px < minX) minX = px;
+      if(px > maxX) maxX = px;
+      if(py < minY) minY = py;
+      if(py > maxY) maxY = py;
+    }
+  }
+  p4OrangePixelCount = orangeCount;
+  mc.putImageData(md, 0, 0);
+
+  // Store bounds in CSS pixels for hit-testing against p4CanvasPos()
+  // Extra vertical padding so the brush cursor covers the gaps around the letters
+  p4OrangeBounds = { minX: 0, minY: 0, maxX: W, maxY: maxY/dpr + 40 };
+}
+
+/* One brush stamp oriented along the stroke direction (angle in radians).
+   Uses thin ellipses — long along the stroke, spread perpendicular — so the
+   edge texture looks like bristle fibres rather than scattered spray dots. */
+function p4PaintStamp(x, y, angle){
+  const r = P4_BRUSH_RADIUS;
+  p4PaintCtx.save();
+  p4PaintCtx.translate(x, y);
+  p4PaintCtx.rotate(angle);
+  p4PaintCtx.fillStyle = '#000';
+
+  // Solid core — dominant body of the stroke, fully opaque
+  p4PaintCtx.globalAlpha = 1;
+  p4PaintCtx.beginPath();
+  p4PaintCtx.ellipse(0, 0, r * 0.50, r * 0.68, 0, 0, Math.PI * 2);
+  p4PaintCtx.fill();
+
+  // Bristle strands — all fully opaque, just varying in size and position
+  const BRISTLES = 7;
+  for(let i = 0; i < BRISTLES; i++){
+    const pct  = (i / (BRISTLES - 1)) - 0.5;
+    const absP = Math.abs(pct);
+    const lateralY = pct * r * 1.38;
+    const len  = r * (0.44 - absP * 0.18 + Math.random() * 0.12);
+    const wid  = r * (0.09 + Math.random() * 0.05);
+    p4PaintCtx.globalAlpha = 1;
+    p4PaintCtx.beginPath();
+    p4PaintCtx.ellipse(0, lateralY, len, wid, 0, 0, Math.PI * 2);
+    p4PaintCtx.fill();
+  }
+
+  p4PaintCtx.globalAlpha = 1;
+  p4PaintCtx.restore();
+}
+
+function p4PaintStroke(x, y, last){
+  p4PaintCtx.globalCompositeOperation = 'source-over';
+
+  // Angle of travel — bristles align with this direction
+  const angle = last ? Math.atan2(y - last.y, x - last.x) : 0;
+  p4PaintStamp(x, y, angle);
+
+  // Stamp densely enough that bristle ellipses from adjacent stamps overlap
+  if(last){
+    const dx = x - last.x, dy = y - last.y;
+    const dist = Math.hypot(dx, dy);
+    const steps = Math.ceil(dist / (P4_BRUSH_RADIUS * 0.22));
+    for(let i = 1; i < steps; i++){
+      const t = i / steps;
+      p4PaintStamp(last.x + dx * t, last.y + dy * t, angle);
+    }
+  }
+
+  // Clip paint to orange STRUCTURE pixels only
+  if(p4MaskCanvas){
+    p4PaintCtx.globalCompositeOperation = 'destination-in';
+    p4PaintCtx.drawImage(p4MaskCanvas, 0, 0, W, H);
+    p4PaintCtx.globalCompositeOperation = 'source-over';
+  }
+}
+
+const P4_BRUSH_CURSOR = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cpath d='M34,6 L23,17 L25,19 L22,22 L24,24 L15,33 L3,21 L12,12 L14,14 L17,11 L19,13 L30,2 Z' fill='black' stroke='white' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M3,21 L15,33 L17,31 Q11,29 5,19 Z' fill='white'/%3E%3Cline x1='17' y1='11' x2='25' y2='19' stroke='white' stroke-width='1'/%3E%3Cline x1='14' y1='14' x2='22' y2='22' stroke='white' stroke-width='1'/%3E%3C/svg%3E\") 10 27, default";
+
+function p4CanvasPos(e){
+  const r = p4PaintCanvas.getBoundingClientRect();
+  if(e.touches) return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+function p4IsOverOrange(pos){
+  if(!p4OrangeBounds) return false;
+  const b = p4OrangeBounds;
+  return pos.x >= b.minX && pos.x <= b.maxX && pos.y >= b.minY && pos.y <= b.maxY;
+}
+
+function p4UpdateCursor(pos){
+  if(p4TraceMode){ p4PaintCanvas.style.cursor = 'default'; return; }
+  if(p4PressMode){
+    const boxes = getP4Boxes();
+    const overUnrevealed = boxes.some((b, i) =>
+      !p4BoxRevealed[i] &&
+      pos.x >= b.x && pos.x <= b.x + b.w &&
+      pos.y >= b.y && pos.y <= b.y + b.h
+    );
+    p4PaintCanvas.style.cursor = overUnrevealed ? 'pointer' : 'default';
+    return;
+  }
+  if(p4Painting) return;
+  p4PaintCanvas.style.cursor = p4IsOverOrange(pos) ? P4_BRUSH_CURSOR : 'default';
+}
+
+p4PaintCanvas.addEventListener('mousedown', e => {
+  if(!p4Active) return;
+  e.preventDefault();
+  const pos = p4CanvasPos(e);
+  if(p4PressMode){
+    const boxes = getP4Boxes();
+    for(let i = 0; i < boxes.length; i++){
+      if(p4BoxRevealed[i]) continue;
+      const b = boxes[i];
+      if(pos.x >= b.x && pos.x <= b.x + b.w && pos.y >= b.y && pos.y <= b.y + b.h){
+        p4RevealBox(i); break;
+      }
+    }
+    return;
+  }
+  p4Painting = true;
+  p4PaintLastX = pos.x; p4PaintLastY = pos.y;
+  if(p4TraceMode){
+    // Activate whichever line the user clicked near
+    const lines = getP4Lines();
+    let best = -1, bestDist = P4_TRACE_DIST * 2;
+    for(let i = 0; i < lines.length; i++){
+      const [x1,y1,x2,y2] = lines[i];
+      const d = p4DistToSeg(pos.x, pos.y, x1, y1, x2, y2);
+      if(d < bestDist){ bestDist = d; best = i; }
+    }
+    p4ActiveTraceLine = best;
+  } else {
+    p4PaintStroke(pos.x, pos.y, null);
+  }
 });
+
+p4PaintCanvas.addEventListener('mousemove', e => {
+  if(!p4Active) return;
+  const pos = p4CanvasPos(e);
+  p4UpdateCursor(pos);
+  if(p4TraceMode){
+    if(p4Painting && p4ActiveTraceLine >= 0){
+      const [x1,y1,x2,y2] = getP4Lines()[p4ActiveTraceLine];
+      const currentT = p4TraceProgress[p4ActiveTraceLine];
+      // Only advance if mouse is close to the current orange tip — prevents jumping
+      const tipX = x1 + (x2-x1)*currentT, tipY = y1 + (y2-y1)*currentT;
+      if(Math.hypot(pos.x - tipX, pos.y - tipY) < P4_TRACE_DIST * 1.8){
+        const t = p4ProjOnSeg(pos.x, pos.y, x1, y1, x2, y2);
+        if(t > currentT) p4TraceProgress[p4ActiveTraceLine] = t;
+      }
+    }
+    return;
+  }
+  if(!p4Painting) return;
+  p4PaintStroke(pos.x, pos.y, { x: p4PaintLastX, y: p4PaintLastY });
+  p4PaintLastX = pos.x; p4PaintLastY = pos.y;
+});
+
+p4PaintCanvas.addEventListener('mouseup', () => { p4Painting = false; p4ActiveTraceLine = -1; p4OnStrokeEnd(); });
+p4PaintCanvas.addEventListener('mouseleave', () => { p4Painting = false; p4ActiveTraceLine = -1; p4PaintCanvas.style.cursor = 'default'; });
+
+p4PaintCanvas.addEventListener('touchstart', e => {
+  if(!p4Active) return;
+  e.preventDefault();
+  p4Painting = true;
+  const pos = p4CanvasPos(e);
+  p4PaintLastX = pos.x; p4PaintLastY = pos.y;
+  p4PaintStroke(pos.x, pos.y, null);
+}, { passive: false });
+
+p4PaintCanvas.addEventListener('touchmove', e => {
+  if(!p4Active || !p4Painting) return;
+  e.preventDefault();
+  const pos = p4CanvasPos(e);
+  p4PaintStroke(pos.x, pos.y, { x: p4PaintLastX, y: p4PaintLastY });
+  p4PaintLastX = pos.x; p4PaintLastY = pos.y;
+}, { passive: false });
+
+p4PaintCanvas.addEventListener('touchend', () => { p4Painting = false; p4OnStrokeEnd(); });
+
+function showP4Hint(){
+  if(p4HintShownP4) return;
+  p4HintShownP4 = true;
+
+  const text = 'Paint over the structure to create your own';
+  // Each char gets its own overflow:hidden clip. The inner span runs a
+  // @keyframes rise animation — plays once, stays at final position.
+  // All chars animate simultaneously (no stagger).
+  p4HintEl.innerHTML = [...text].map((ch) => {
+    const inner = ch === ' ' ? '\u00a0' : ch;
+    return `<span style="display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.3em;">` +
+           `<span style="display:inline-block;animation:p4CharRise 0.55s cubic-bezier(0.16,1,0.3,1) forwards;">${inner}</span></span>`;
+  }).join('');
+}
+
+function hideP4Hint(){
+  p4HintShownP4 = false;
+  p4HintEl.innerHTML = '';
+}
+
+function p4CheckCoverage(){
+  if(!p4MaskCanvas || p4OrangePixelCount === 0) return 0;
+  const pw = p4MaskCanvas.width, ph = p4MaskCanvas.height;
+  // Sample every 3rd pixel for performance
+  const paintData = p4PaintCtx.getImageData(0, 0, pw, ph).data;
+  const maskData  = p4MaskCanvas.getContext('2d').getImageData(0, 0, pw, ph).data;
+  let covered = 0, total = 0;
+  for(let i = 0; i < maskData.length; i += 4 * 3){
+    if(maskData[i + 3] > 0){
+      total++;
+      if(paintData[i + 3] > 0) covered++;
+    }
+  }
+  return total > 0 ? covered / total : 0;
+}
+
+function p4HintFallOut(cb){
+  const spans = p4HintEl.querySelectorAll('span > span');
+  if(!spans.length){ cb && cb(); return; }
+  spans.forEach(s => {
+    s.style.animation = 'p4CharFall 0.4s cubic-bezier(0.7,0,0.84,0) forwards';
+  });
+  setTimeout(() => { p4HintEl.innerHTML = ''; cb && cb(); }, 450);
+}
+
+function showP4CompletionHint(){
+  const text = 'Trace over the lines';
+  p4HintEl.innerHTML = [...text].map(ch => {
+    const inner = ch === ' ' ? '\u00a0' : ch;
+    return `<span style="display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.3em;">` +
+           `<span style="display:inline-block;animation:p4CharRise 0.55s cubic-bezier(0.16,1,0.3,1) forwards;">${inner}</span></span>`;
+  }).join('');
+}
+
+function p4OnStrokeEnd(){
+  if(p4CompletionTriggered) return;
+  if(p4CheckCoverage() >= 0.98){
+    p4CompletionTriggered = true;
+    // Wipe remaining orange text — fill main canvas black
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+    p4HintFallOut(() => {
+      setTimeout(() => {
+        showP4CompletionHint();
+        setTimeout(startP4Trace, 700);
+      }, 500);
+    });
+  }
+}
+
+/* ─── PAGE 4 TRACE MODE ──────────────────────────── */
+let p4TraceMode = false;
+let p4TraceProgress    = [0, 0, 0, 0];
+let p4TraceRafId       = null;
+let p4GuideAnimStart   = null;
+let p4ActiveTraceLine  = -1;
+let p4ArrowsStarted    = false;
+let p4PressTriggered   = false;
+
+// Per-arrow state — mirrors p2 arrow pattern exactly
+let p4ArrowVisible     = [false,false,false,false];
+let p4ArrowAnim        = [false,false,false,false];
+let p4ArrowStartTime   = [0,0,0,0];
+let p4ArrowReverseAnim = [false,false,false,false];
+let p4ArrowRevStart    = [0,0,0,0];
+let p4ArrowDone        = [false,false,false,false];
+
+const P4_TRACE_DIST    = 40;
+const P4_GUIDE_ANIM_MS = 2200;
+const P4_ARROW_DUR     = 360; // ms — same as p2
+
+function p4DistToSeg(px, py, x1, y1, x2, y2){
+  const dx = x2-x1, dy = y2-y1;
+  const lenSq = dx*dx + dy*dy;
+  if(lenSq === 0) return Math.hypot(px-x1, py-y1);
+  const t = Math.max(0, Math.min(1, ((px-x1)*dx + (py-y1)*dy) / lenSq));
+  return Math.hypot(px - (x1+t*dx), py - (y1+t*dy));
+}
+
+function p4ProjOnSeg(px, py, x1, y1, x2, y2){
+  const dx = x2-x1, dy = y2-y1;
+  const lenSq = dx*dx + dy*dy;
+  if(lenSq === 0) return 0;
+  return Math.max(0, Math.min(1, ((px-x1)*dx + (py-y1)*dy) / lenSq));
+}
+
+/* Same two-phase shaft+head animation as the p2 pill arrows.
+   Rotates into the line direction so it works for any angle. */
+function p4DrawTraceArrow(ax, ay, ndx, ndy, t){
+  if(t <= 0) return;
+  const arm = 9, shaftLen = 22, joinInset = 2;
+  ctx.save();
+  ctx.translate(ax, ay);
+  ctx.rotate(Math.atan2(ndy, ndx));
+  ctx.strokeStyle = 'rgba(255,255,255,1)';
+  ctx.lineWidth   = Math.max(1.5, W * 0.0016);
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+
+  // Phase 1 (t 0→0.55): shaft draws forward
+  const shaftPhase = Math.min(1, t / 0.55);
+  ctx.beginPath();
+  ctx.moveTo(joinInset, 0);
+  ctx.lineTo(joinInset + shaftLen * shaftPhase, 0);
+  ctx.stroke();
+
+  // Phase 2 (t 0.55→1): arrowhead arms appear from tip
+  if(t > 0.55){
+    const hp = Math.min(1, (t - 0.55) / 0.45);
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(arm * hp, -arm * hp); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(arm * hp,  arm * hp); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function p4TraceRaf(timestamp){
+  if(!p4TraceMode){ p4TraceRafId = null; return; }
+  p4TraceRafId = requestAnimationFrame(p4TraceRaf);
+
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  const lines = getP4Lines(); // [x1,y1,x2,y2,t0,t1]
+  const lw = Math.max(1, W * 0.0012);
+  ctx.lineWidth = lw;
+  ctx.lineCap = 'butt';
+
+  // Guide lines draw themselves using the t0/t1 stagger from getP4Lines
+  const elapsed = p4GuideAnimStart ? Date.now() - p4GuideAnimStart : 0;
+  const guideProgress = Math.min(0.30, (elapsed / P4_GUIDE_ANIM_MS) * 0.30);
+  const guidesDone = guideProgress >= 0.299;
+
+  ctx.setLineDash([6, 9]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  for(const [x1,y1,x2,y2,t0,t1] of lines){
+    if(guideProgress <= t0) continue;
+    const prog = Math.min(1, (guideProgress - t0) / (t1 - t0));
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x1+(x2-x1)*prog, y1+(y2-y1)*prog); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // Orange traced portions
+  ctx.strokeStyle = '#F71F08';
+  for(let i = 0; i < lines.length; i++){
+    const t = p4TraceProgress[i];
+    if(t <= 0) continue;
+    const [x1,y1,x2,y2] = lines[i];
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x1+(x2-x1)*t, y1+(y2-y1)*t); ctx.stroke();
+  }
+
+  // Direction arrows — p2-style, appear once guides finish
+  if(guidesDone){
+    // Kick off all appear animations on the first frame after guides are done
+    if(!p4ArrowsStarted){
+      p4ArrowsStarted = true;
+      for(let i = 0; i < 4; i++){
+        p4ArrowVisible[i]   = true;
+        p4ArrowAnim[i]      = true;
+        p4ArrowStartTime[i] = timestamp;
+      }
+    }
+
+    for(let i = 0; i < lines.length; i++){
+      if(!p4ArrowVisible[i]) continue;
+
+      // Trigger reverse when line is fully traced
+      if(p4TraceProgress[i] >= 0.97 && !p4ArrowDone[i] && !p4ArrowReverseAnim[i]){
+        p4ArrowDone[i]        = true;
+        p4ArrowAnim[i]        = false;
+        p4ArrowReverseAnim[i] = true;
+        p4ArrowRevStart[i]    = timestamp;
+      }
+
+      // Compute smoothstepped t — identical to p2 drawLeftArrow / drawRightArrow
+      let t = 1;
+      if(p4ArrowAnim[i]){
+        const raw = Math.min(1, (timestamp - p4ArrowStartTime[i]) / P4_ARROW_DUR);
+        t = raw*raw*(3-2*raw);
+        if(raw >= 1) p4ArrowAnim[i] = false;
+      } else if(p4ArrowReverseAnim[i]){
+        const raw = Math.min(1, (timestamp - p4ArrowRevStart[i]) / P4_ARROW_DUR);
+        t = 1 - raw*raw*(3-2*raw);
+        if(raw >= 1){
+          p4ArrowReverseAnim[i] = false;
+          p4ArrowVisible[i]     = false;
+          continue;
+        }
+      }
+
+      // Arrow sits BESIDE the guide line — offset perpendicular (90° CCW from direction)
+      const [x1,y1,x2,y2] = lines[i];
+      const dx = x2-x1, dy = y2-y1, len = Math.hypot(dx, dy);
+      const ndx = dx/len, ndy = dy/len;
+      const npx = -ndy, npy = ndx; // 90° CCW perpendicular
+      const ax = x1 + ndx * 40 + npx * 28; // 40px forward (keeps full shaft in viewport), 28px beside line
+      const ay = y1 + ndy * 40 + npy * 28;
+
+      p4DrawTraceArrow(ax, ay, -ndx, -ndy, t);
+    }
+  }
+
+  // When all 4 lines are fully traced, transition to press mode
+  if(!p4PressTriggered && p4TraceProgress.every(t => t >= 0.97)){
+    p4PressTriggered = true;
+    setTimeout(startP4Press, 450); // brief pause for last arrow to finish reversing
+  }
+}
+
+function startP4Trace(){
+  p4TraceMode     = true;
+  p4TraceProgress = [0, 0, 0, 0];
+  p4ArrowsStarted = false;
+  p4ArrowVisible  = [false,false,false,false];
+  p4ArrowAnim     = [false,false,false,false];
+  p4ArrowStartTime= [0,0,0,0];
+  p4ArrowReverseAnim=[false,false,false,false];
+  p4ArrowRevStart = [0,0,0,0];
+  p4ArrowDone     = [false,false,false,false];
+  p4ActiveTraceLine = -1;
+  p4PressTriggered  = false;
+  p4GuideAnimStart  = Date.now();
+  p4PaintCanvas.style.cursor = 'default';
+  p4PaintCtx.clearRect(0, 0, p4PaintCanvas.width, p4PaintCanvas.height);
+  if(p4TraceRafId) cancelAnimationFrame(p4TraceRafId);
+  p4TraceRafId = requestAnimationFrame(p4TraceRaf);
+}
+
+function stopP4Trace(){
+  p4TraceMode = false;
+  if(p4TraceRafId){ cancelAnimationFrame(p4TraceRafId); p4TraceRafId = null; }
+}
+
+/* ─── PAGE 4 PRESS MODE ──────────────────────────── */
+let p4PressMode        = false;
+let p4BoxRevealed      = [false,false,false,false,false];
+let p4PressHintGone    = false; // tracks whether hint has already fallen out
+
+function getP4Boxes(){
+  const MAST = 0.13*H, HEAD = 0.30*H, C1 = W/3, C2 = W*2/3;
+  return [
+    {x:0,  y:0,    w:W,     h:MAST},
+    {x:0,  y:MAST, w:W,     h:HEAD-MAST},
+    {x:0,  y:HEAD, w:C1,    h:H-HEAD},
+    {x:C1, y:HEAD, w:C2-C1, h:H-HEAD},
+    {x:C2, y:HEAD, w:W-C2,  h:H-HEAD},
+  ];
+}
+
+const P4_BOX_SELECTORS = [
+  ['.p4-masthead'],
+  ['.p4-headline-area'],
+  ['.p4-col1'],
+  ['.p4-col2a', '.p4-pull-quote', '.p4-col2b'],
+  ['.p4-col3', '.p4-image-box'],
+];
+const P4_SKIP_CLASSES = ['p4-bottom-mask','p4-bottom-mask-lg','p4-col2a-mask','p4-image-placeholder'];
+
+function showP4PressHint(){
+  const text = 'Press on the spaces';
+  p4HintEl.innerHTML = [...text].map(ch => {
+    const inner = ch === ' ' ? '\u00a0' : ch;
+    return `<span style="display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.3em;">` +
+           `<span style="display:inline-block;animation:p4CharRise 0.55s cubic-bezier(0.16,1,0.3,1) forwards;">${inner}</span></span>`;
+  }).join('');
+}
+
+function p4WrapWords(el, startDelay){
+  const textNodes = [];
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+    acceptNode(node){
+      let p = node.parentElement;
+      while(p && p !== el){
+        if(P4_SKIP_CLASSES.some(c => p.classList.contains(c))) return NodeFilter.FILTER_REJECT;
+        p = p.parentElement;
+      }
+      return node.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+    }
+  });
+  let node;
+  while(node = walker.nextNode()) textNodes.push(node);
+
+  for(const textNode of textNodes){
+    const parts = textNode.textContent.split(/(\s+)/);
+    const frag  = document.createDocumentFragment();
+    for(const part of parts){
+      if(!part){ continue; }
+      if(/^\s+$/.test(part)){ frag.appendChild(document.createTextNode(part)); continue; }
+      const outer = document.createElement('span');
+      outer.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.25em;';
+      const inner = document.createElement('span');
+      inner.style.cssText = `display:inline-block;line-height:1.25em;animation:p4CharRise 0.85s cubic-bezier(0.16,1,0.3,1) ${startDelay}ms both;`;
+      inner.textContent = part;
+      outer.appendChild(inner);
+      frag.appendChild(outer);
+    }
+    textNode.parentNode.replaceChild(frag, textNode);
+  }
+  return startDelay;
+}
+
+function p4RevealBox(i){
+  if(p4BoxRevealed[i]) return;
+
+  const doReveal = () => {
+    p4BoxRevealed[i] = true;
+    p4DrawPressCovers(); // cover removed here, same frame as word animation
+    for(const sel of P4_BOX_SELECTORS[i]){
+      for(const el of p4Newspaper.querySelectorAll(sel)){
+        p4WrapWords(el, 0);
+      }
+    }
+  };
+
+  // Middle column (box 3) — hint falls out → pull-quote lines draw → text reveals
+  if(i === 3 && !p4PressHintGone){
+    p4PressHintGone = true;
+    p4HintFallOut(() => setTimeout(() => p4AnimatePullQuoteLines(doReveal), 80));
+  } else {
+    doReveal();
+  }
+}
+
+/* Animates the two orange pull-quote border lines drawing left→right on
+   p4PaintCanvas (while box 3 cover is still in place), then calls cb. */
+function p4AnimatePullQuoteLines(cb){
+  // Match .p4-pull-quote CSS: left:34.5%, right:34.5%, top:54%, bottom:28%
+  const x1  = 0.345 * W,  x2  = (1 - 0.345) * W;
+  const yTop = 0.54 * H,  yBot = (1 - 0.28) * H;
+  const DUR  = 750; // ms
+  let   t0   = null;
+
+  function raf(ts){
+    if(!t0) t0 = ts;
+    const raw  = Math.min(1, (ts - t0) / DUR);
+    const ease = raw * raw * (3 - 2 * raw); // smoothstep
+
+    p4DrawPressCovers();                     // covers + grid lines first
+
+    // Top line: right → left  |  Bottom line: left → right
+    p4PaintCtx.save();
+    p4PaintCtx.strokeStyle = '#F71F08';
+    p4PaintCtx.lineWidth   = 1;
+    p4PaintCtx.lineCap     = 'butt';
+    p4PaintCtx.setLineDash([]);
+    p4PaintCtx.beginPath(); p4PaintCtx.moveTo(x2, yTop); p4PaintCtx.lineTo(x2 - (x2 - x1) * ease, yTop); p4PaintCtx.stroke();
+    p4PaintCtx.beginPath(); p4PaintCtx.moveTo(x1, yBot); p4PaintCtx.lineTo(x1 + (x2 - x1) * ease, yBot); p4PaintCtx.stroke();
+    p4PaintCtx.restore();
+
+    if(raw < 1){
+      requestAnimationFrame(raf);
+    } else {
+      cb && cb();
+    }
+  }
+  requestAnimationFrame(raf);
+}
+
+/* Redraws all press-mode covers + orange divider lines onto p4PaintCanvas.
+   Revealed boxes get no cover. Called synchronously on each click. */
+function p4DrawPressCovers(){
+  p4PaintCtx.clearRect(0, 0, p4PaintCanvas.width, p4PaintCanvas.height);
+
+  const boxes = getP4Boxes();
+  p4PaintCtx.fillStyle = '#000';
+  for(let i = 0; i < 5; i++){
+    if(p4BoxRevealed[i]) continue;
+    const b = boxes[i];
+    p4PaintCtx.fillRect(b.x, b.y, b.w, b.h);
+  }
+
+  // Orange divider lines on top of covers
+  const lines = getP4Lines();
+  p4PaintCtx.save();
+  p4PaintCtx.strokeStyle = '#F71F08';
+  p4PaintCtx.lineWidth   = Math.max(1, W * 0.0012);
+  p4PaintCtx.lineCap     = 'butt';
+  p4PaintCtx.setLineDash([]);
+  for(const [x1,y1,x2,y2] of lines){
+    p4PaintCtx.beginPath(); p4PaintCtx.moveTo(x1,y1); p4PaintCtx.lineTo(x2,y2); p4PaintCtx.stroke();
+  }
+  p4PaintCtx.restore();
+}
+
+function startP4Press(){
+  stopP4Trace();
+  p4PressMode     = true;
+  p4BoxRevealed   = [false,false,false,false,false];
+  p4PressHintGone = false;
+
+  // Black background on main canvas (lines will be on p4PaintCanvas instead)
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  // Draw fully opaque black covers + orange divider lines on p4PaintCanvas
+  // (p4PaintCanvas z:5 > newspaper z:3, so covers hide text completely)
+  p4DrawPressCovers();
+
+  // Now safe to reveal the newspaper — it's hidden under the covers
+  p4Newspaper.style.transition = 'none';
+  p4Newspaper.style.opacity = '1';
+
+  // Switch hint text (hint is z:6, above the canvas, so it's always visible)
+  p4HintFallOut(() => {
+    setTimeout(showP4PressHint, 500);
+  });
+}
+
+function stopP4Press(){
+  p4PressMode = false;
+}
+
+function startP4(){
+  p4Active = true;
+  if(p4RafId) cancelAnimationFrame(p4RafId);
+  p4RafId = null;
+  // Do NOT redraw — canvas already holds the last page 3 frame (STRUCTURE).
+  buildP4Mask(); // capture orange pixels as the paint mask
+  p4PaintCanvas.style.display = 'block';
+  setTimeout(showP4Hint, 600); // 600ms > 450ms page transition — hint appears after page is fully in
+}
+
+function stopP4(){
+  p4Active = false;
+  if(p4RafId){ cancelAnimationFrame(p4RafId); p4RafId = null; }
+  stopP4Trace();
+  stopP4Press();
+  p4PaintCanvas.style.display = 'none';
+  hideP4Hint();
+}
+
+function resetP4(){
+  p4ScrollPos = 0;
+  p4MaskCanvas = null;
+  p4OrangePixelCount = 0;
+  p4CompletionTriggered = false;
+  stopP4Trace();
+  p4ActiveTraceLine  = -1;
+  p4ArrowsStarted    = false;
+  p4ArrowVisible     = [false,false,false,false];
+  p4ArrowAnim        = [false,false,false,false];
+  p4ArrowReverseAnim = [false,false,false,false];
+  p4ArrowDone        = [false,false,false,false];
+  stopP4Press();
+  p4BoxRevealed   = [false,false,false,false,false];
+  p4PressHintGone = false;
+  p4PaintCtx.clearRect(0, 0, p4PaintCanvas.width, p4PaintCanvas.height);
+  hideP4Hint();
+}
+
+window.addEventListener("wheel",(e)=>{
+  if(page3.classList.contains("active") && p3WordsEnabled){
+    p3ScrollPos = Math.min(1.5, Math.max(0, p3ScrollPos + e.deltaY / P3_TOTAL_DELTA));
+    if(p3ScrollPos >= 1.32 && e.deltaY > 0) goTo(4);
+    return;
+  }
+  // page 4 scroll disabled — no wheel handling needed here
+},{passive:true});
 
 /* init */
 resize();
