@@ -9,13 +9,13 @@
 @font-face{
   font-family:"DxBurst-Regular";
   src:url("DxBurst-Regular.otf") format("opentype");
-  font-weight:normal;
+  font-weight:bold;
   font-style:normal;
 }
 @font-face{
   font-family:"Comico-Regular";
   src:url("Comico-Regular.otf") format("opentype");
-  font-weight:normal;
+  font-weight:bold;
   font-style:normal;
 }
 @font-face{
@@ -39,19 +39,19 @@
 @font-face{
   font-family:"Olondon";
   src:url("Olondon_.otf") format("opentype");
-  font-weight:normal;
+  font-weight:bold;
   font-style:normal;
 }
 @font-face{
   font-family:"Cheltenham";
   src:url("Cheltenham Regular.ttf") format("truetype");
-  font-weight:normal;
+  font-weight:bold;
   font-style:normal;
 }
 @font-face{
   font-family:"Cheltenham";
   src:url("Cheltenham Italic.otf") format("opentype");
-  font-weight:normal;
+  font-weight:bold;
   font-style:italic;
 }
 
@@ -287,7 +287,7 @@ canvas{
 }
 .p4-masthead-title{
   font-family:"Olondon",serif;
-  font-weight:normal;
+  font-weight:bold;
   font-size:clamp(26px,5.2vw,76px);
   line-height:1;
   color:#fff;
@@ -316,7 +316,7 @@ canvas{
 }
 .p4-headline{
   font-family:"Cheltenham",Georgia,serif;
-  font-weight:normal;
+  font-weight:bold;
   font-style:italic;
   font-size:clamp(16px,min(4.2vw,7.2vh),62px);
   line-height:0.93;
@@ -325,6 +325,9 @@ canvas{
   white-space:nowrap;
   color:#fff;
   margin:0;
+  display:flex;
+  align-items:center;
+  flex-wrap:nowrap;
 }
 .p4-byline{
   font-family:'Times New Roman',Times,serif;
@@ -339,29 +342,31 @@ canvas{
   position:absolute;
   top:32%; bottom:2%;
   font-family:'Times New Roman',Times,serif;
-  font-size:clamp(10px,0.82vw,12.5px);
-  line-height:1.4;
+  font-weight:bold;
+  text-transform:uppercase;
+  font-size:clamp(11px,1.1vw,16px);
+  line-height:1.35;
   color:rgba(255,255,255,0.82);
   box-sizing:border-box;
   overflow:hidden;
 }
-.p4-col1{ left:2%; right:68%; padding:0 clamp(6px,1.1vw,16px) 0 clamp(2px,0.4vw,4px); text-align:justify; }
-.p4-col2a{ position:absolute; left:34.5%; right:34.5%; top:32%; bottom:46%; padding:0 clamp(6px,1.1vw,16px); text-align:justify; overflow:hidden; font-family:'Times New Roman',Times,serif; font-size:clamp(10px,0.82vw,12.5px); line-height:1.4; color:rgba(255,255,255,0.82); box-sizing:border-box; }
-.p4-col2b{ position:absolute; left:34.5%; right:34.5%; top:72%; bottom:2%; padding:1.5em clamp(6px,1.1vw,16px) 0; text-align:justify; overflow:hidden; font-family:'Times New Roman',Times,serif; font-size:clamp(10px,0.82vw,12.5px); line-height:1.4; color:rgba(255,255,255,0.82); box-sizing:border-box; }
-.p4-col3{ left:68%; right:2%; top:56%; padding:0 clamp(2px,0.4vw,4px) 0 clamp(6px,1.1vw,16px); text-align:justify; overflow:hidden; }
+.p4-col1{ left:2%; right:68%; padding:0 clamp(6px,1.1vw,16px) 0 clamp(2px,0.4vw,4px); }
+.p4-col2a{ position:absolute; left:34.5%; right:34.5%; top:32%; bottom:46%; padding:0 clamp(6px,1.1vw,16px); overflow:hidden; font-family:'Times New Roman',Times,serif; font-weight:bold; text-transform:uppercase; font-size:clamp(11px,1.1vw,16px); line-height:1.35; color:rgba(255,255,255,0.82); box-sizing:border-box; }
+.p4-col2b{ position:absolute; left:34.5%; right:34.5%; top:72%; bottom:2%; padding:0.6em clamp(6px,1.1vw,16px) 0; overflow:hidden; font-family:'Times New Roman',Times,serif; font-weight:bold; text-transform:uppercase; font-size:clamp(11px,1.1vw,16px); line-height:1.35; color:rgba(255,255,255,0.82); box-sizing:border-box; }
+.p4-col3{ left:68%; right:2%; top:32%; padding:0 clamp(2px,0.4vw,4px) 0 clamp(6px,1.1vw,16px); overflow:hidden; }
 .p4-bottom-mask{
   position:absolute; bottom:0; left:0; right:0; height:2em; background:#000; pointer-events:none; z-index:10;
 }
 .p4-bottom-mask-lg{
-  position:absolute; bottom:0; left:0; right:0; height:3em; background:#000; pointer-events:none; z-index:10;
+  position:absolute; bottom:0; left:0; right:0; height:2.5em; background:#000; pointer-events:none; z-index:10;
 }
 .p4-col2a-mask{
-  position:absolute; left:34.5%; right:34.5%; bottom:46%; height:1.5em; background:#000; pointer-events:none; z-index:10;
+  position:absolute; left:34.5%; right:34.5%; bottom:46%; height:0.6em; background:#000; pointer-events:none; z-index:10;
 }
 .p4-col p, .p4-col2a p, .p4-col2b p{ margin:0 !important; padding:0 !important; }
 .p4-col-hed{
   font-family:"Cheltenham",Georgia,serif;
-  font-weight:normal;
+  font-weight:bold;
   font-style:italic;
   font-size:clamp(11px,1.05vw,15px);
   line-height:1.2;
@@ -459,6 +464,28 @@ canvas{
   cursor: default;
 }
 
+/* ─── PAGE 4 PROGRESS TIMER ─────────────────────────── */
+.p4-char{ display:inline; }
+
+
+.p4-progress-bar{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  height:2px;
+  background:rgba(247,31,8,0.15);
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 0.5s ease;
+}
+.p4-progress-bar.p4-progress-visible{
+  opacity:1;
+}
+.p4-progress-fill{
+  height:100%;
+  width:100%;
+  background:#F71F08;
+}
+
 /* ─── PAGE 4 HINT ───────────────────────────────────── */
 @keyframes p4CharRise{
   from{ transform:translateY(115%); }
@@ -524,58 +551,57 @@ canvas{
 
       <!-- Masthead -->
       <div class="p4-masthead">
-        <div class="p4-masthead-title">The Design Review</div>
+        <div class="p4-masthead-title">The Construct Review</div>
       </div>
 
       <!-- Headline -->
       <div class="p4-headline-area">
-        <h1 class="p4-headline">Structure: The Invisible Architecture</h1>
+        <h1 class="p4-headline">Structure<span style="font-size:1.8em;position:relative;top:-0.15em;">:</span>&nbsp;The Invisible Architecture</h1>
       </div>
 
       <!-- Column 1 -->
       <div class="p4-col p4-col1">
-        <div class="p4-byline">By Lukas Miliauskis</div>
-        <h2 class="p4-col-hed">The Foundation Beneath Every Design Decision</h2>
-        Structure in design is the underlying framework that governs how visual elements relate to one another. It is, by definition, invisible — yet its presence or absence determines whether a composition communicates or confuses. Every decision about placement, spacing, and alignment is a structural decision. The reader never sees the grid, but they feel its effect in the ease with which their eye moves through the page, pausing at the right moments, absorbing hierarchy without effort. Before a wall can be built, a foundation must be laid. Before type can flow across a page, a baseline grid must be established. Structure precedes everything else. Rhythm in a composition is structural. The repeated interval between baseline and cap height, the consistent margin that frames each column, the predictable weight shift from heading to body — these are the invisible beats that allow a reader to navigate without conscious effort. The most sophisticated structural systems appear effortless precisely because they are working at their highest capacity. The reader is unaware of the grid because it is doing its job perfectly. Complexity made invisible is the highest achievement of structural thinking in design. White space is not empty. It is a structural element as deliberate as any mark on the page. The pause between paragraphs, the margin that separates text from edge, the gutter between columns — each is a calculated interval that gives the eye room to rest. To impose structure is not to impose a style. Structure is prior to style, deeper than preference. A page may be spare or ornate, classical or experimental — but beneath any surface decision there must be an organising logic if the composition is to hold together under the pressures of reading. The grid does not dictate expression; it enables it. Without a ground, there is no figure. Without a consistent interval, there is no rhythm. The designer who masters structure does not lose freedom — they discover a far greater range of meaningful choices than the designer who works without one. Every typeface carries its own internal structure: the proportional relationships between cap height, x-height, ascender, and descender. When type is set on a grid, these internal rhythms align with the external rhythms of the page, creating a coherence that operates below the threshold of conscious perception yet is immediately felt as quality. Margins are not waste. The unprinted field around the text block is what allows the printed field to exist as a distinct object of attention. Remove the margin and the text collapses into the edge of the page, losing its frame, its authority, its claim on the reader's focus. Structure is always relational. A column measure is a structural decision with typographic consequences. Too wide and the eye struggles to return from the end of one line to the start of the next. Too narrow and word spacing becomes erratic, rhythm dissolves. The correct measure is not arbitrary — it is derived from the typeface, the size, and the leading, a calculation that good structural thinking makes almost intuitive with practice.
+        <h2 class="p4-col-hed">What Holds</h2>
+        weight never stillness a carries settles that carries weight a settles never stillness that weight that stillness carries never settles a weight settles a that never carries stillness weight carries stillness settles that a never weight a settles never that stillness carries weight never that weight carries a stillness settles never settles that carries weight stillness a never weight a stillness that settles carries never carries never a weight stillness settles that weight settles stillness never a carries that weight a never stillness carries settles that carries settles a weight never stillness that weight stillness never settles a carries that a carries weight settles stillness never that settles weight never carries a stillness that weight a settles that stillness never carries weight that a stillness never weight settles carries that settles never weight a stillness carries never a that carries settles weight stillness never weight a settles carries that stillness weight carries settles never that a stillness settles a never weight carries that stillness carries a stillness settles weight never that weight that never carries settles a stillness weight never settles carries a that stillness settles weight never a carries stillness that weight a settles stillness never carries that a weight settles never stillness carries that settles weight a stillness never carries weight settles that stillness a never weight carries settles a stillness that never weight settles carries a stillness that carries settles never weight a that stillness weight never a settles carries stillness that settles a weight carries never stillness that weight carries a never settles stillness settles never a carries weight that stillness never weight a carries that settles stillness weight settles never carries a that stillness never a weight settles carries stillness that weight never stillness carries settles a that never weight stillness a carries settles never that weight carries stillness never a settles that
         <div class="p4-bottom-mask"></div>
       </div>
 
       <!-- Column 2 upper (above pull quote) -->
       <div class="p4-col2a">
-        <h2 class="p4-col-hed">Swiss Rationalism and the Codified Grid</h2>
-        The origins of structural thinking in design trace back to the Swiss Style of the 1950s, where designers like Josef Müller-Brockmann codified the grid as the foundation of rational, universal communication. This paradox lies at the heart of structural thinking: the rules create the possibility of expression, not its limitation. Constraint and freedom are not opposites — one enables the other. A well-structured composition communicates effortlessly. The eye moves through the page as if following a natural path, orienting itself without conscious effort at every turn. Structure is not imposed on content — it emerges from it. The designer's task is to read the inherent logic of the material and give it visible form, making the invisible architecture of meaning apparent to the reader. When structure fails, the reader senses it immediately, even without the vocabulary to name the cause. Something feels wrong, the eye stumbles, the hierarchy collapses. Good structure is felt as ease.
+        <h2 class="p4-col-hed">The Grid</h2>
+        weight stillness carries that never a settles carries a never weight stillness settles that stillness never settles weight a carries that weight a carries never settles stillness that never weight settles carries a stillness that settles a never weight carries stillness that carries weight never a settles stillness never a settles weight that carries stillness weight settles that never carries a stillness weight never that carries settles a stillness carries never weight that a settles weight never stillness that a carries settles never weight that stillness carries a settles never weight that stillness a carries settles weight never stillness that
       </div>
       <div class="p4-col2a-mask"></div>
 
       <!-- Column 2 lower (below pull quote) -->
       <div class="p4-col2b">
-        The baseline grid, invisible to the reader, is perhaps the most fundamental structural tool in typography. It ensures that columns of text, set side by side, share the same horizontal rhythms — a visual coherence that no amount of decoration can substitute. Typographic structure is ultimately about trust. The reader trusts that headings signal hierarchy, that white space signals pause, that consistent measure signals continuity. Break that trust and the entire system collapses. Müller-Brockmann's own grids were not expressions of personal taste but of methodological rigour. Each column width, each gutter, each size relationship was the result of calculation rather than intuition — and yet the results possessed a warmth and clarity that purely intuitive work rarely achieves. The Swiss designers understood that the grid was not an end in itself but a means to communication. It served the message rather than competing with it. This hierarchy of purpose — content first, structure second, style third — remains the most reliable principle in editorial design. International Typographic Style spread beyond Switzerland because it solved a genuine problem: how to communicate across language barriers and cultural differences with maximum clarity. The structural rigour of the grid provided a visual language that needed no translation. Later designers reacted against the Swiss grid, finding it cold and inhuman. But the most effective of these reactions did not abandon structure — they enriched it. They introduced asymmetry within the grid, tension between structure and deviation, playing the rule against its own exception to produce compositions that were both legible and surprising.
+        settles that never weight a carries stillness never a weight that carries settles stillness weight carries a settles never that stillness never weight settles a carries that stillness carries never a settles weight that stillness settles a never carries weight that stillness never carries settles that a weight stillness a that settles weight carries never stillness weight that a never settles carries stillness never weight carries a that settles stillness carries never a settles weight that stillness settles weight a never carries that stillness never that carries a settles weight stillness carries settles a never that weight stillness a weight never carries settles that stillness never settles carries weight a that stillness carries a never that settles weight stillness weight settles never a carries that stillness never carries that settles weight a stillness settles a weight carries never that stillness that a never weight settles carries stillness
         <div class="p4-bottom-mask"></div>
       </div>
 
       <!-- Pull quote -->
       <div class="p4-pull-quote">
-        <p>"Structure is not a constraint&thinsp;—&thinsp;it is the condition that makes freedom possible."</p>
+        <p>"everything finds its position before it finds meaning"</p>
+        <div class="p4-progress-bar" id="p4ProgressBar">
+          <div class="p4-progress-fill" id="p4ProgressFill"></div>
+        </div>
       </div>
 
       <!-- Column 3 (image box overlays the top portion) -->
       <div class="p4-col p4-col3">
-        <h2 class="p4-col-hed">Structure in the Digital Age</h2>
-        The newspaper itself is the oldest surviving demonstration of structure in print. Columns, gutters, headline scales, and section breaks — all are structural decisions refined over centuries to guide reading in a predictable, efficient flow. This page is itself an artefact of structure. The lines that drew themselves into existence as you scrolled are the selfsame lines that now hold this content in place. In digital environments, the grid has not become obsolete — it has become more critical. The proliferation of screen sizes and interaction states demands a structural logic capable of adapting without losing coherence. Responsive design is, at its core, a structural discipline. The challenge is not to create different layouts for different screens but to build one structural system flexible enough to express itself appropriately across every context it encounters. The component-based architecture of modern interface design is structure made explicit. Each reusable element carries its own internal logic: spacing, proportion, typographic scale. When components compose cleanly, it is because their underlying structural rules are consistent. When they clash, it is because those rules were never properly defined. Motion, too, is subject to structural thinking. The timing and easing of a transition is a rhythmic decision. An animation that disrupts reading flow has failed structurally, regardless of how polished it appears in isolation. Good motion design is invisible precisely because it reinforces the structural logic of the interface rather than contradicting it.
+        <h2 class="p4-col-hed">The System</h2>
+        never weight a settles stillness carries that weight settles a never that stillness carries stillness a that weight never carries settles weight never settles that carries a stillness that settles carries weight a never stillness weight a stillness carries never settles that carries settles never stillness a weight that stillness never a weight carries settles that weight carries stillness settles never a that stillness a carries weight never settles that stillness carries weight settles never a that stillness never weight settles a carries that stillness weight a never settles stillness carries that never weight a carries settles stillness that weight settles a never carries stillness that a settles never weight stillness carries weight that a never stillness settles carries never settles a weight that stillness carries a weight never settles that stillness weight carries never a settles that weight stillness never carries that a settles stillness weight a never settles carries that stillness settles weight never a carries stillness that weight settles carries a never stillness that a carries weight settles never stillness that carries never a settles weight stillness that stillness never weight carries a settles that never carries stillness weight settles a that weight never stillness carries settles
         <div class="p4-bottom-mask"></div>
       </div>
 
-      <!-- Image box -->
-      <div class="p4-image-box">
-        <div class="p4-image-placeholder"><span>Image</span></div>
-        <div class="p4-image-caption">Fig. 1 — Grid systems in editorial design</div>
-      </div>
-
-      <!-- Footer -->
+<!-- Footer -->
       <div class="p4-footer"></div>
 
     </div>
     <canvas id="p4-paint"></canvas>
+  </section>
+
+  <section class="page" id="page5">
   </section>
 </div>
 
@@ -597,6 +623,7 @@ const ctx = canvas.getContext("2d");
 const stageEl = document.getElementById("stage");
 const p3Hint = document.getElementById("p3Hint");
 const page4 = document.getElementById("page4");
+const page5 = document.getElementById("page5");
 const p4Newspaper = document.getElementById("p4Newspaper");
 const p4PaintCanvas = document.getElementById("p4-paint");
 const p4PaintCtx = p4PaintCanvas.getContext("2d");
@@ -607,6 +634,7 @@ const BYPASS_PUZZLE = false;
 const PENCIL_CURSOR = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' stroke='white' stroke-width='2' fill='none'/%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' fill='%23222'/%3E%3C/svg%3E\") 3 21, crosshair";
 const BYPASS_PAGE2 = false;
 const BYPASS_PAGE3 = false;  // set false to restore full page 3 flow
+const BYPASS_PAGE4 = false;  // set false to restore full page 4 flow
 
 /* page switch */
 function goTo(p){
@@ -656,7 +684,219 @@ function goTo(p){
     hideHint();
     stopRiverAnimation();
     startP4();
+  } else if(p===5){
+    page1.classList.remove("active");
+    page2.classList.remove("active");
+    page3.classList.remove("active");
+    page4.classList.remove("active");
+    page5.classList.add("active");
+    canvas.style.pointerEvents = "none";
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.style.display = 'none';
+    p4PaintCanvas.style.display = 'none';
+    stageEl.style.background = "#000";
+    setTimeout(splitBalanceAway, 2000);
   }
+}
+
+function splitBalanceAway() {
+  const overlay  = document.getElementById('p4-balance-overlay');
+  const gapLayer = document.getElementById('p4-gap-layer');
+  if (!overlay && !gapLayer) return;
+
+  const allSpans = [];
+  if (overlay)  overlay.querySelectorAll('span').forEach(s => allSpans.push(s));
+  if (gapLayer) gapLayer.querySelectorAll('span').forEach(s => allSpans.push(s));
+  if (!allSpans.length) return;
+
+  const midX = window.innerWidth / 2;
+
+  // White backdrop revealed after split
+  const whiteBg = document.createElement('div');
+  whiteBg.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:199;pointer-events:none;';
+  document.body.appendChild(whiteBg);
+
+  // Black halves that cover the screen and slide out with the letters
+  const leftBg  = document.createElement('div');
+  const rightBg = document.createElement('div');
+  leftBg.style.cssText  = `position:fixed;left:0;top:0;width:${midX}px;height:100vh;background:#000;z-index:201;pointer-events:none;will-change:transform;`;
+  rightBg.style.cssText = `position:fixed;left:${midX}px;top:0;width:${window.innerWidth - midX}px;height:100vh;background:#000;z-index:201;pointer-events:none;will-change:transform;`;
+  document.body.appendChild(leftBg);
+  document.body.appendChild(rightBg);
+
+  // Letter groups sit above the black halves
+  const groupStyle = 'position:fixed;inset:0;pointer-events:none;z-index:202;will-change:transform;';
+  const leftGroup  = document.createElement('div');
+  const rightGroup = document.createElement('div');
+  leftGroup.style.cssText  = groupStyle;
+  rightGroup.style.cssText = groupStyle;
+
+  allSpans.forEach(s => {
+    const left = parseFloat(s.style.left) || 0;
+    const w    = parseFloat(s.style.width) || 10;
+    (left + w / 2 < midX ? leftGroup : rightGroup).appendChild(s);
+  });
+
+  leftGroup.style.clipPath  = `inset(0 ${window.innerWidth - midX}px 0 0)`;
+  rightGroup.style.clipPath = `inset(0 0 0 ${midX}px)`;
+
+  document.body.appendChild(leftGroup);
+  document.body.appendChild(rightGroup);
+
+  // White cut line that draws top → bottom
+  const line = document.createElement('div');
+  line.style.cssText = `position:fixed;left:${midX - 1}px;top:0;width:1px;height:0;background:#fff;z-index:203;pointer-events:none;transition:height 2s ease-in-out;`;
+  document.body.appendChild(line);
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    line.style.height = '100vh';
+  }));
+
+  // After line finishes drawing, slide both sides apart
+  setTimeout(() => {
+    const travelDist = window.innerWidth * 1.2;
+    const easing     = 'cubic-bezier(0.4, 0, 0.2, 1)';
+    const dur        = '7.5s';
+
+    [leftGroup, leftBg].forEach(el => {
+      el.style.transition = `transform ${dur} ${easing}`;
+      el.style.transform  = `translateX(-${travelDist}px)`;
+    });
+    [rightGroup, rightBg].forEach(el => {
+      el.style.transition = `transform ${dur} ${easing}`;
+      el.style.transform  = `translateX(${travelDist}px)`;
+    });
+
+    line.style.transition = 'opacity 0.8s ease';
+    line.style.opacity    = '0';
+
+    // 2 s after the split starts, bring in the arc letters
+    setTimeout(startPage5Letters, 2000);
+  }, 2100);
+}
+
+function startPage5Letters() {
+  const W         = window.innerWidth;
+  const H         = window.innerHeight;
+  const FONT_SIZE = 9;
+  const LINE_H    = Math.round(FONT_SIZE * 1.4);
+  const COL_W     = Math.round(FONT_SIZE * 0.72);
+  const TEXT      = 'BALANCE';
+
+  // Offscreen canvas — draw shapes in distinct colour channels for hit-testing
+  const sc = document.createElement('canvas');
+  sc.width = W; sc.height = H;
+  const sx = sc.getContext('2d');
+
+  // Shape A: quarter-disc pie slice from top-right corner
+  const R = Math.min(W, H) * 0.88;
+  sx.fillStyle = '#f00';
+  sx.beginPath();
+  sx.moveTo(W, 0);
+  sx.arc(W, 0, R, Math.PI * 0.5, Math.PI, false);
+  sx.closePath();
+  sx.fill();
+
+  // Shape B: quarter-disc pie slice from bottom-left corner
+  sx.fillStyle = '#00f';
+  sx.beginPath();
+  sx.moveTo(0, H);
+  sx.arc(0, H, R, -Math.PI * 0.5, 0, false);
+  sx.closePath();
+  sx.fill();
+
+  const pxData = sx.getImageData(0, 0, W, H).data;
+
+  // Collect letter positions sorted nearest-corner-first
+  const cols   = Math.ceil(W / COL_W);
+  const shapeA = [], shapeB = [];
+
+  for (let r = 0, y = 0; y < H; r++, y += LINE_H) {
+    for (let c = 0, x = 0; x < W; c++, x += COL_W) {
+      const i  = (Math.round(y) * W + Math.round(x)) * 4;
+      const ch = TEXT[(r * cols + c) % TEXT.length];
+      if (pxData[i] > 128) {
+        const dx = W - x, dy = 0 - y;
+        shapeA.push({ x, y, ch, dist: Math.sqrt(dx*dx + dy*dy) });
+      }
+      if (pxData[i + 2] > 128) {
+        const dx = 0 - x, dy = H - y;
+        shapeB.push({ x, y, ch, dist: Math.sqrt(dx*dx + dy*dy) });
+      }
+    }
+  }
+  shapeA.sort((a, b) => a.dist - b.dist);
+  shapeB.sort((a, b) => a.dist - b.dist);
+
+  // Single canvas for both shapes — redrawn every frame for hover reactivity
+  const dpr = window.devicePixelRatio || 1;
+  const cv  = document.createElement('canvas');
+  cv.width  = W * dpr; cv.height = H * dpr;
+  cv.style.cssText = 'position:fixed;inset:0;z-index:210;pointer-events:none;';
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  document.body.appendChild(cv);
+  const ctx = cv.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.textBaseline = 'top';
+
+  // Mouse tracking — default to centre so nothing fires before first move
+  let mouseX = W / 2, mouseY = H / 2;
+  window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+  // Reveal counters — letters stream in from the corner, then hover takes over
+  let revealedA = 0, revealedB = 0;
+  const REVEAL_RATE  = 8;   // letters added per frame
+  const INFLUENCE_R  = 160; // px radius of hover effect
+  const BASE_WEIGHT  = 700;
+
+  let aStarted = false, bStarted = false;
+  setTimeout(() => { aStarted = true; }, 2000);
+  setTimeout(() => { bStarted = true; }, 3800);
+
+  function renderShape(pts, count) {
+    const mirrorX = W - mouseX, mirrorY = H - mouseY;
+    const buckets = new Map();
+    for (let i = 0; i < count; i++) {
+      const pt  = pts[i];
+      const hd  = Math.hypot(pt.x - mouseX,  pt.y - mouseY);
+      const ld  = Math.hypot(pt.x - mirrorX, pt.y - mirrorY);
+      const ht  = Math.max(0, 1 - hd / INFLUENCE_R);
+      const lt  = Math.max(0, 1 - ld / INFLUENCE_R);
+      const raw = BASE_WEIGHT + ht * (900 - BASE_WEIGHT) - lt * (BASE_WEIGHT - 100);
+      const clamped = Math.max(100, Math.min(900, raw));
+      const w   = Math.round(clamped / 100) * 100;
+      // strokeW bridges the gap between 100-step weight buckets so the gradient is seamless
+      const strokeW  = ht * 1.1;
+      const sz  = Math.round(Math.max(FONT_SIZE * 0.5, FONT_SIZE * (1 - lt * 0.5)) * 2) / 2;
+      const key = w + '_' + sz;
+      if (!buckets.has(key)) buckets.set(key, { w, sz, items: [] });
+      buckets.get(key).items.push({ pt, strokeW });
+    }
+    ctx.fillStyle   = '#1c1c1c';
+    ctx.strokeStyle = '#1c1c1c';
+    for (const { w, sz, items } of buckets.values()) {
+      ctx.font = `${w} ${sz}px "Supreme", system-ui, sans-serif`;
+      for (const { pt, strokeW } of items) {
+        ctx.fillText(pt.ch, pt.x, pt.y);
+        if (strokeW > 0.05) {
+          ctx.lineWidth = strokeW;
+          ctx.strokeText(pt.ch, pt.x, pt.y);
+        }
+      }
+    }
+  }
+
+  function loop() {
+    if (aStarted && revealedA < shapeA.length) revealedA = Math.min(revealedA + REVEAL_RATE, shapeA.length);
+    if (bStarted && revealedB < shapeB.length) revealedB = Math.min(revealedB + REVEAL_RATE, shapeB.length);
+
+    ctx.clearRect(0, 0, W, H);
+    renderShape(shapeA, revealedA);
+    renderShape(shapeB, revealedB);
+
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
 }
 
 /* intro words */
@@ -694,7 +934,7 @@ requestAnimationFrame(() => requestAnimationFrame(() => showIntroWords(true)));
 =========================== */
 let hintTimer = null;
 let hasStartedPuzzle = false;
-const HINT_DELAY = 5000;
+const HINT_DELAY = 0;
 
 function showHint(){
   if(page1.classList.contains("active")){
@@ -1027,6 +1267,31 @@ const BELT_ROWS=BELT_TEXTS.map(text=>{
   const repeated=text.repeat(BELT_REPEAT);
   return {text:repeated,count:repeated.length};
 });
+
+const BELT_SCRAMBLED_ROWS=BELT_ROWS.map((row,i)=>{
+  const pool=[...new Set(BELT_TEXTS[i].replace(/[^a-zA-Z]/g,'').split(''))];
+  let lastCh='';
+  return Array.from({length:row.count},(_,j)=>{
+    if(row.text[j]===' '){ lastCh=' '; return ' '; }
+    let ch, tries=0;
+    do { ch=pool[Math.floor(Math.random()*pool.length)]; tries++; }
+    while(ch===lastCh && tries<10);
+    lastCh=ch;
+    return ch;
+  }).join('');
+});
+const BELT_REVEAL_THRESHOLDS=BELT_ROWS.map(row=>
+  Float32Array.from({length:row.count},()=>Math.random())
+);
+let beltScrambleProgress=[0,0,0];
+let beltScrambleAnim=[false,false,false];
+let beltScrambleStartTime=[0,0,0];
+const BELT_UNSCRAMBLE_DURATION=1800;
+
+function startBeltUnscramble(rowIdx){
+  beltScrambleAnim[rowIdx]=true;
+  beltScrambleStartTime[rowIdx]=performance.now();
+}
 let beltBaseOffsets=[59,59,59], beltOffset=0, beltTargetOffset=0, beltY=0, beltTargetY=0, lastMouseX=null;
 const BELT_FONT_REL=0.09, BELT_MAX_Y=0.65, BELT_DEPTH_OFFSET=0.04, BELT_CHAR_WIDTH_FACTOR=0.62, BELT_EDGE_HIDE=0.16;
 let beltHighlightActive=false, beltHighlightWidth=0.01, beltHighlightFade=0;
@@ -1291,7 +1556,13 @@ function buildBoxSquiggle(){
   }
 }
 
-function drawSingleBelt(bandY,beltText,beltCharCount,extraOffset=0,highlight=false){
+function drawSingleBelt(bandY,rowIdx,extraOffset=0,highlight=false){
+  const row=BELT_ROWS[rowIdx];
+  const beltText=row.text, beltCharCount=row.count;
+  const scramText=BELT_SCRAMBLED_ROWS[rowIdx];
+  const thresholds=BELT_REVEAL_THRESHOLDS[rowIdx];
+  const progress=beltScrambleProgress[rowIdx];
+
   const {x:cx,y:cy,r}=heroCircle, fontSize=r*BELT_FONT_REL;
   ctx.font=`bold ${fontSize}px "Supreme", system-ui, sans-serif`;
   ctx.textBaseline="middle";
@@ -1315,7 +1586,8 @@ function drawSingleBelt(bandY,beltText,beltCharCount,extraOffset=0,highlight=fal
     const xOnCircle=Math.sin(angle)*radiusAtLat;
     const screenX=cx+xOnCircle, screenY=cy+bandY;
     const charIndex=((wholeOffset+i)%beltCharCount+beltCharCount)%beltCharCount;
-    const ch=beltText[charIndex];
+    const revealed=progress>=thresholds[charIndex];
+    const ch=revealed?beltText[charIndex]:scramText[charIndex];
     const alpha=0.35+((depth-BELT_EDGE_HIDE)/(1-BELT_EDGE_HIDE))*0.55;
     const inHighlight=highlight&&beltHighlightActive&&depth>=(1-beltHighlightWidth);
 
@@ -1348,9 +1620,9 @@ function drawTextBelt(){
   const rowGap=r*0.12;
   const exitLat=beltExitOffsetY;
 
-  drawSingleBelt(centerBandY-rowGap+exitLat,BELT_ROWS[0].text,BELT_ROWS[0].count,beltBaseOffsets[0],beltHighlightRow===0);
-  drawSingleBelt(centerBandY+exitLat,       BELT_ROWS[1].text,BELT_ROWS[1].count,beltBaseOffsets[1],beltHighlightRow===1);
-  drawSingleBelt(centerBandY+rowGap+exitLat,BELT_ROWS[2].text,BELT_ROWS[2].count,beltBaseOffsets[2],beltHighlightRow===2);
+  drawSingleBelt(centerBandY-rowGap+exitLat,0,beltBaseOffsets[0],beltHighlightRow===0);
+  drawSingleBelt(centerBandY+exitLat,       1,beltBaseOffsets[1],beltHighlightRow===1);
+  drawSingleBelt(centerBandY+rowGap+exitLat,2,beltBaseOffsets[2],beltHighlightRow===2);
 }
 
 function drawHeroCircle(){
@@ -2934,6 +3206,13 @@ function buildFourthPillDotsTargets(){
 }
 
 function updatePage2Animations(ts){
+  for(let ri=0;ri<3;ri++){
+    if(beltScrambleAnim[ri]){
+      const t=Math.min(1,(ts-beltScrambleStartTime[ri])/BELT_UNSCRAMBLE_DURATION);
+      beltScrambleProgress[ri]=t;
+      if(t>=1){ beltScrambleAnim[ri]=false; beltScrambleProgress[ri]=1; }
+    }
+  }
   if(circleAnim){
     const t=Math.min(1,(ts-circleStartTime)/circleDuration), ease=t*t*(3-2*t);
     heroCircle.y=circleStartY+(circleEndY-circleStartY)*ease;
@@ -3534,6 +3813,7 @@ function render(timestamp){
         cornerLineLoad=1;
         cornerLineLoaded=true;
         cornerLineLoading=false;
+        startBeltUnscramble(0);
         beltHighlightRow=0;
         beltHighlightActive=true;
         beltHighlightFade=0;
@@ -3579,6 +3859,7 @@ function render(timestamp){
         centerLineLoad=1;
         centerLineLoaded=true;
         centerLineLoading=false;
+        startBeltUnscramble(1);
         beltHighlightRow=1;
         beltHighlightActive=true;
         beltHighlightFade=0;
@@ -3629,6 +3910,7 @@ function render(timestamp){
         thirdPillLineLoad=1;
         thirdPillLineLoaded=true;
         thirdPillLineLoading=false;
+        startBeltUnscramble(2);
         thirdArrowVisible=true;
         thirdArrowAnim=true;
         thirdArrowStartTime=timestamp||performance.now();
@@ -3792,6 +4074,8 @@ function resetAllPage2State(){
   beltHighlightFade=0;
   beltHighlightFadeIn=false;
   beltHighlightFadeOut=false;
+  beltScrambleProgress=[0,0,0];
+  beltScrambleAnim=[false,false,false];
 
   cornerDots=[];
   cornerDotsVisible=false;
@@ -5092,6 +5376,7 @@ function p4UpdateCursor(pos){
     p4PaintCanvas.style.cursor = overUnrevealed ? 'pointer' : 'default';
     return;
   }
+  if(p4CompletionTriggered){ p4PaintCanvas.style.cursor = 'default'; return; }
   if(p4Painting) return;
   p4PaintCanvas.style.cursor = p4IsOverOrange(pos) ? P4_BRUSH_CURSOR : 'default';
 }
@@ -5111,6 +5396,8 @@ p4PaintCanvas.addEventListener('mousedown', e => {
     }
     return;
   }
+  // Only allow painting during the initial paint phase (before completion triggered)
+  if(p4CompletionTriggered && !p4TraceMode) return;
   p4Painting = true;
   p4PaintLastX = pos.x; p4PaintLastY = pos.y;
   if(p4TraceMode){
@@ -5145,7 +5432,7 @@ p4PaintCanvas.addEventListener('mousemove', e => {
     }
     return;
   }
-  if(!p4Painting) return;
+  if(!p4Painting || p4PressMode || p4CompletionTriggered) return;
   p4PaintStroke(pos.x, pos.y, { x: p4PaintLastX, y: p4PaintLastY });
   p4PaintLastX = pos.x; p4PaintLastY = pos.y;
 });
@@ -5154,7 +5441,7 @@ p4PaintCanvas.addEventListener('mouseup', () => { p4Painting = false; p4ActiveTr
 p4PaintCanvas.addEventListener('mouseleave', () => { p4Painting = false; p4ActiveTraceLine = -1; p4PaintCanvas.style.cursor = 'default'; });
 
 p4PaintCanvas.addEventListener('touchstart', e => {
-  if(!p4Active) return;
+  if(!p4Active || p4TraceMode || p4PressMode || p4CompletionTriggered) return;
   e.preventDefault();
   p4Painting = true;
   const pos = p4CanvasPos(e);
@@ -5163,7 +5450,7 @@ p4PaintCanvas.addEventListener('touchstart', e => {
 }, { passive: false });
 
 p4PaintCanvas.addEventListener('touchmove', e => {
-  if(!p4Active || !p4Painting) return;
+  if(!p4Active || !p4Painting || p4TraceMode || p4PressMode) return;
   e.preventDefault();
   const pos = p4CanvasPos(e);
   p4PaintStroke(pos.x, pos.y, { x: p4PaintLastX, y: p4PaintLastY });
@@ -5359,6 +5646,7 @@ function p4TraceRaf(timestamp){
 
       // Trigger reverse when line is fully traced
       if(p4TraceProgress[i] >= 0.97 && !p4ArrowDone[i] && !p4ArrowReverseAnim[i]){
+        p4TraceProgress[i]    = 1.0;
         p4ArrowDone[i]        = true;
         p4ArrowAnim[i]        = false;
         p4ArrowReverseAnim[i] = true;
@@ -5422,12 +5710,16 @@ function startP4Trace(){
 
 function stopP4Trace(){
   p4TraceMode = false;
+  p4Painting = false; // clear any held mouse/touch state from dragging
+  p4ActiveTraceLine = -1;
   if(p4TraceRafId){ cancelAnimationFrame(p4TraceRafId); p4TraceRafId = null; }
 }
 
 /* ─── PAGE 4 PRESS MODE ──────────────────────────── */
 let p4PressMode        = false;
 let p4BoxRevealed      = [false,false,false,false,false];
+let p4BalanceCharEls   = [];   // chars that form the word BALANCE
+let p4ArrowCharEls     = [];   // chars that form the arrow
 let p4PressHintGone    = false; // tracks whether hint has already fallen out
 
 function getP4Boxes(){
@@ -5504,6 +5796,23 @@ function p4RevealBox(i){
         p4WrapWords(el, 0);
       }
     }
+    if(i === 1){
+      const h1 = p4Newspaper.querySelector('.p4-headline');
+      if(h1){
+        const walker = document.createTreeWalker(h1, NodeFilter.SHOW_TEXT);
+        const spaceNodes = [];
+        let n;
+        while(n = walker.nextNode()) if(/^\s+$/.test(n.textContent)) spaceNodes.push(n);
+        spaceNodes.forEach(n => {
+          const sp = document.createElement('span');
+          sp.textContent = '\u00a0';
+          n.parentNode.replaceChild(sp, n);
+        });
+      }
+    }
+    if(p4BoxRevealed.every(v => v)){
+      setTimeout(p4RevealColorWords, 2000);
+    }
   };
 
   // Middle column (box 3) — hint falls out → pull-quote lines draw → text reveals
@@ -5514,6 +5823,260 @@ function p4RevealBox(i){
     doReveal();
   }
 }
+
+/* After all 5 boxes are revealed, highlight one specific word per target
+   position by finding the Nth occurrence in each column's wrapped spans. */
+function p4RevealColorWords(){
+  // Returns the inner span of the Nth occurrence (0-indexed) of a word in a container.
+  // p4WrapWords wraps each word as: outer span > inner span (leaf, holds text).
+  function getNthWord(container, word, n){
+    const spans = container.querySelectorAll('span span');
+    let count = 0;
+    for(const el of spans){
+      if(el.children.length === 0 && el.textContent.trim().toLowerCase() === word.toLowerCase()){
+        if(count === n) return el;
+        count++;
+      }
+    }
+    return null;
+  }
+
+  const col1  = p4Newspaper.querySelector('.p4-col1');
+  const col2a = p4Newspaper.querySelector('.p4-col2a');
+  const col2b = p4Newspaper.querySelector('.p4-col2b');
+  const col3  = p4Newspaper.querySelector('.p4-col3');
+
+  const targets = [
+    col1  && getNthWord(col1,  'stillness', 2),  // col1  — 3rd stillness (next one)
+    col1  && getNthWord(col1,  'carries',   8),  // col1  — 9th carries   (well below)
+    col2a && getNthWord(col2a, 'a',         1),  // col2a — 2nd a         (near top)
+    col2a && getNthWord(col2a, 'weight',    5),  // col2a — 6th weight    (lower middle)
+    col2b && getNthWord(col2b, 'that',      4),  // col2b — 5th that      (slightly higher)
+    col3  && getNthWord(col3,  'never',     1),  // col3  — 2nd never     (near top)
+    col3  && getNthWord(col3,  'settles',   8),  // col3  — 9th settles   (well below)
+  ];
+
+  targets.forEach((span, i) => {
+    if(!span) return;
+    setTimeout(() => {
+      span.style.transition = 'color 0.5s ease';
+      span.style.color = '#F71F08';
+    }, i * 120);
+  });
+
+  // Start progress bar after the last word's colour transition finishes
+  const lastWordDone = (targets.length - 1) * 120 + 500 + 1300;
+  setTimeout(p4StartProgressTimer, lastWordDone);
+}
+
+function p4StartProgressTimer(){
+  const DURATION = 5000;
+  const bar  = document.getElementById('p4ProgressBar');
+  const fill = document.getElementById('p4ProgressFill');
+  if(!bar || !fill) return;
+  bar.classList.add('p4-progress-visible');
+  // double-rAF ensures the opacity transition fires before width starts
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    fill.style.transition = `width ${DURATION}ms linear`;
+    fill.style.width = '0%';
+  }));
+  setTimeout(p4OnTimerComplete, DURATION + 600);
+}
+
+function p4OnTimerComplete(){
+  p4WriteBalance();
+}
+
+function p4WriteBalance(){
+  // 1. Fade the orange highlighted words back to white
+  p4Newspaper.querySelectorAll('span span').forEach(sp => {
+    if(sp.style.color){ sp.style.transition = 'color 0.7s ease'; sp.style.color = '#fff'; }
+  });
+  // 2. After fade settles, wrap chars and draw BALANCE
+  setTimeout(() => {
+    p4WrapCharsForBalance();
+    requestAnimationFrame(() => requestAnimationFrame(p4AnimateBalance));
+  }, 900);
+}
+
+function p4WrapCharsForBalance(){
+  // All elements already processed by p4WrapWords (outer>inner word spans),
+  // including the pull quote which is in P4_BOX_SELECTORS[3]
+  const els = p4Newspaper.querySelectorAll(
+    '.p4-col1, .p4-col2a, .p4-col2b, .p4-col3'
+  );
+  els.forEach(el => {
+    el.querySelectorAll('span > span').forEach(inner => {
+      if(inner.querySelector('span')) return;
+      const word = inner.textContent;
+      inner.textContent = '';
+      for(const ch of word){
+        const cs = document.createElement('span');
+        cs.className = 'p4-char';
+        cs.textContent = ch;
+        inner.appendChild(cs);
+      }
+    });
+  });
+}
+
+function p4AnimateBalance(){
+  const nRect = p4Newspaper.getBoundingClientRect();
+  const NW = nRect.width, NH = nRect.height;
+
+  // Draw BALANCE + arrow on an offscreen canvas at newspaper resolution
+  const oc = document.createElement('canvas');
+  oc.width  = Math.ceil(NW);
+  oc.height = Math.ceil(NH);
+  const octx = oc.getContext('2d');
+  octx.fillStyle = '#000';
+  octx.fillRect(0, 0, oc.width, oc.height);
+
+  // BALANCE
+  const fontSize = Math.round(NH * 0.58);
+  octx.font = `900 ${fontSize}px "Arial Black", Arial, sans-serif`;
+  octx.textBaseline = 'middle';
+  octx.textAlign = 'center';
+  const measured = octx.measureText('BALANCE').width;
+  const scaleX = (NW * 0.76) / measured;
+
+  octx.fillStyle = '#fff';
+  octx.save();
+  octx.translate(NW / 2, NH * 0.62);
+  octx.scale(scaleX, 1);
+  octx.fillText('BALANCE', 0, 0);
+  octx.restore();
+
+  const pixels = octx.getImageData(0, 0, oc.width, oc.height).data;
+  const nL = nRect.left, nT = nRect.top;
+
+  // Check each char span against BALANCE canvas only (arrow is drawn manually)
+  const matched = [];
+  p4Newspaper.querySelectorAll('.p4-char').forEach(el => {
+    const r   = el.getBoundingClientRect();
+    const ncx = Math.round(r.left + r.width  / 2 - nL);
+    const ncy = Math.round(r.top  + r.height / 2 - nT);
+    if(ncx < 0 || ncy < 0 || ncx >= oc.width || ncy >= oc.height) return;
+    if(pixels[(ncy * oc.width + ncx) * 4] > 64) matched.push({ el, cx: ncx });
+  });
+
+  // Snapshot BALANCE-only chars before arrow chars are pushed
+  p4BalanceCharEls = matched.map(m => m.el);
+
+  // Sort left-to-right so the letters appear to be drawn progressively
+  // Hardcoded arrow character indices (selected manually)
+  const ARROW_INDICES = new Set([2083,2084,2085,2120,2121,2122,2123,2124,2149,2150,2151,2152,2153,2154,2155,2156,2157,2158,2159,2160,2161,2162,2163,2186,2187,2188,2189,2190,2191,2192,2193,2194,2195,2196,2197,2198,2199,2230,2231,2232,2233,2234,2268,2269,2270]);
+  const allChars = p4Newspaper.querySelectorAll('.p4-char');
+  ARROW_INDICES.forEach(idx => {
+    if(!allChars[idx]) return;
+    const r = allChars[idx].getBoundingClientRect();
+    matched.push({ el: allChars[idx], cx: Math.round(r.left - nL) });
+  });
+
+  // Snapshot arrow chars (everything pushed after the BALANCE chars)
+  p4ArrowCharEls = matched.slice(p4BalanceCharEls.length).map(m => m.el);
+
+  matched.sort((a, b) => a.cx - b.cx);
+
+  matched.forEach(({ el }, i) => {
+    setTimeout(() => {
+      el.style.transition = 'color 0.2s ease';
+      el.style.color = '#F71F08';
+    }, i * 5);
+  });
+
+  // After the last char finishes animating, activate the arrow as a button
+  const lastCharDelay = (matched.length - 1) * 5 + 300;
+  setTimeout(p4OnBalanceDone, lastCharDelay);
+}
+
+function p4OnBalanceDone(){
+  if(!p4ArrowCharEls.length) return;
+
+  // The paint canvas sits above the newspaper and blocks all clicks — disable it
+  p4PaintCanvas.style.pointerEvents = 'none';
+  p4Newspaper.style.pointerEvents = 'auto';
+
+  // Build an invisible click zone covering the bounding box of all arrow chars
+  // with generous padding so it's easy to hit
+  const nRect = p4Newspaper.getBoundingClientRect();
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  p4ArrowCharEls.forEach(el => {
+    const r = el.getBoundingClientRect();
+    minX = Math.min(minX, r.left  - nRect.left);
+    minY = Math.min(minY, r.top   - nRect.top);
+    maxX = Math.max(maxX, r.right - nRect.left);
+    maxY = Math.max(maxY, r.bottom- nRect.top);
+  });
+  const PAD = 24;
+  const zone = document.createElement('div');
+  zone.style.cssText = `position:absolute;left:${minX-PAD}px;top:${minY-PAD}px;`
+    + `width:${maxX-minX+PAD*2}px;height:${maxY-minY+PAD*2}px;cursor:pointer;z-index:10;`;
+  p4Newspaper.appendChild(zone);
+
+  zone.addEventListener('click', () => {
+    zone.remove();
+    p4Newspaper.style.pointerEvents = 'none';
+    p4ArrowClicked();
+  }, { once: true });
+}
+
+function p4ArrowClicked(){
+  // Clone the orange BALANCE chars into a fixed overlay that persists over page 5
+  const overlay = document.createElement('div');
+  overlay.id = 'p4-balance-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:200;';
+  const frag0 = document.createDocumentFragment();
+  p4BalanceCharEls.forEach(el => {
+    const r  = el.getBoundingClientRect();
+    const cs = getComputedStyle(el);
+    const s  = document.createElement('span');
+    s.textContent = el.textContent;
+    s.style.cssText =
+      `position:absolute;left:${r.left}px;top:${r.top}px;`
+      + `width:${r.width}px;height:${r.height}px;`
+      + `font-size:${cs.fontSize};font-family:${cs.fontFamily};`
+      + `font-weight:${cs.fontWeight};letter-spacing:${cs.letterSpacing};`
+      + `color:#F71F08;line-height:1;display:inline-block;`;
+    frag0.appendChild(s);
+  });
+  overlay.appendChild(frag0);
+  document.body.appendChild(overlay);
+
+  // Add the hardcoded gap chars (orange, immediately visible) to fill BALANCE
+  const gapLayer = document.createElement('div');
+  gapLayer.id = 'p4-gap-layer';
+  gapLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:201;opacity:0;transition:opacity 0.7s ease;';
+  const frag1 = document.createDocumentFragment();
+  P4_GAP_CHARS.forEach(d => {
+    const s = document.createElement('span');
+    s.textContent = d.char;
+    s.style.cssText =
+      `position:absolute;left:${d.left}px;top:${d.top}px;`
+      + `width:${d.width}px;height:${d.height}px;`
+      + `font-size:${d.fontSize}px;font-family:${d.fontFamily};`
+      + `font-weight:bold;color:#F71F08;line-height:1;display:inline-block;`;
+    frag1.appendChild(s);
+  });
+  gapLayer.appendChild(frag1);
+  document.body.appendChild(gapLayer);
+
+  // Fade out the newspaper, fade in the gap chars simultaneously
+  p4Newspaper.style.transition = 'opacity 0.7s ease';
+  p4Newspaper.style.opacity = '0';
+  p4PaintCtx.clearRect(0, 0, p4PaintCanvas.width, p4PaintCanvas.height);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    gapLayer.style.opacity = '1';
+  }));
+
+  // Switch to page 5 once the fade completes
+  // overlay and gapLayer are position:fixed on body so they remain over the black page
+  setTimeout(() => { goTo(5); }, 750);
+}
+
+
+const P4_GAP_CHARS = [{"char":"H","left":953.8125,"top":312.1328125,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":954.375,"top":333.7265625,"width":10.9609375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":953.109375,"top":355.3203125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":999.7890625,"top":355.3203125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":956.625,"top":376.9140625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"W","left":993.84375,"top":376.9140625,"width":15.859375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":954.984375,"top":398.5078125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":987.8828125,"top":398.5078125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":722.3359375,"top":420.1015625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"N","left":943.15625,"top":420.1015625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":954.7109375,"top":420.1015625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":987.609375,"top":420.1015625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":462.765625,"top":441.6953125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":519.2265625,"top":441.6953125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":530.78125,"top":441.6953125,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":537.0078125,"top":441.6953125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":547.6796875,"top":441.6953125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":672.171875,"top":441.6953125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":682.84375,"top":441.6953125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":695.3046875,"top":441.6953125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":725.25,"top":441.6953125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":735.921875,"top":441.6953125,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"G","left":742.1484375,"top":441.6953125,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"H","left":754.59375,"top":441.6953125,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":822.34375,"top":441.6953125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":833.015625,"top":441.6953125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":843.6875,"top":441.6953125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":856.1484375,"top":441.6953125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":870.234375,"top":441.6953125,"width":10.53125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"H","left":880.765625,"top":441.6953125,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":893.2109375,"top":441.6953125,"width":10.9609375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"N","left":917.96875,"top":441.6953125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":929.5234375,"top":441.6953125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"V","left":940.1953125,"top":441.6953125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":951.75,"top":441.6953125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":989.53125,"top":441.6953125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":459.484375,"top":463.2890625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":515.9453125,"top":463.2890625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":527.5,"top":463.2890625,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":533.7265625,"top":463.2890625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":544.3984375,"top":463.2890625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":673.6484375,"top":463.2890625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":689.0625,"top":463.2890625,"width":10.53125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"H","left":699.59375,"top":463.2890625,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"W","left":736.6484375,"top":463.2890625,"width":15.859375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":752.5078125,"top":463.2890625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":763.1796875,"top":463.2890625,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":820.2421875,"top":463.2890625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":831.796875,"top":463.2890625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":843.3515625,"top":463.2890625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":854.90625,"top":463.2890625,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":861.1328125,"top":463.2890625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":871.8046875,"top":463.2890625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":884.265625,"top":463.2890625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":898.5,"top":463.2890625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":918.0703125,"top":463.2890625,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":924.296875,"top":463.2890625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":934.96875,"top":463.2890625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"N","left":945.640625,"top":463.2890625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":989.6640625,"top":463.2890625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":998.5625,"top":463.2890625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"C","left":464.5703125,"top":484.8828125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":517.015625,"top":484.8828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":527.6875,"top":484.8828125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"N","left":540.5859375,"top":484.8828125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":552.140625,"top":484.8828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"N","left":672.4921875,"top":484.8828125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":684.046875,"top":484.8828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"V","left":694.71875,"top":484.8828125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":732.5,"top":484.8828125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":741.3984375,"top":484.8828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":752.0703125,"top":484.8828125,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":758.296875,"top":484.8828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":768.96875,"top":484.8828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":823.2265625,"top":484.8828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"C","left":837.4609375,"top":484.8828125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":849.015625,"top":484.8828125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":872.125,"top":484.8828125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":883.6796875,"top":484.8828125,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":889.90625,"top":484.8828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":900.578125,"top":484.8828125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":913.4765625,"top":484.8828125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":922.375,"top":484.8828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":933.046875,"top":484.8828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":943.71875,"top":484.8828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":954.390625,"top":484.8828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":988.4921875,"top":484.8828125,"width":10.53125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"H","left":999.0234375,"top":484.8828125,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":462.2890625,"top":506.4765625,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"G","left":468.515625,"top":506.4765625,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":516.6953125,"top":506.4765625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":527.3671875,"top":506.4765625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":538.0390625,"top":506.4765625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":548.7109375,"top":506.4765625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"V","left":666.5625,"top":506.4765625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":678.1171875,"top":506.4765625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":688.7890625,"top":506.4765625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":739.0078125,"top":506.4765625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":750.5625,"top":506.4765625,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":756.7890625,"top":506.4765625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":767.4609375,"top":506.4765625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":816.828125,"top":506.4765625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"N","left":827.5,"top":506.4765625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":839.0546875,"top":506.4765625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":849.7265625,"top":506.4765625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"W","left":871.3828125,"top":506.4765625,"width":15.859375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":887.2421875,"top":506.4765625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":897.9140625,"top":506.4765625,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"G","left":904.140625,"top":506.4765625,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"H","left":916.5859375,"top":506.4765625,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":929.03125,"top":506.4765625,"width":10.53125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"C","left":943.421875,"top":506.4765625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":954.9765625,"top":506.4765625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":989.640625,"top":506.4765625,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":995.8671875,"top":506.4765625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":1097.703125,"top":506.4765625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"W","left":454.1328125,"top":528.0703125,"width":15.859375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":469.9921875,"top":528.0703125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":511.78125,"top":528.0703125,"width":10.53125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"C","left":526.171875,"top":528.0703125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":537.7265625,"top":528.0703125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":549.28125,"top":528.0703125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":652.453125,"top":528.0703125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"N","left":663.125,"top":528.0703125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":674.6796875,"top":528.0703125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":685.3515625,"top":528.0703125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":694.25,"top":528.0703125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":707.1484375,"top":528.0703125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":716.046875,"top":528.0703125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":726.71875,"top":528.0703125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":737.390625,"top":528.0703125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":748.0625,"top":528.0703125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":758.734375,"top":528.0703125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":769.40625,"top":528.0703125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":816.0859375,"top":528.0703125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":826.7578125,"top":528.0703125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":842.3125,"top":528.0703125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":851.2109375,"top":528.0703125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":883.2265625,"top":528.0703125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":893.8984375,"top":528.0703125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":904.5703125,"top":528.0703125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":917.328125,"top":528.0703125,"width":10.53125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"H","left":927.859375,"top":528.0703125,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":940.3046875,"top":528.0703125,"width":10.9609375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":951.265625,"top":528.0703125,"width":9.9375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":988.171875,"top":528.0703125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":999.7265625,"top":528.0703125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":460.328125,"top":549.6640625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":469.2265625,"top":549.6640625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":519.03125,"top":549.6640625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":530.5859375,"top":549.6640625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":542.140625,"top":549.6640625,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":548.3671875,"top":549.6640625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"H","left":657.484375,"top":549.6640625,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":669.9296875,"top":549.6640625,"width":10.9609375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":680.890625,"top":549.6640625,"width":9.9375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"C","left":694.6875,"top":549.6640625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":706.2421875,"top":549.6640625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":717.796875,"top":549.6640625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":729.3515625,"top":549.6640625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":740.90625,"top":549.6640625,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":747.1328125,"top":549.6640625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":757.8046875,"top":549.6640625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"W","left":770.5625,"top":549.6640625,"width":15.859375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"H","left":815.765625,"top":549.6640625,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":828.2109375,"top":549.6640625,"width":10.53125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":842.15625,"top":549.6640625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":856.390625,"top":549.6640625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":886.6328125,"top":549.6640625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":897.3046875,"top":549.6640625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":907.9765625,"top":549.6640625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":918.6484375,"top":549.6640625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"N","left":931.546875,"top":549.6640625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":943.1015625,"top":549.6640625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"V","left":953.7734375,"top":549.6640625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":991.5546875,"top":549.6640625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":1156.6953125,"top":549.6640625,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":463.6171875,"top":571.2578125,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":469.84375,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":480.515625,"top":571.2578125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":512.984375,"top":571.2578125,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":519.2109375,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":529.8828125,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"N","left":540.5546875,"top":571.2578125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":552.109375,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"C","left":656.4765625,"top":571.2578125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":668.03125,"top":571.2578125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":679.5859375,"top":571.2578125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":691.140625,"top":571.2578125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":702.6953125,"top":571.2578125,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":708.921875,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":719.59375,"top":571.2578125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":732.4921875,"top":571.2578125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":741.390625,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":752.0625,"top":571.2578125,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":758.2890625,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":768.9609375,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"N","left":779.6328125,"top":571.2578125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":823.65625,"top":571.2578125,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":832.5546875,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":843.2265625,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":853.8984375,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":898.671875,"top":571.2578125,"width":10.53125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"H","left":909.203125,"top":571.2578125,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":921.6484375,"top":571.2578125,"width":10.9609375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":932.609375,"top":571.2578125,"width":9.9375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":945.9609375,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":993.9765625,"top":571.2578125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":462.890625,"top":592.8515625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":473.5625,"top":592.8515625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":484.234375,"top":592.8515625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":519.359375,"top":592.8515625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"V","left":530.03125,"top":592.8515625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":541.5859375,"top":592.8515625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":552.2578125,"top":592.8515625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":642.828125,"top":592.8515625,"width":10.53125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"H","left":653.359375,"top":592.8515625,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":665.8046875,"top":592.8515625,"width":10.9609375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":676.765625,"top":592.8515625,"width":9.9375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":743.0078125,"top":592.8515625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":753.6796875,"top":592.8515625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"W","left":766.4375,"top":592.8515625,"width":15.859375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":782.296875,"top":592.8515625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":824.0859375,"top":592.8515625,"width":10.53125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":838.4765625,"top":592.8515625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":847.375,"top":592.8515625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":858.046875,"top":592.8515625,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":907.84375,"top":592.8515625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":916.7421875,"top":592.8515625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":929.203125,"top":592.8515625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"N","left":943.4375,"top":592.8515625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":954.9921875,"top":592.8515625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":459.0234375,"top":613.3828125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"R","left":470.578125,"top":613.3828125,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"I","left":482.1328125,"top":613.3828125,"width":6.2265625,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":488.359375,"top":613.3828125,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"H","left":953.8125,"top":613.3828125,"width":12.4453125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":448.7734375,"top":636.0390625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"L","left":459.4453125,"top":636.0390625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"N","left":470.1171875,"top":636.0390625,"width":11.5546875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"E","left":481.671875,"top":636.0390625,"width":10.671875,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"S","left":492.34375,"top":636.0390625,"width":8.8984375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"A","left":954.375,"top":636.0390625,"width":10.9609375,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"},{"char":"T","left":1278.078125,"top":636.0390625,"width":10.53125,"height":18,"fontSize":16,"fontFamily":"\"Times New Roman\", Times, serif"}];
+
 
 /* Animates the two orange pull-quote border lines drawing left→right on
    p4PaintCanvas (while box 3 cover is still in place), then calls cb. */
@@ -5578,7 +6141,7 @@ function p4DrawPressCovers(){
 
 function startP4Press(){
   stopP4Trace();
-  p4PressMode     = true;
+  p4PressMode     = false; // enabled only after hint appears
   p4BoxRevealed   = [false,false,false,false,false];
   p4PressHintGone = false;
 
@@ -5596,13 +6159,124 @@ function startP4Press(){
 
   // Switch hint text (hint is z:6, above the canvas, so it's always visible)
   p4HintFallOut(() => {
-    setTimeout(showP4PressHint, 500);
+    setTimeout(() => { showP4PressHint(); p4PressMode = true; }, 500);
   });
 }
 
 function stopP4Press(){
   p4PressMode = false;
 }
+
+function packColumnText(el) {
+  // Collect raw text from direct text nodes only (skip h2 / mask divs)
+  var textNodes = [];
+  el.childNodes.forEach(function(node) {
+    if (node.nodeType === 3 && node.textContent.trim()) textNodes.push(node);
+  });
+  if (!textNodes.length) return;
+
+  var rawText = textNodes.map(function(n){ return n.textContent; })
+    .join('').trim().replace(/\s+/g, ' ').toUpperCase();
+  textNodes.forEach(function(n){ n.remove(); });
+
+  // Measure character widths via canvas
+  var mc = document.createElement('canvas');
+  var mctx = mc.getContext('2d');
+  var cs = getComputedStyle(el);
+  mctx.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+
+  // getBoundingClientRect is reliable even for abs-positioned elements after layout.
+  // No extra buffer needed — the container overflow:hidden handles any edge clipping.
+  var colWidth = el.getBoundingClientRect().width
+    - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+
+  var spaceW = mctx.measureText(' ').width;
+
+  // Build lines character-by-character — every line is packed to the edge.
+  // Words are tracked separately so gaps appear between words, not letters.
+  var lines = [];
+  var curWords = [];   // word-fragment strings on current line
+  var lineW = 0;
+  var curWord = '';
+  var curWordW = 0;
+
+  for (var i = 0; i < rawText.length; i++) {
+    var ch = rawText[i];
+    var chW = mctx.measureText(ch).width;
+
+    if (ch === ' ') {
+      if (curWord) {
+        curWords.push(curWord);
+        lineW += curWordW;
+        curWord = ''; curWordW = 0;
+      }
+      lineW += spaceW;
+    } else {
+      if (lineW + curWordW + chW > colWidth && (curWords.length > 0 || curWord.length > 0)) {
+        // Line is full — flush mid-word if needed
+        if (curWord) curWords.push(curWord);
+        lines.push(curWords);
+        curWords = [];
+        lineW = 0;
+        curWord = ch; curWordW = chW;
+      } else {
+        curWord += ch; curWordW += chW;
+      }
+    }
+  }
+  if (curWord) curWords.push(curWord);
+  if (curWords.length) lines.push(curWords);
+
+  // Cap lines so the last one always fits fully — no partial bottom cuts.
+  // Available height = element height - paddingTop - header height - mask height.
+  var elRect = el.getBoundingClientRect();
+  var lineHeightPx = parseFloat(cs.lineHeight);
+  if (isNaN(lineHeightPx) || lineHeightPx < 1) lineHeightPx = parseFloat(cs.fontSize) * 1.35;
+  var paddingTop = parseFloat(cs.paddingTop) || 0;
+  var header = el.querySelector('.p4-col-hed');
+  var headerHeight = header ? header.getBoundingClientRect().height : 0;
+  var hasMask = !!el.querySelector('.p4-bottom-mask, .p4-bottom-mask-lg');
+  // Reserve = actual mask height + one extra lineHeight as a hard safety buffer.
+  // col2b has an internal 3.5em mask; col2a has a 1.5em external overlap.
+  // Reserve matches the actual mask height so the text ends right at the mask edge.
+  // col2b/col1/col3 have a 2em internal mask; col2a has a 1.5em external overlap.
+  var maskReserve = hasMask
+    ? parseFloat(cs.fontSize) * 2
+    : parseFloat(cs.fontSize) * 0.6;
+  var availHeight = elRect.height - paddingTop - headerHeight - maskReserve;
+  var maxLines = Math.floor(availHeight / lineHeightPx);
+  if (maxLines > 0) lines = lines.slice(0, maxLines);
+
+  // Render: each line is a flex row with word-fragments as items.
+  // space-between distributes the tiny leftover (<1 char wide) across word gaps.
+  var frag = document.createDocumentFragment();
+  lines.forEach(function(words, idx) {
+    var div = document.createElement('div');
+    var isLast = idx === lines.length - 1;
+    var isSingle = words.length <= 1;
+    div.style.cssText = 'display:flex;width:' + colWidth.toFixed(1) + 'px;' +
+      'justify-content:' + (isLast || isSingle ? 'flex-start' : 'space-between') + ';' +
+      (isLast || isSingle ? 'gap:' + spaceW.toFixed(1) + 'px;' : '');
+    words.forEach(function(w) {
+      var span = document.createElement('span');
+      span.textContent = w;
+      div.appendChild(span);
+    });
+    frag.appendChild(div);
+  });
+
+  // Wrap in a container with exact max-height — this hard-clips any partial line
+  // regardless of mask z-index or subpixel rounding, guaranteeing clean bottom edges.
+  var container = document.createElement('div');
+  container.style.cssText = 'overflow:hidden;max-height:' + (maxLines * lineHeightPx).toFixed(1) + 'px;';
+  container.appendChild(frag);
+
+  var anchor = el.querySelector('.p4-bottom-mask, .p4-bottom-mask-lg');
+  if (anchor) el.insertBefore(container, anchor);
+  else el.appendChild(container);
+}
+
+let p4TextPacked = false;
 
 function startP4(){
   p4Active = true;
@@ -5611,7 +6285,67 @@ function startP4(){
   // Do NOT redraw — canvas already holds the last page 3 frame (STRUCTURE).
   buildP4Mask(); // capture orange pixels as the paint mask
   p4PaintCanvas.style.display = 'block';
-  setTimeout(showP4Hint, 600); // 600ms > 450ms page transition — hint appears after page is fully in
+  setTimeout(showP4Hint, 600);
+
+  if (!p4TextPacked) {
+    p4TextPacked = true;
+    // Defer until after the CSS transition so getBoundingClientRect returns real widths.
+    // Wrap in fonts.ready so canvas measureText uses loaded fonts (matches normal flow).
+    setTimeout(function() {
+      document.fonts.ready.then(function() {
+      ['.p4-col1', '.p4-col2a', '.p4-col2b', '.p4-col3'].forEach(function(sel) {
+        var el = document.querySelector(sel);
+        if (el) packColumnText(el);
+      });
+
+      if(BYPASS_PAGE4){
+        // p4WrapCharsForBalance needs span>span structure (created by p4WrapWords
+        // during normal box-press reveals — must run it here since we skip those)
+        ['.p4-col1', '.p4-col2a', '.p4-pull-quote', '.p4-col2b', '.p4-col3'].forEach(function(sel) {
+          var colEl = p4Newspaper.querySelector(sel);
+          if(colEl) p4WrapWords(colEl, 0);
+        });
+        // p4CharRise starts at translateY(115%) — cancel it so getBoundingClientRect
+        // returns final positions (matching normal flow where animation has completed)
+        p4Newspaper.querySelectorAll('span').forEach(function(s) {
+          if(s.style.animation) { s.style.animation = 'none'; s.style.transform = 'none'; }
+        });
+        p4WrapCharsForBalance();
+        const nRect = p4Newspaper.getBoundingClientRect();
+        const NW2 = nRect.width, NH2 = nRect.height;
+        const oc2 = document.createElement('canvas');
+        oc2.width = Math.ceil(NW2); oc2.height = Math.ceil(NH2);
+        const octx2 = oc2.getContext('2d');
+        octx2.fillStyle = '#000';
+        octx2.fillRect(0, 0, oc2.width, oc2.height);
+        const fs2 = Math.round(NH2 * 0.58);
+        octx2.font = `900 ${fs2}px "Arial Black",Arial,sans-serif`;
+        octx2.textBaseline = 'middle'; octx2.textAlign = 'center';
+        const mw2 = octx2.measureText('BALANCE').width;
+        const sx2 = (NW2 * 0.76) / mw2;
+        octx2.fillStyle = '#fff';
+        octx2.save(); octx2.translate(NW2 / 2, NH2 * 0.62); octx2.scale(sx2, 1);
+        octx2.fillText('BALANCE', 0, 0); octx2.restore();
+        const pix2 = octx2.getImageData(0, 0, oc2.width, oc2.height).data;
+        const nL2 = nRect.left, nT2 = nRect.top;
+        const matched2 = [];
+        p4Newspaper.querySelectorAll('.p4-char').forEach(function(el) {
+          const r = el.getBoundingClientRect();
+          const ncx = Math.round(r.left + r.width / 2 - nL2);
+          const ncy = Math.round(r.top + r.height / 2 - nT2);
+          if(ncx < 0 || ncy < 0 || ncx >= oc2.width || ncy >= oc2.height) return;
+          if(pix2[(ncy * oc2.width + ncx) * 4] > 64) matched2.push(el);
+        });
+        p4BalanceCharEls = matched2;
+        p4BalanceCharEls.forEach(function(el){ el.style.color = '#F71F08'; });
+        p4Newspaper.style.transition = 'none';
+        p4Newspaper.style.opacity = '1';
+        p4ArrowClicked();
+        return;
+      }
+      }); // document.fonts.ready.then
+    }, 500);
+  }
 }
 
 function stopP4(){
@@ -5638,6 +6372,8 @@ function resetP4(){
   stopP4Press();
   p4BoxRevealed   = [false,false,false,false,false];
   p4PressHintGone = false;
+  p4BalanceCharEls = [];
+  p4ArrowCharEls   = [];
   p4PaintCtx.clearRect(0, 0, p4PaintCanvas.width, p4PaintCanvas.height);
   hideP4Hint();
 }
