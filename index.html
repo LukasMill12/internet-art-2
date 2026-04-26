@@ -222,19 +222,6 @@ canvas{
   pointer-events:auto;
 }
 
-.back{
-  display:inline-block;
-  margin-top:30px;
-  text-decoration:none;
-  color:rgba(0,0,0,.75);
-  border-bottom:1px solid rgba(0,0,0,.3);
-  padding-bottom:3px;
-  pointer-events:none;
-}
-
-.page.active .back{
-  pointer-events:auto;
-}
 
 .p3-hint{
   position:absolute;
@@ -540,7 +527,6 @@ canvas{
 
   <section class="page" id="page3">
     <div class="p2">
-      <a href="#" class="back" id="backBtn2">← back</a>
     </div>
     <div class="p3-hint" id="p3Hint">↓ scroll</div>
   </section>
@@ -614,7 +600,6 @@ const page2 = document.getElementById("page2");
 const page3 = document.getElementById("page3");
 const enterBtn = document.getElementById("enterBtn");
 const enterBtn2 = document.getElementById("enterBtn2");
-const backBtn2 = document.getElementById("backBtn2");
 const introLayer = document.getElementById("introManual");
 const hintText = document.getElementById("hintText");
 const undoBtn = document.getElementById("undoBtn");
@@ -630,11 +615,11 @@ const p4PaintCtx = p4PaintCanvas.getContext("2d");
 const p4HintEl = document.getElementById("p4Hint");
 
 const STAGE_BG_PAGE1 = 'url("Background.png") center/cover no-repeat';
-const BYPASS_PUZZLE = false;
+const BYPASS_PUZZLE = true;
 const PENCIL_CURSOR = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' stroke='white' stroke-width='2' fill='none'/%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' fill='%23222'/%3E%3C/svg%3E\") 3 21, crosshair";
-const BYPASS_PAGE2 = false;
-const BYPASS_PAGE3 = false;  // set false to restore full page 3 flow
-const BYPASS_PAGE4 = false;  // set false to restore full page 4 flow
+const BYPASS_PAGE2 = true;
+const BYPASS_PAGE3 = true;  // set false to restore full page 3 flow
+const BYPASS_PAGE4 = true;  // set false to restore full page 4 flow
 
 /* page switch */
 function goTo(p){
@@ -731,14 +716,20 @@ function splitBalanceAway() {
   leftGroup.style.cssText  = groupStyle;
   rightGroup.style.cssText = groupStyle;
 
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+
   allSpans.forEach(s => {
     const left = parseFloat(s.style.left) || 0;
     const w    = parseFloat(s.style.width) || 10;
     (left + w / 2 < midX ? leftGroup : rightGroup).appendChild(s);
   });
 
-  leftGroup.style.clipPath  = `inset(0 ${window.innerWidth - midX}px 0 0)`;
-  rightGroup.style.clipPath = `inset(0 0 0 ${midX}px)`;
+  // Start fully open — same point count as end state so CSS can interpolate natively
+  leftGroup.style.clipPath  = `polygon(0px 0px, ${midX}px 0px, ${midX}px 0px, ${W}px 0px, ${W}px ${H}px, 0px ${H}px)`;
+  rightGroup.style.clipPath = `polygon(${midX}px 0px, ${W}px 0px, ${W}px ${H}px, 0px ${H}px, 0px 0px, ${midX}px 0px)`;
+  leftGroup.style.transition  = 'clip-path 2s ease-in-out';
+  rightGroup.style.transition = 'clip-path 2s ease-in-out';
 
   document.body.appendChild(leftGroup);
   document.body.appendChild(rightGroup);
@@ -748,8 +739,11 @@ function splitBalanceAway() {
   line.style.cssText = `position:fixed;left:${midX - 1}px;top:0;width:1px;height:0;background:#fff;z-index:203;pointer-events:none;transition:height 2s ease-in-out;`;
   document.body.appendChild(line);
 
+  // Trigger line + clip-path transitions together — browser interpolates natively, no rAF loop
   requestAnimationFrame(() => requestAnimationFrame(() => {
     line.style.height = '100vh';
+    leftGroup.style.clipPath  = `polygon(0px 0px, ${midX}px 0px, ${midX}px ${H}px, ${W}px ${H}px, ${W}px ${H}px, 0px ${H}px)`;
+    rightGroup.style.clipPath = `polygon(${midX}px 0px, ${W}px 0px, ${W}px ${H}px, 0px ${H}px, 0px ${H}px, ${midX}px ${H}px)`;
   }));
 
   // After line finishes drawing, slide both sides apart
@@ -3695,7 +3689,9 @@ function syncPillCursor(){
   canvas.style.cursor=anyHover?"pointer":"default";
 }
 
+let p2TransitionLock = false;
 function render(timestamp){
+  if(p2TransitionLock) return;
   if(typeof timestamp==="number"){
     updatePage2Animations(timestamp);
     updateCornerMerge(timestamp);
@@ -4026,8 +4022,9 @@ function render(timestamp){
 
   drawNewPuzzleDots();
 
-  if(page2.classList.contains("active")) requestAnimationFrame(render);
+  if(page2.classList.contains("active")) p2RafId = requestAnimationFrame(render);
 }
+let p2RafId = null;
 
 /* ===========================
    TRANSITION
@@ -4837,10 +4834,13 @@ function playTransition2(){
     return;
   }
 
+  p2TransitionLock = true;
+
   // capture dot positions before leaving page 2
   const capturedDots=newDots.map(d=>({x:d.x,y:d.y}));
   const capturedDotR=newDotRadius||7.5;
 
+  if(p2RafId){ cancelAnimationFrame(p2RafId); p2RafId=null; }
   goTo(3);
   let idx=0;
   function drawFrame2(){
@@ -4863,6 +4863,12 @@ function playTransition2(){
       ctx.clearRect(0,0,W,H);
       stageEl.style.background='url("2Animation_17.png") center/cover no-repeat';
       if(capturedDots.length>0){
+        ctx.fillStyle='rgba(0,0,0,0.92)';
+        for(const d of capturedDots){
+          ctx.beginPath();
+          ctx.arc(d.x,d.y,capturedDotR,0,Math.PI*2);
+          ctx.fill();
+        }
         startMergeAnimation(capturedDots,capturedDotR);
       } else {
         startRiverAnimation();
@@ -4931,15 +4937,6 @@ enterBtn2.addEventListener("click",()=>{
   playTransition2();
 });
 
-backBtn2.addEventListener("click",(e)=>{
-  e.preventDefault();
-  stopRiverAnimation();
-  stopMergeAnimation();
-  p3ResetState();
-  ctx.clearRect(0,0,W,H);
-  goTo(2);
-  requestAnimationFrame(render);
-});
 
 
 /* ===========================
