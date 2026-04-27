@@ -6330,7 +6330,7 @@ function packColumnText(el) {
   var frag = document.createDocumentFragment();
   lines.forEach(function(words, idx) {
     var div = document.createElement('div');
-    var isLast = idx === lines.length - 1;
+    var isLast = idx === lines.length - 1 || idx === originalLineCount - 1;
     var isSingle = words.length <= 1;
     if (idx >= originalLineCount) div.setAttribute('data-p4r', '1');
     div.style.cssText = 'display:flex;width:' + colWidth.toFixed(1) + 'px;' +
