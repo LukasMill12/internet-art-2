@@ -5952,6 +5952,7 @@ function p4WrapCharsForBalance(){
   els.forEach(el => {
     el.querySelectorAll('span > span').forEach(inner => {
       if(inner.querySelector('span')) return;
+      if(inner.closest('[data-p4r]')) return; // padded row — skip for BALANCE matching
       const word = inner.textContent;
       inner.textContent = '';
       for(const ch of word){
@@ -6311,6 +6312,19 @@ function packColumnText(el) {
   var maxLines = Math.floor(availHeight / lineHeightPx);
   if (maxLines > 0) lines = lines.slice(0, maxLines);
 
+  // Track how many lines the original text produces.
+  // If the column is taller than the source text fills, pad by cycling through
+  // existing lines — but mark padded rows so p4WrapCharsForBalance skips them
+  // and they never contribute to BALANCE pixel-matching.
+  var originalLineCount = lines.length;
+  if (originalLineCount > 0 && originalLineCount < maxLines) {
+    var li = 0;
+    while (lines.length < maxLines) {
+      lines.push(lines[li % originalLineCount].slice());
+      li++;
+    }
+  }
+
   // Render: each line is a flex row with word-fragments as items.
   // space-between distributes the tiny leftover (<1 char wide) across word gaps.
   var frag = document.createDocumentFragment();
@@ -6318,6 +6332,7 @@ function packColumnText(el) {
     var div = document.createElement('div');
     var isLast = idx === lines.length - 1;
     var isSingle = words.length <= 1;
+    if (idx >= originalLineCount) div.setAttribute('data-p4r', '1');
     div.style.cssText = 'display:flex;width:' + colWidth.toFixed(1) + 'px;' +
       'justify-content:' + (isLast || isSingle ? 'flex-start' : 'space-between') + ';' +
       (isLast || isSingle ? 'gap:' + spaceW.toFixed(1) + 'px;' : '');
