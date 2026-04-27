@@ -86,7 +86,7 @@ body{
   position:fixed;
   inset:0;
   z-index:0;
-  background: url("Background.png") center/cover no-repeat;
+  background: url("Background.png") center top/cover no-repeat;
 }
 
 canvas{
@@ -314,6 +314,7 @@ canvas{
   margin:0;
   display:flex;
   align-items:center;
+  justify-content:center;
   flex-wrap:nowrap;
 }
 .p4-byline{
@@ -516,19 +517,19 @@ canvas{
         <polyline points="18,20 8,30 18,40"/>
       </svg>
     </div>
-    <div class="enter" id="enterBtn" aria-label="next">→</div>
+    <div class="enter" id="enterBtn" aria-label="next"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 44" width="1em" height="0.8em" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="22" x2="46" y2="22"/><polyline points="34,11 46,22 34,33"/></svg></div>
   </section>
 
   <section class="page" id="page2">
     <div class="p2">
     </div>
-    <div class="enter" id="enterBtn2" style="opacity:0;pointer-events:none">→</div>
+    <div class="enter" id="enterBtn2" style="opacity:0;pointer-events:none"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 44" width="1em" height="0.8em" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="22" x2="46" y2="22"/><polyline points="34,11 46,22 34,33"/></svg></div>
   </section>
 
   <section class="page" id="page3">
     <div class="p2">
     </div>
-    <div class="p3-hint" id="p3Hint">↓ scroll</div>
+    <div class="p3-hint" id="p3Hint"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 13" width="0.7em" height="1em" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.3em"><line x1="5" y1="1" x2="5" y2="9"/><polyline points="2,6.5 5,10.5 8,6.5"/></svg>scroll</div>
   </section>
 
   <section class="page" id="page4">
@@ -614,7 +615,7 @@ const p4PaintCanvas = document.getElementById("p4-paint");
 const p4PaintCtx = p4PaintCanvas.getContext("2d");
 const p4HintEl = document.getElementById("p4Hint");
 
-const STAGE_BG_PAGE1 = 'url("Background.png") center/cover no-repeat';
+const STAGE_BG_PAGE1 = 'url("Background.png") center top/cover no-repeat';
 const BYPASS_PUZZLE = false;
 const PENCIL_CURSOR = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' stroke='white' stroke-width='2' fill='none'/%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' fill='%23222'/%3E%3C/svg%3E\") 3 21, crosshair";
 const BYPASS_PAGE2 = false;
@@ -772,7 +773,7 @@ function splitBalanceAway() {
 function startPage5Letters() {
   const W         = window.innerWidth;
   const H         = window.innerHeight;
-  const FONT_SIZE = 9;
+  const FONT_SIZE = Math.max(9, Math.round(Math.min(W, H) * 0.011)); // 9 at 835px, scales up for larger screens
   const LINE_H    = Math.round(FONT_SIZE * 1.4);
   const COL_W     = Math.round(FONT_SIZE * 0.72);
   const TEXT      = 'BALANCE';
@@ -840,7 +841,7 @@ function startPage5Letters() {
   // Reveal counters — letters stream in from the corner, then hover takes over
   let revealedA = 0, revealedB = 0;
   const REVEAL_RATE  = 8;   // letters added per frame
-  const INFLUENCE_R  = 160; // px radius of hover effect
+  const INFLUENCE_R  = Math.round(Math.min(W, H) * 0.19); // ~160px at 835px height, scales with screen
   const BASE_WEIGHT  = 700;
 
   let aStarted = false, bStarted = false;
@@ -905,6 +906,16 @@ const WORDS = [
   { text:"AND WORK", x:0.935 },
 ];
 
+function clampIntroWords(){
+  const vw = window.innerWidth;
+  const margin = 8;
+  introLayer.querySelectorAll(".introWord").forEach(el => {
+    const half = el.offsetWidth / 2;
+    const centerX = parseFloat(el.style.left) / 100 * vw;
+    const clamped = Math.max(half + margin, Math.min(vw - half - margin, centerX));
+    el.style.left = clamped + "px";
+  });
+}
 function renderIntroWords(){
   introLayer.innerHTML = "";
   for(const w of WORDS){
@@ -915,6 +926,7 @@ function renderIntroWords(){
     el.style.top = (WORD_Y * 100) + "vh";
     introLayer.appendChild(el);
   }
+  requestAnimationFrame(clampIntroWords);
 }
 function showIntroWords(show){
   introLayer.style.transition = show ? "opacity .8s ease" : "none";
@@ -1281,6 +1293,15 @@ let beltScrambleProgress=[0,0,0];
 let beltScrambleAnim=[false,false,false];
 let beltScrambleStartTime=[0,0,0];
 const BELT_UNSCRAMBLE_DURATION=1800;
+
+function drawImageCover(img, targetCtx, w, h){
+  const iw = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
+  if(!iw || !ih) return;
+  const scale = Math.max(w / iw, h / ih);
+  const sw = iw * scale, sh = ih * scale;
+  targetCtx.drawImage(img, (w - sw) / 2, (h - sh) / 2, sw, sh);
+}
 
 function startBeltUnscramble(rowIdx){
   beltScrambleAnim[rowIdx]=true;
@@ -1701,12 +1722,16 @@ window.addEventListener("mousemove",(e)=>{
 =========================== */
 function resize(){
   const rect=canvas.getBoundingClientRect();
-  dpr=Math.max(1,Math.floor(window.devicePixelRatio||1));
+  dpr=Math.min(2,Math.max(1,Math.round(window.devicePixelRatio||1)));
   canvas.width=rect.width*dpr;
   canvas.height=rect.height*dpr;
   ctx.setTransform(dpr,0,0,dpr,0,0);
   W=rect.width;
   H=rect.height;
+
+  // River word size scales with viewport height (26px at MacBook Air M4 CSS height ~832px)
+  P3_WORD_SIZE = Math.round(Math.max(16, Math.min(40, H * 0.0313)));
+  if(typeof p3GlyphCache !== 'undefined') p3GlyphCache.clear();
 
   // Scale interaction constants proportionally to viewport
   // Calibrated to 13.6" MacBook Air M4 (CSS H≈832) where DOT_R=7.5 looked correct
@@ -3089,22 +3114,30 @@ function buildNewPuzzleTargets(){
     'N': [[0,1,1,1],[2,2,3,2]], // diagonal-dot "wings" touching the column dots
   };
 
-  // Grid spacing: fit CONTINUITY (10 letters × 4 cols + 9 gaps of 3 cols = 67 units)
+  // Grid spacing — gs sized so the word fits comfortably in both axes
   const gs = Math.min(W / 74, H / 35);
-  // Cross-letter gap = 7*gs - 3*dot_gs = 7*gs - 4.05*gs = 2.95*gs >> thresh 1.51*gs ✓
   const dot_gs = gs * 1.35;
   newDotRadius  = gs * 0.50;
   newDotSpacing = dot_gs;
 
-  const cols = 4, rows = 5, colGap = 3; // wider gap between letters
-  const letterSlot = cols + colGap; // 7 units per letter slot
+  const rows = 5;
   const WORD = 'CONTINUITY';
-  const totalCols = WORD.length * letterSlot - colGap; // 67 units
-  const totalW = totalCols * gs;
+
+  // Proportional spacing: each letter slot = its own dot-span + a fixed inter-letter gap.
+  // The gap equals what wide-letter pairs already had (7gs - 3*dot_gs = 2.95gs), so
+  // C-O, O-N, N-U, U-I all look identical to before; T, I, Y are just tightened to match.
+  const interGap = 7 * gs - 3 * dot_gs;
+  const letterMaxCol = Array.from(WORD).map(ch => Math.max(...DOTS[ch].map(p => p[0])));
+  const letterOx = [];
+  let cumOx = 0;
+  for(let li = 0; li < WORD.length; li++){
+    letterOx.push(cumOx);
+    cumOx += letterMaxCol[li] * dot_gs + interGap;
+  }
+  const totalW = cumOx - interGap;
   const startX = (W - totalW) / 2;
   const totalH = (rows - 1) * dot_gs;
   const startY = H * 0.60 - totalH / 2;
-  const xOff = (cols * gs - (cols - 1) * dot_gs) / 2;
 
   const targets = [];
   diagPairSet    = new Set(); // reset each time
@@ -3114,7 +3147,7 @@ function buildNewPuzzleTargets(){
   for(let li = 0; li < WORD.length; li++){
     const letter = WORD[li];
     const pts = DOTS[letter];
-    const ox = startX + li * letterSlot * gs + xOff;
+    const ox = startX + letterOx[li];
     const letterStart = dotIdx;
 
     // Build pos→index map for this letter's dots
@@ -4351,7 +4384,7 @@ function playTransition(){
     const t=(FRAME_COUNT<=1)?1:(idx/(FRAME_COUNT-1));
     ctx.clearRect(0,0,W,H);
     const img=frames[idx];
-    if(img&&img.complete) ctx.drawImage(img,0,0,W,H);
+    if(img&&img.complete) drawImageCover(img,ctx,W,H);
 
     for(let i=0;i<dots.length;i++){
       dots[i].x=lerp(startDots[i].x,targets[i].x,t);
@@ -4547,6 +4580,11 @@ function riverTick(timestamp){
   if(p3HintShown && p3ScrollPos >= 1.30){
     p3Hint.style.transition = 'none';
     p3Hint.style.opacity = '0';
+  }
+  if(p3TransitionPending && p3ScrollPos >= 1.28){
+    p3TransitionPending = false;
+    goTo(4);
+    return;
   }
   riverRafId=requestAnimationFrame(riverTick);
 }
@@ -4849,7 +4887,7 @@ function playTransition2(){
   function drawFrame2(){
     ctx.clearRect(0,0,W,H);
     const img=frames2[idx];
-    if(img&&img.complete) ctx.drawImage(img,0,0,W,H);
+    if(img&&img.complete) drawImageCover(img,ctx,W,H);
     // keep CONTINUITY dots visible on top of the transition frames
     if(capturedDots.length>0){
       ctx.fillStyle='rgba(0,0,0,0.92)';
@@ -5043,7 +5081,7 @@ const P3_LAYOUT = [
   ["words",         0.990, -0.08, 0, 0.14, 320, 3.7],
 ];
 
-const P3_WORD_SIZE = 26; // uniform font size for all river words
+let P3_WORD_SIZE = 26; // uniform font size for all river words — updated in resize()
 
 // Scroll position: 0 (start) → 1 (end, all words gone). Clamped, finite.
 // p3ScrollTarget receives raw wheel input; p3ScrollPos lerps toward it each
@@ -5051,6 +5089,7 @@ const P3_WORD_SIZE = 26; // uniform font size for all river words
 let p3ScrollTarget = 0;
 let p3ScrollPos = 0;
 const P3_TOTAL_DELTA = 10000; // higher = slower word movement per scroll unit
+let p3TransitionPending = false;
 
 let p3WordsEnabled = false;
 let p3RiverReady = false;
@@ -5191,6 +5230,7 @@ function p3ResetState(){
   p3WordsEnabled = false;
   p3RiverReady = false;
   p3HintShown = false;
+  p3TransitionPending = false;
   if(p3HintTimer){clearTimeout(p3HintTimer); p3HintTimer=null;}
   p3Hint.style.transition = "none";
   p3Hint.style.opacity = "0";
@@ -5273,7 +5313,7 @@ function buildP4Mask(){
     const r = sd[i], g = sd[i+1], b = sd[i+2], a = sd[i+3];
     // Orange/red: high red, low green, low blue.
     // Threshold is low (40) to include anti-aliased edge pixels of the letters.
-    const isOrange = r > 40 && g < 90 && b < 90 && a > 40;
+    const isOrange = r > 10 && g < 90 && b < 90 && a > 10;
     m[i] = m[i+1] = m[i+2] = 255;
     m[i+3] = isOrange ? 255 : 0;
     if(isOrange){
@@ -5967,14 +6007,26 @@ function p4AnimateBalance(){
   // Snapshot BALANCE-only chars before arrow chars are pushed
   p4BalanceCharEls = matched.map(m => m.el);
 
-  // Sort left-to-right so the letters appear to be drawn progressively
-  // Hardcoded arrow character indices (selected manually)
-  const ARROW_INDICES = new Set([2083,2084,2085,2120,2121,2122,2123,2124,2149,2150,2151,2152,2153,2154,2155,2156,2157,2158,2159,2160,2161,2162,2163,2186,2187,2188,2189,2190,2191,2192,2193,2194,2195,2196,2197,2198,2199,2230,2231,2232,2233,2234,2268,2269,2270]);
-  const allChars = p4Newspaper.querySelectorAll('.p4-char');
-  ARROW_INDICES.forEach(idx => {
-    if(!allChars[idx]) return;
-    const r = allChars[idx].getBoundingClientRect();
-    matched.push({ el: allChars[idx], cx: Math.round(r.left - nL) });
+  const ARROW_REL_POS = [[0.9257068452380952,0.7983626497005988],[0.9329666241496599,0.7983626497005988],[0.9402264030612245,0.7983626497005988],[0.9280346513605442,0.8242234281437125],[0.9352944302721088,0.8242234281437125],[0.9428544855442177,0.8242234281437125],[0.9504145408163265,0.8242234281437125],[0.9570711096938775,0.8242234281437125],[0.8700361394557823,0.8500842065868264],[0.877295918367347,0.8500842065868264],[0.8839524872448979,0.8500842065868264],[0.8941167091836735,0.8500842065868264],[0.9019796981292517,0.8500842065868264],[0.9099410076530612,0.8500842065868264],[0.9170971513605443,0.8500842065868264],[0.9270594175170068,0.8500842065868264],[0.9337159863945578,0.8500842065868264],[0.9394637542517007,0.8500842065868264],[0.9452115221088435,0.8500842065868264],[0.9524713010204081,0.8500842065868264],[0.960031356292517,0.8500842065868264],[0.9675914115646258,0.8500842065868264],[0.9742479804421769,0.8500842065868264],[0.8704453656462585,0.8759449850299401],[0.8777051445578231,0.8759449850299401],[0.8849649234693877,0.8759449850299401],[0.8922247023809524,0.8759449850299401],[0.8988812712585034,0.8759449850299401],[0.908545918367347,0.8759449850299401],[0.9164089073129251,0.8759449850299401],[0.9243702168367347,0.8759449850299401],[0.9315263605442177,0.8759449850299401],[0.9434045493197278,0.8759449850299401],[0.9524766156462585,0.8759449850299401],[0.9582243835034013,0.8759449850299401],[0.9645753613945578,0.8759449850299401],[0.9730415603741497,0.8759449850299401],[0.9251700680272109,0.9018057634730539],[0.9324298469387755,0.9018057634730539],[0.9396896258503401,0.9018057634730539],[0.9463461947278912,0.9018057634730539],[0.9554926658163265,0.9018057634730539],[0.9258742559523809,0.9276665419161677],[0.9352519132653061,0.9276665419161677],[0.9431149022108843,0.9276665419161677]];
+  const allChars = Array.from(p4Newspaper.querySelectorAll('.p4-char'));
+  const usedEls = new Set(p4BalanceCharEls);
+  const charCenters = allChars.map(el => {
+    const r = el.getBoundingClientRect();
+    return { el, rx: (r.left + r.width/2 - nL) / NW, ry: (r.top + r.height/2 - nT) / NH };
+  });
+  ARROW_REL_POS.forEach(([tx, ty]) => {
+    let best = null, bestDist = Infinity;
+    charCenters.forEach(c => {
+      if (usedEls.has(c.el)) return;
+      const dx = c.rx - tx, dy = c.ry - ty;
+      const d = dx*dx + dy*dy;
+      if (d < bestDist) { bestDist = d; best = c; }
+    });
+    if (best) {
+      usedEls.add(best.el);
+      const r = best.el.getBoundingClientRect();
+      matched.push({ el: best.el, cx: Math.round(r.left - nL) });
+    }
   });
 
   // Snapshot arrow chars (everything pushed after the BALANCE chars)
@@ -6047,7 +6099,14 @@ function p4ArrowClicked(){
   overlay.appendChild(frag0);
   document.body.appendChild(overlay);
 
-  // Add the hardcoded gap chars (orange, immediately visible) to fill BALANCE
+  // Add the hardcoded gap chars (orange, immediately visible) to fill BALANCE.
+  // Positions stored relative to the 1280×832 reference viewport; scale to the
+  // live newspaper bounds so they land correctly on any screen size.
+  const nr = p4Newspaper.getBoundingClientRect();
+  const P4_GAP_REF_W = 1470, P4_GAP_REF_H = 835;
+  const liveFontSize = p4BalanceCharEls.length
+    ? parseFloat(getComputedStyle(p4BalanceCharEls[0]).fontSize)
+    : 16;
   const gapLayer = document.createElement('div');
   gapLayer.id = 'p4-gap-layer';
   gapLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:201;opacity:0;transition:opacity 0.7s ease;';
@@ -6055,10 +6114,12 @@ function p4ArrowClicked(){
   P4_GAP_CHARS.forEach(d => {
     const s = document.createElement('span');
     s.textContent = d.char;
+    const left = nr.left + (d.left / P4_GAP_REF_W) * nr.width;
+    const top  = nr.top  + (d.top  / P4_GAP_REF_H) * nr.height;
     s.style.cssText =
-      `position:absolute;left:${d.left}px;top:${d.top}px;`
+      `position:absolute;left:${left}px;top:${top}px;`
       + `width:${d.width}px;height:${d.height}px;`
-      + `font-size:${d.fontSize}px;font-family:${d.fontFamily};`
+      + `font-size:${liveFontSize}px;font-family:${d.fontFamily};`
       + `font-weight:bold;color:#F71F08;line-height:1;display:inline-block;`;
     frag1.appendChild(s);
   });
@@ -6182,7 +6243,6 @@ function packColumnText(el) {
   var rawText = textNodes.map(function(n){ return n.textContent; })
     .join('').trim().replace(/\s+/g, ' ').toUpperCase();
   textNodes.forEach(function(n){ n.remove(); });
-
   // Measure character widths via canvas
   var mc = document.createElement('canvas');
   var mctx = mc.getContext('2d');
@@ -6385,7 +6445,7 @@ function resetP4(){
 window.addEventListener("wheel",(e)=>{
   if(page3.classList.contains("active") && p3WordsEnabled){
     p3ScrollTarget = Math.min(1.5, Math.max(0, p3ScrollTarget + e.deltaY / P3_TOTAL_DELTA));
-    if(p3ScrollTarget >= 1.32 && e.deltaY > 0) goTo(4);
+    if(p3ScrollTarget >= 1.32 && e.deltaY > 0) p3TransitionPending = true;
     return;
   }
   // page 4 scroll disabled — no wheel handling needed here
@@ -6393,7 +6453,7 @@ window.addEventListener("wheel",(e)=>{
 
 /* init */
 resize();
-window.addEventListener("resize",resize);
+window.addEventListener("resize",()=>{ resize(); renderIntroWords(); });
 startHintTimer();
 
 })();
