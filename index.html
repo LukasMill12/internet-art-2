@@ -4581,7 +4581,7 @@ function riverTick(timestamp){
     p3Hint.style.transition = 'none';
     p3Hint.style.opacity = '0';
   }
-  if(p3TransitionPending && p3ScrollPos >= 1.28){
+  if(p3TransitionPending && p3ScrollPos >= 1.38){
     p3TransitionPending = false;
     goTo(4);
     return;
@@ -5952,7 +5952,6 @@ function p4WrapCharsForBalance(){
   els.forEach(el => {
     el.querySelectorAll('span > span').forEach(inner => {
       if(inner.querySelector('span')) return;
-      if(inner.closest('[data-p4r]')) return; // padded row — skip for BALANCE matching
       const word = inner.textContent;
       inner.textContent = '';
       for(const ch of word){
@@ -6023,7 +6022,7 @@ function p4AnimateBalance(){
       const d = dx*dx + dy*dy;
       if (d < bestDist) { bestDist = d; best = c; }
     });
-    if (best) {
+    if (best && bestDist < 0.003) {
       usedEls.add(best.el);
       const r = best.el.getBoundingClientRect();
       matched.push({ el: best.el, cx: Math.round(r.left - nL) });
