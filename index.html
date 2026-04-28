@@ -4581,7 +4581,7 @@ function riverTick(timestamp){
     p3Hint.style.transition = 'none';
     p3Hint.style.opacity = '0';
   }
-  if(p3TransitionPending && p3ScrollPos >= 1.38){
+  if(p3TransitionPending && p3ScrollPos >= 1.33){
     p3TransitionPending = false;
     goTo(4);
     return;
@@ -5817,9 +5817,9 @@ function p4WrapWords(el, startDelay){
       if(!part){ continue; }
       if(/^\s+$/.test(part)){ frag.appendChild(document.createTextNode(part)); continue; }
       const outer = document.createElement('span');
-      outer.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.25em;';
+      outer.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.35em;';
       const inner = document.createElement('span');
-      inner.style.cssText = `display:inline-block;line-height:1.25em;animation:p4CharRise 0.85s cubic-bezier(0.16,1,0.3,1) ${startDelay}ms both;`;
+      inner.style.cssText = `display:inline-block;line-height:1.35em;animation:p4CharRise 0.85s cubic-bezier(0.16,1,0.3,1) ${startDelay}ms both;`;
       inner.textContent = part;
       outer.appendChild(inner);
       frag.appendChild(outer);
@@ -6022,7 +6022,7 @@ function p4AnimateBalance(){
       const d = dx*dx + dy*dy;
       if (d < bestDist) { bestDist = d; best = c; }
     });
-    if (best && bestDist < 0.003) {
+    if (best && bestDist < 0.015) {
       usedEls.add(best.el);
       const r = best.el.getBoundingClientRect();
       matched.push({ el: best.el, cx: Math.round(r.left - nL) });
