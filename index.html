@@ -6291,8 +6291,12 @@ function packColumnText(el) {
   if (curWord) curWords.push(curWord);
   if (curWords.length) lines.push(curWords);
 
-  // Cap lines so the last one always fits fully — no partial bottom cuts.
-  // Available height = element height - paddingTop - header height - mask height.
+  // Fill the entire column height.
+  // hasMask columns: use Math.ceil — container overflows by <1 row, the column's
+  // overflow:hidden clips it, and the position:absolute bottom mask (z-index:10)
+  // overlays any partial visible row, so there is no blank gap before the mask.
+  // col2a (no internal mask): use Math.floor — avoids a partial visible row at the
+  // col2a/pull-quote boundary; leaves only a tiny sub-row gap which is acceptable.
   var elRect = el.getBoundingClientRect();
   var lineHeightPx = parseFloat(cs.lineHeight);
   if (isNaN(lineHeightPx) || lineHeightPx < 1) lineHeightPx = parseFloat(cs.fontSize) * 1.35;
@@ -6300,15 +6304,8 @@ function packColumnText(el) {
   var header = el.querySelector('.p4-col-hed');
   var headerHeight = header ? header.getBoundingClientRect().height : 0;
   var hasMask = !!el.querySelector('.p4-bottom-mask, .p4-bottom-mask-lg');
-  // Reserve = actual mask height + one extra lineHeight as a hard safety buffer.
-  // col2b has an internal 3.5em mask; col2a has a 1.5em external overlap.
-  // Reserve matches the actual mask height so the text ends right at the mask edge.
-  // col2b/col1/col3 have a 2em internal mask; col2a has a 1.5em external overlap.
-  var maskReserve = hasMask
-    ? parseFloat(cs.fontSize) * 2
-    : parseFloat(cs.fontSize) * 0.6;
-  var availHeight = elRect.height - paddingTop - headerHeight - maskReserve;
-  var maxLines = Math.floor(availHeight / lineHeightPx);
+  var availHeight = elRect.height - paddingTop - headerHeight;
+  var maxLines = hasMask ? Math.ceil(availHeight / lineHeightPx) : Math.floor(availHeight / lineHeightPx);
   if (maxLines > 0) lines = lines.slice(0, maxLines);
 
   // Track how many lines the original text produces.
