@@ -6271,10 +6271,11 @@ function packColumnText(el) {
 
   var spaceW = domMeasure(' ');
 
-  // Build lines character-by-character — every line is packed to the edge.
-  // Words are tracked separately so gaps appear between words, not letters.
+  // Build lines character-by-character so words break at the column edge,
+  // giving each line the dense newspaper look. DOM measurement (above) ensures
+  // character widths match the browser's actual font renderer on every platform.
   var lines = [];
-  var curWords = [];   // word-fragment strings on current line
+  var curWords = [];
   var lineW = 0;
   var curWord = '';
   var curWordW = 0;
@@ -6292,7 +6293,6 @@ function packColumnText(el) {
       lineW += spaceW;
     } else {
       if (lineW + curWordW + chW > colWidth && (curWords.length > 0 || curWord.length > 0)) {
-        // Line is full — flush mid-word if needed
         if (curWord) curWords.push(curWord);
         lines.push(curWords);
         curWords = [];
@@ -6306,21 +6306,19 @@ function packColumnText(el) {
   if (curWord) curWords.push(curWord);
   if (curWords.length) lines.push(curWords);
 
-  // Fill the entire column height.
-  // hasMask columns: use Math.ceil — container overflows by <1 row, the column's
-  // overflow:hidden clips it, and the position:absolute bottom mask (z-index:10)
-  // overlays any partial visible row, so there is no blank gap before the mask.
-  // col2a (no internal mask): use Math.floor — avoids a partial visible row at the
-  // col2a/pull-quote boundary; leaves only a tiny sub-row gap which is acceptable.
+  // Fill the column height up to (but not into) the bottom mask.
+  // Subtract the mask height from availHeight so the last line's letters always
+  // end above the mask — avoids partial-letter cut-offs on short columns like col2b.
   var elRect = el.getBoundingClientRect();
   var lineHeightPx = parseFloat(cs.lineHeight);
   if (isNaN(lineHeightPx) || lineHeightPx < 1) lineHeightPx = parseFloat(cs.fontSize) * 1.35;
   var paddingTop = parseFloat(cs.paddingTop) || 0;
   var header = el.querySelector('.p4-col-hed');
   var headerHeight = header ? header.getBoundingClientRect().height : 0;
-  var hasMask = !!el.querySelector('.p4-bottom-mask, .p4-bottom-mask-lg');
-  var availHeight = elRect.height - paddingTop - headerHeight;
-  var maxLines = hasMask ? Math.ceil(availHeight / lineHeightPx) : Math.floor(availHeight / lineHeightPx);
+  var maskEl = el.querySelector('.p4-bottom-mask, .p4-bottom-mask-lg');
+  var maskH = maskEl ? maskEl.getBoundingClientRect().height : 0;
+  var availHeight = elRect.height - paddingTop - headerHeight - maskH;
+  var maxLines = Math.floor(availHeight / lineHeightPx);
   if (maxLines > 0) lines = lines.slice(0, maxLines);
 
   // Track how many lines the original text produces.
@@ -6342,7 +6340,8 @@ function packColumnText(el) {
   lines.forEach(function(words, idx) {
     var div = document.createElement('div');
     var isLast = idx === lines.length - 1 || idx === originalLineCount - 1;
-    var isSingle = words.length <= 2;
+    var totalWordW = words.reduce(function(s, w) { return s + domMeasure(w); }, 0);
+    var isSingle = words.length <= 1 || totalWordW < colWidth * 0.75;
     if (idx >= originalLineCount) div.setAttribute('data-p4r', '1');
     div.style.cssText = 'display:flex;width:' + colWidth.toFixed(1) + 'px;' +
       'justify-content:' + (isLast || isSingle ? 'flex-start' : 'space-between') + ';' +
