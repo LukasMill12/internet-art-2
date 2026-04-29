@@ -616,10 +616,10 @@ const p4PaintCtx = p4PaintCanvas.getContext("2d");
 const p4HintEl = document.getElementById("p4Hint");
 
 const STAGE_BG_PAGE1 = 'url("Background.png") center top/cover no-repeat';
-const BYPASS_PUZZLE = false;
+const BYPASS_PUZZLE = true;
 const PENCIL_CURSOR = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' stroke='white' stroke-width='2' fill='none'/%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' fill='%23222'/%3E%3C/svg%3E\") 3 21, crosshair";
-const BYPASS_PAGE2 = false;
-const BYPASS_PAGE3 = false;  // set false to restore full page 3 flow
+const BYPASS_PAGE2 = true;
+const BYPASS_PAGE3 = true;  // set false to restore full page 3 flow
 const BYPASS_PAGE4 = false;  // set false to restore full page 4 flow
 
 /* page switch */
@@ -6243,18 +6243,31 @@ function packColumnText(el) {
   var rawText = textNodes.map(function(n){ return n.textContent; })
     .join('').trim().replace(/\s+/g, ' ').toUpperCase();
   textNodes.forEach(function(n){ n.remove(); });
-  // Measure character widths via canvas
-  var mc = document.createElement('canvas');
-  var mctx = mc.getContext('2d');
+  // Measure character widths via a hidden DOM span so we use the browser's actual
+  // font metrics (DirectWrite on Windows, Core Text on Mac) instead of canvas metrics,
+  // which can differ significantly and cause sparse/blank-looking justified lines.
   var cs = getComputedStyle(el);
-  mctx.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+  var measureSpan = document.createElement('span');
+  measureSpan.style.cssText = 'position:absolute;left:-9999px;top:-9999px;' +
+    'visibility:hidden;white-space:nowrap;' +
+    'font-weight:' + cs.fontWeight + ';font-size:' + cs.fontSize + ';' +
+    'font-family:' + cs.fontFamily + ';';
+  document.body.appendChild(measureSpan);
+  var charWidthCache = {};
+  function domMeasure(str) {
+    if (charWidthCache[str] === undefined) {
+      measureSpan.textContent = str;
+      charWidthCache[str] = measureSpan.getBoundingClientRect().width;
+    }
+    return charWidthCache[str];
+  }
 
   // getBoundingClientRect is reliable even for abs-positioned elements after layout.
   // No extra buffer needed — the container overflow:hidden handles any edge clipping.
   var colWidth = el.getBoundingClientRect().width
     - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
 
-  var spaceW = mctx.measureText(' ').width;
+  var spaceW = domMeasure(' ');
 
   // Build lines character-by-character — every line is packed to the edge.
   // Words are tracked separately so gaps appear between words, not letters.
@@ -6266,7 +6279,7 @@ function packColumnText(el) {
 
   for (var i = 0; i < rawText.length; i++) {
     var ch = rawText[i];
-    var chW = mctx.measureText(ch).width;
+    var chW = domMeasure(ch);
 
     if (ch === ' ') {
       if (curWord) {
@@ -6349,6 +6362,7 @@ function packColumnText(el) {
   var anchor = el.querySelector('.p4-bottom-mask, .p4-bottom-mask-lg');
   if (anchor) el.insertBefore(container, anchor);
   else el.appendChild(container);
+  document.body.removeChild(measureSpan);
 }
 
 let p4TextPacked = false;
