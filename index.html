@@ -6096,15 +6096,18 @@ function p4ArrowClicked(){
   overlay.id = 'p4-balance-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:200;';
   const frag0 = document.createDocumentFragment();
+  const nr0 = p4Newspaper.getBoundingClientRect();
+  const overlayFontScale = Math.max(1, nr0.width / 1470);
   p4BalanceCharEls.forEach(el => {
     const r  = el.getBoundingClientRect();
     const cs = getComputedStyle(el);
     const s  = document.createElement('span');
     s.textContent = el.textContent;
+    const scaledFs = parseFloat(cs.fontSize) * overlayFontScale;
     s.style.cssText =
       `position:absolute;left:${r.left}px;top:${r.top}px;`
-      + `width:${r.width}px;height:${r.height}px;`
-      + `font-size:${cs.fontSize};font-family:${cs.fontFamily};`
+      + `width:${r.width * overlayFontScale}px;height:${r.height * overlayFontScale}px;`
+      + `font-size:${scaledFs}px;font-family:${cs.fontFamily};`
       + `font-weight:${cs.fontWeight};letter-spacing:${cs.letterSpacing};`
       + `color:#F71F08;line-height:1;display:inline-block;`;
     frag0.appendChild(s);
@@ -6113,13 +6116,17 @@ function p4ArrowClicked(){
   document.body.appendChild(overlay);
 
   // Add the hardcoded gap chars (orange, immediately visible) to fill BALANCE.
-  // Positions stored relative to the 1280×832 reference viewport; scale to the
+  // Positions stored relative to the reference viewport; scale to the
   // live newspaper bounds so they land correctly on any screen size.
   const nr = p4Newspaper.getBoundingClientRect();
   const P4_GAP_REF_W = 1470, P4_GAP_REF_H = 835;
   const liveFontSize = p4BalanceCharEls.length
     ? parseFloat(getComputedStyle(p4BalanceCharEls[0]).fontSize)
     : 16;
+  // Scale font size with screen width so chars stay visually dense at any size.
+  // Math.max(1, ...) keeps MacBook at its native size and only scales up larger screens.
+  const fontScale = Math.max(1, nr.width / P4_GAP_REF_W);
+  const scaledFontSize = liveFontSize * fontScale;
   const gapLayer = document.createElement('div');
   gapLayer.id = 'p4-gap-layer';
   gapLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:201;opacity:0;transition:opacity 0.7s ease;';
@@ -6131,8 +6138,8 @@ function p4ArrowClicked(){
     const top  = nr.top  + (d.top  / P4_GAP_REF_H) * nr.height;
     s.style.cssText =
       `position:absolute;left:${left}px;top:${top}px;`
-      + `width:${d.width}px;height:${d.height}px;`
-      + `font-size:${liveFontSize}px;font-family:${d.fontFamily};`
+      + `width:${d.width * fontScale}px;height:${d.height * fontScale}px;`
+      + `font-size:${scaledFontSize}px;font-family:${d.fontFamily};`
       + `font-weight:bold;color:#F71F08;line-height:1;display:inline-block;`;
     frag1.appendChild(s);
   });
