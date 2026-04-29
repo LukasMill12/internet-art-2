@@ -6014,19 +6014,21 @@ function p4AnimateBalance(){
     const r = el.getBoundingClientRect();
     return { el, rx: (r.left + r.width/2 - nL) / NW, ry: (r.top + r.height/2 - nT) / NH };
   });
+  // Radius around each arrow point — increase to fill more chars on larger screens,
+  // decrease to keep the shape tight on smaller screens.
+  const ARROW_FILL_RADIUS = 0.011;
+  const ARROW_FILL_R2 = ARROW_FILL_RADIUS * ARROW_FILL_RADIUS;
+
   ARROW_REL_POS.forEach(([tx, ty]) => {
-    let best = null, bestDist = Infinity;
     charCenters.forEach(c => {
       if (usedEls.has(c.el)) return;
       const dx = c.rx - tx, dy = c.ry - ty;
-      const d = dx*dx + dy*dy;
-      if (d < bestDist) { bestDist = d; best = c; }
+      if (dx*dx + dy*dy < ARROW_FILL_R2) {
+        usedEls.add(c.el);
+        const r = c.el.getBoundingClientRect();
+        matched.push({ el: c.el, cx: Math.round(r.left - nL) });
+      }
     });
-    if (best && bestDist < 5.27) {
-      usedEls.add(best.el);
-      const r = best.el.getBoundingClientRect();
-      matched.push({ el: best.el, cx: Math.round(r.left - nL) });
-    }
   });
 
   // Snapshot arrow chars (everything pushed after the BALANCE chars)
