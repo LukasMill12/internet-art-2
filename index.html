@@ -6243,23 +6243,25 @@ function packColumnText(el) {
   var rawText = textNodes.map(function(n){ return n.textContent; })
     .join('').trim().replace(/\s+/g, ' ').toUpperCase();
   textNodes.forEach(function(n){ n.remove(); });
-  // Measure character widths via a hidden DOM span so we use the browser's actual
-  // font metrics (DirectWrite on Windows, Core Text on Mac) instead of canvas metrics,
-  // which can differ significantly and cause sparse/blank-looking justified lines.
+  // Use a hidden DOM span for measurement — this uses the browser's actual font
+  // renderer (DirectWrite on Windows, Core Text on Mac) rather than the canvas path,
+  // which can diverge and cause overly-sparse lines with large space-between gaps.
   var cs = getComputedStyle(el);
-  var measureSpan = document.createElement('span');
-  measureSpan.style.cssText = 'position:absolute;left:-9999px;top:-9999px;' +
+  var mspan = document.createElement('span');
+  mspan.style.cssText = 'position:absolute;left:-9999px;top:-9999px;' +
     'visibility:hidden;white-space:nowrap;' +
     'font-weight:' + cs.fontWeight + ';font-size:' + cs.fontSize + ';' +
     'font-family:' + cs.fontFamily + ';';
-  document.body.appendChild(measureSpan);
-  var charWidthCache = {};
-  function domMeasure(str) {
-    if (charWidthCache[str] === undefined) {
-      measureSpan.textContent = str;
-      charWidthCache[str] = measureSpan.getBoundingClientRect().width;
+  document.body.appendChild(mspan);
+  var _cw = {};
+  function domMeasure(ch) {
+    if (_cw[ch] === undefined) {
+      // textContent collapses whitespace, so use &nbsp; for the space character
+      if (ch === ' ') mspan.innerHTML = '&nbsp;';
+      else mspan.textContent = ch;
+      _cw[ch] = mspan.getBoundingClientRect().width;
     }
-    return charWidthCache[str];
+    return _cw[ch];
   }
 
   // getBoundingClientRect is reliable even for abs-positioned elements after layout.
@@ -6362,7 +6364,7 @@ function packColumnText(el) {
   var anchor = el.querySelector('.p4-bottom-mask, .p4-bottom-mask-lg');
   if (anchor) el.insertBefore(container, anchor);
   else el.appendChild(container);
-  document.body.removeChild(measureSpan);
+  document.body.removeChild(mspan);
 }
 
 let p4TextPacked = false;
