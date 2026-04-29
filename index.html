@@ -6092,13 +6092,9 @@ function p4OnBalanceDone(){
 
 function p4ArrowClicked(){
   const P4_GAP_REF_W = 1470, P4_GAP_REF_H = 835;
-  // Center the 1470×835 reference block on the actual viewport so gap chars
-  // appear at 16px density regardless of screen size.
-  const refCenterX = (window.innerWidth  - P4_GAP_REF_W) / 2;
-  const refCenterY = (window.innerHeight - P4_GAP_REF_H) / 2;
 
   // Clone the orange BALANCE chars into a fixed overlay that persists over page 5.
-  // Map each char from its proportional newspaper position back to reference space.
+  // Keep each char at its exact screen position — no transformation.
   const overlay = document.createElement('div');
   overlay.id = 'p4-balance-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:200;';
@@ -6109,10 +6105,8 @@ function p4ArrowClicked(){
     const cs = getComputedStyle(el);
     const s  = document.createElement('span');
     s.textContent = el.textContent;
-    const refX = (r.left + r.width/2  - nr0.left) / nr0.width  * P4_GAP_REF_W;
-    const refY = (r.top  + r.height/2 - nr0.top)  / nr0.height * P4_GAP_REF_H;
     s.style.cssText =
-      `position:absolute;left:${refCenterX + refX - r.width/2}px;top:${refCenterY + refY - r.height/2}px;`
+      `position:absolute;left:${r.left}px;top:${r.top}px;`
       + `width:${r.width}px;height:${r.height}px;`
       + `font-size:${cs.fontSize};font-family:${cs.fontFamily};`
       + `font-weight:${cs.fontWeight};letter-spacing:${cs.letterSpacing};`
@@ -6122,28 +6116,56 @@ function p4ArrowClicked(){
   overlay.appendChild(frag0);
   document.body.appendChild(overlay);
 
-  // Add the hardcoded gap chars (orange, immediately visible) to fill BALANCE.
-  // Positions are in the 1470×835 reference space — place directly without scaling
-  // so chars stay at 16px density on every screen size.
+  // Add the hardcoded gap chars to fill BALANCE letter shapes.
+  // Strategy: anchor each cluster of consecutive chars at the proportionally-scaled
+  // newspaper position (so they land in the right gap), then pack chars within the
+  // cluster tightly (touching) so there are no visible spaces between them regardless
+  // of screen width. Chars between clusters are intentional — balance chars fill those.
+  const nr = p4Newspaper.getBoundingClientRect();
   const liveFontSize = p4BalanceCharEls.length
     ? parseFloat(getComputedStyle(p4BalanceCharEls[0]).fontSize)
     : 16;
+  const hScale = nr.width  / P4_GAP_REF_W;
+  const vScale = nr.height / P4_GAP_REF_H;
+
+  // Sort by row then by horizontal position
+  const sortedGaps = [...P4_GAP_CHARS].sort((a, b) =>
+    Math.abs(a.top - b.top) > 1 ? a.top - b.top : a.left - b.left
+  );
+
   const gapLayer = document.createElement('div');
   gapLayer.id = 'p4-gap-layer';
   gapLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:201;opacity:0;transition:opacity 0.7s ease;';
   const frag1 = document.createDocumentFragment();
-  P4_GAP_CHARS.forEach(d => {
-    const s = document.createElement('span');
-    s.textContent = d.char;
-    const left = refCenterX + d.left;
-    const top  = refCenterY + d.top;
-    s.style.cssText =
-      `position:absolute;left:${left}px;top:${top}px;`
-      + `width:${d.width}px;height:${d.height}px;`
-      + `font-size:${liveFontSize}px;font-family:${d.fontFamily};`
-      + `font-weight:bold;color:#F71F08;line-height:1;display:inline-block;`;
-    frag1.appendChild(s);
-  });
+
+  let i = 0;
+  while (i < sortedGaps.length) {
+    const anchor = sortedGaps[i];
+    // Proportional position for the first char of this cluster
+    let x = nr.left + anchor.left * hScale;
+    const y = nr.top  + anchor.top  * vScale;
+    let j = i;
+    while (j < sortedGaps.length) {
+      const curr = sortedGaps[j];
+      if (Math.abs(curr.top - anchor.top) > 1) break; // different row
+      if (j > i) {
+        const prev = sortedGaps[j - 1];
+        if (curr.left - (prev.left + prev.width) > 2) break; // gap > 2px → new cluster
+      }
+      const s = document.createElement('span');
+      s.textContent = curr.char;
+      s.style.cssText =
+        `position:absolute;left:${x}px;top:${y}px;`
+        + `width:${curr.width}px;height:${curr.height}px;`
+        + `font-size:${liveFontSize}px;font-family:${curr.fontFamily};`
+        + `font-weight:bold;color:#F71F08;line-height:1;display:inline-block;`;
+      frag1.appendChild(s);
+      x += curr.width; // tight-pack: next char immediately follows
+      j++;
+    }
+    i = j;
+  }
+
   gapLayer.appendChild(frag1);
   document.body.appendChild(gapLayer);
 
