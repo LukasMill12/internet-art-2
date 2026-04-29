@@ -6014,9 +6014,9 @@ function p4AnimateBalance(){
     const r = el.getBoundingClientRect();
     return { el, rx: (r.left + r.width/2 - nL) / NW, ry: (r.top + r.height/2 - nT) / NH };
   });
-  // Radius around each arrow point — increase to fill more chars on larger screens,
-  // decrease to keep the shape tight on smaller screens.
-  const ARROW_FILL_RADIUS = 0.013;
+  // Two separate radii — tune each independently.
+  // NH > 1100 targets 1440p Windows; NH <= 1100 targets MacBook Air 13".
+  const ARROW_FILL_RADIUS = NH > 1100 ? 0.013 : 0.005;
   const ARROW_FILL_R2 = ARROW_FILL_RADIUS * ARROW_FILL_RADIUS;
 
   ARROW_REL_POS.forEach(([tx, ty]) => {
