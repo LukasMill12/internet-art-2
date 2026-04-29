@@ -5968,40 +5968,42 @@ function p4AnimateBalance(){
   const nRect = p4Newspaper.getBoundingClientRect();
   const NW = nRect.width, NH = nRect.height;
 
-  // Draw BALANCE + arrow on an offscreen canvas at newspaper resolution
+  // Draw BALANCE on a fixed reference canvas (same dimensions as P4_GAP_REF)
+  // so the same relative newspaper positions qualify on every screen size.
+  const REF_W = 1470, REF_H = 835;
   const oc = document.createElement('canvas');
-  oc.width  = Math.ceil(NW);
-  oc.height = Math.ceil(NH);
+  oc.width  = REF_W;
+  oc.height = REF_H;
   const octx = oc.getContext('2d');
   octx.fillStyle = '#000';
-  octx.fillRect(0, 0, oc.width, oc.height);
+  octx.fillRect(0, 0, REF_W, REF_H);
 
-  // BALANCE
-  const fontSize = Math.round(NH * 0.58);
+  // BALANCE — always at reference size/position
+  const fontSize = Math.round(REF_H * 0.58);
   octx.font = `900 ${fontSize}px "Arial Black", Arial, sans-serif`;
   octx.textBaseline = 'middle';
   octx.textAlign = 'center';
   const measured = octx.measureText('BALANCE').width;
-  const scaleX = (NW * 0.76) / measured;
+  const scaleX = (REF_W * 0.76) / measured;
 
   octx.fillStyle = '#fff';
   octx.save();
-  octx.translate(NW / 2, NH * 0.62);
+  octx.translate(REF_W / 2, REF_H * 0.62);
   octx.scale(scaleX, 1);
   octx.fillText('BALANCE', 0, 0);
   octx.restore();
 
-  const pixels = octx.getImageData(0, 0, oc.width, oc.height).data;
+  const pixels = octx.getImageData(0, 0, REF_W, REF_H).data;
   const nL = nRect.left, nT = nRect.top;
 
-  // Check each char span against BALANCE canvas only (arrow is drawn manually)
+  // Map each char's relative position in the newspaper to reference space
   const matched = [];
   p4Newspaper.querySelectorAll('.p4-char').forEach(el => {
     const r   = el.getBoundingClientRect();
-    const ncx = Math.round(r.left + r.width  / 2 - nL);
-    const ncy = Math.round(r.top  + r.height / 2 - nT);
-    if(ncx < 0 || ncy < 0 || ncx >= oc.width || ncy >= oc.height) return;
-    if(pixels[(ncy * oc.width + ncx) * 4] > 64) matched.push({ el, cx: ncx });
+    const ncx = Math.round((r.left + r.width  / 2 - nL) / NW * REF_W);
+    const ncy = Math.round((r.top  + r.height / 2 - nT) / NH * REF_H);
+    if(ncx < 0 || ncy < 0 || ncx >= REF_W || ncy >= REF_H) return;
+    if(pixels[(ncy * REF_W + ncx) * 4] > 64) matched.push({ el, cx: Math.round(r.left + r.width / 2 - nL) });
   });
 
   // Snapshot BALANCE-only chars before arrow chars are pushed
@@ -6014,9 +6016,18 @@ function p4AnimateBalance(){
     const r = el.getBoundingClientRect();
     return { el, rx: (r.left + r.width/2 - nL) / NW, ry: (r.top + r.height/2 - nT) / NH };
   });
-  // Two separate radii — tune each independently.
-  // NH > 1100 targets 1440p Windows; NH <= 1100 targets MacBook Air 13".
-  const ARROW_FILL_RADIUS = NH > 1100 ? 0.013 : 0.005;
+  // Arrow fill radius per screen height bucket — tune each value independently.
+  // ≤ 950px  : MacBook Air 13", small laptops (768p/900p)
+  //  951-1150: 1080p monitors at 100% scaling
+  // 1151-1350: 1440p with DPI scaling / 1200p monitors
+  // 1351-1800: 1440p at 100% scaling  (your Windows PC)
+  //   > 1800 : 4K monitors at 100% scaling
+  const ARROW_FILL_RADIUS =
+    NH > 1800 ? 0.018 :
+    NH > 1350 ? 0.013 :
+    NH > 1150 ? 0.010 :
+    NH > 950  ? 0.008 :
+                0.005;
   const ARROW_FILL_R2 = ARROW_FILL_RADIUS * ARROW_FILL_RADIUS;
 
   ARROW_REL_POS.forEach(([tx, ty]) => {
