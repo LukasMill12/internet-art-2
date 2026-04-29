@@ -773,7 +773,7 @@ function splitBalanceAway() {
 function startPage5Letters() {
   const W         = window.innerWidth;
   const H         = window.innerHeight;
-  const FONT_SIZE = Math.max(9, Math.round(Math.min(W, H) * 0.011)); // 9 at 835px, scales up for larger screens
+  const FONT_SIZE = 9; // fixed size keeps character density consistent on all screen sizes
   const LINE_H    = Math.round(FONT_SIZE * 1.4);
   const COL_W     = Math.round(FONT_SIZE * 0.72);
   const TEXT      = 'BALANCE';
@@ -4581,7 +4581,7 @@ function riverTick(timestamp){
     p3Hint.style.transition = 'none';
     p3Hint.style.opacity = '0';
   }
-  if(p3TransitionPending && p3ScrollPos >= 1.31){
+  if(p3TransitionPending && p3ScrollPos >= 1.33){
     p3TransitionPending = false;
     goTo(4);
     return;
@@ -5817,9 +5817,9 @@ function p4WrapWords(el, startDelay){
       if(!part){ continue; }
       if(/^\s+$/.test(part)){ frag.appendChild(document.createTextNode(part)); continue; }
       const outer = document.createElement('span');
-      outer.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.25em;';
+      outer.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.35em;';
       const inner = document.createElement('span');
-      inner.style.cssText = `display:inline-block;line-height:1.25em;animation:p4CharRise 0.85s cubic-bezier(0.16,1,0.3,1) ${startDelay}ms both;`;
+      inner.style.cssText = `display:inline-block;line-height:1.35em;animation:p4CharRise 0.85s cubic-bezier(0.16,1,0.3,1) ${startDelay}ms both;`;
       inner.textContent = part;
       outer.appendChild(inner);
       frag.appendChild(outer);
@@ -6022,7 +6022,7 @@ function p4AnimateBalance(){
       const d = dx*dx + dy*dy;
       if (d < bestDist) { bestDist = d; best = c; }
     });
-    if (best && bestDist < 0.015) {
+    if (best && bestDist < 0.02) {
       usedEls.add(best.el);
       const r = best.el.getBoundingClientRect();
       matched.push({ el: best.el, cx: Math.round(r.left - nL) });
@@ -6291,25 +6291,21 @@ function packColumnText(el) {
   if (curWord) curWords.push(curWord);
   if (curWords.length) lines.push(curWords);
 
-  // Use Math.floor so the container never overflows the column boundary.
-  // For columns with an internal mask, the mask height is set dynamically in JS
-  // to start exactly at the last row's top edge — no partial characters visible.
-  // col2a has no internal mask; reserve a small strip so padding rows don't creep
-  // into the BALANCE canvas area below.
+  // Fill the entire column height.
+  // hasMask columns: use Math.ceil — container overflows by <1 row, the column's
+  // overflow:hidden clips it, and the position:absolute bottom mask (z-index:10)
+  // overlays any partial visible row, so there is no blank gap before the mask.
+  // col2a (no internal mask): use Math.floor — avoids a partial visible row at the
+  // col2a/pull-quote boundary; leaves only a tiny sub-row gap which is acceptable.
   var elRect = el.getBoundingClientRect();
-  // p4WrapWords sets line-height:1.25em on both the outer and inner spans,
-  // so the actual rendered row height is fontSize × 1.25 regardless of what
-  // getComputedStyle returns (which reflects the CSS 1.35 value, not the DOM override).
-  var lineHeightPx = parseFloat(cs.fontSize) * 1.25;
+  var lineHeightPx = parseFloat(cs.lineHeight);
+  if (isNaN(lineHeightPx) || lineHeightPx < 1) lineHeightPx = parseFloat(cs.fontSize) * 1.35;
   var paddingTop = parseFloat(cs.paddingTop) || 0;
   var header = el.querySelector('.p4-col-hed');
   var headerHeight = header ? header.getBoundingClientRect().height : 0;
   var hasMask = !!el.querySelector('.p4-bottom-mask, .p4-bottom-mask-lg');
-  // For columns without a mask (col2a), reserve ~1.4 row-heights so padding rows
-  // don't spill into the BALANCE canvas area immediately below.
-  var maskReserve = hasMask ? 0 : parseFloat(cs.fontSize) * 1.4;
-  var availHeight = elRect.height - paddingTop - headerHeight - maskReserve;
-  var maxLines = Math.floor(availHeight / lineHeightPx);
+  var availHeight = elRect.height - paddingTop - headerHeight;
+  var maxLines = hasMask ? Math.ceil(availHeight / lineHeightPx) : Math.floor(availHeight / lineHeightPx);
   if (maxLines > 0) lines = lines.slice(0, maxLines);
 
   // Track how many lines the original text produces.
@@ -6331,7 +6327,7 @@ function packColumnText(el) {
   lines.forEach(function(words, idx) {
     var div = document.createElement('div');
     var isLast = idx === lines.length - 1 || idx === originalLineCount - 1;
-    var isSingle = words.length <= 1;
+    var isSingle = words.length <= 2;
     if (idx >= originalLineCount) div.setAttribute('data-p4r', '1');
     div.style.cssText = 'display:flex;width:' + colWidth.toFixed(1) + 'px;' +
       'justify-content:' + (isLast || isSingle ? 'flex-start' : 'space-between') + ';' +
@@ -6351,17 +6347,8 @@ function packColumnText(el) {
   container.appendChild(frag);
 
   var anchor = el.querySelector('.p4-bottom-mask, .p4-bottom-mask-lg');
-  if (anchor) {
-    el.insertBefore(container, anchor);
-    // Snap mask top to the last row's top edge so no partial characters are visible.
-    // dynamicMaskH = gap-below-container + one-full-row = availHeight - (maxLines-1)*lineHeightPx
-    if (maxLines > 0) {
-      var dynamicMaskH = availHeight - (maxLines - 1) * lineHeightPx;
-      anchor.style.height = dynamicMaskH.toFixed(1) + 'px';
-    }
-  } else {
-    el.appendChild(container);
-  }
+  if (anchor) el.insertBefore(container, anchor);
+  else el.appendChild(container);
 }
 
 let p4TextPacked = false;
