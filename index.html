@@ -6022,7 +6022,7 @@ function p4AnimateBalance(){
       const d = dx*dx + dy*dy;
       if (d < bestDist) { bestDist = d; best = c; }
     });
-    if (best && bestDist < 0.05) {
+    if (best && bestDist < 0.07) {
       usedEls.add(best.el);
       const r = best.el.getBoundingClientRect();
       matched.push({ el: best.el, cx: Math.round(r.left - nL) });
