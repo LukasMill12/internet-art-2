@@ -328,7 +328,7 @@ canvas{
 /* Columns — divided by canvas vertical lines at W/3 and W*2/3 */
 .p4-col{
   position:absolute;
-  top:32%; bottom:2%;
+  top:32%; bottom:0;
   font-family:'Times New Roman',Times,serif;
   font-weight:bold;
   text-transform:uppercase;
@@ -340,10 +340,14 @@ canvas{
 }
 .p4-col1{ left:2%; right:68%; padding:0 clamp(6px,1.1vw,16px) 0 clamp(2px,0.4vw,4px); }
 .p4-col2a{ position:absolute; left:34.5%; right:34.5%; top:32%; bottom:46%; padding:0 clamp(6px,1.1vw,16px); overflow:hidden; font-family:'Times New Roman',Times,serif; font-weight:bold; text-transform:uppercase; font-size:clamp(11px,1.1vw,16px); line-height:1.35; color:rgba(255,255,255,0.82); box-sizing:border-box; }
-.p4-col2b{ position:absolute; left:34.5%; right:34.5%; top:72%; bottom:2%; padding:0.6em clamp(6px,1.1vw,16px) 0; overflow:hidden; font-family:'Times New Roman',Times,serif; font-weight:bold; text-transform:uppercase; font-size:clamp(11px,1.1vw,16px); line-height:1.35; color:rgba(255,255,255,0.82); box-sizing:border-box; }
+.p4-col2b{ position:absolute; left:34.5%; right:34.5%; top:72%; bottom:0; padding:0.6em clamp(6px,1.1vw,16px) 0; overflow:hidden; font-family:'Times New Roman',Times,serif; font-weight:bold; text-transform:uppercase; font-size:clamp(11px,1.1vw,16px); line-height:1.35; color:rgba(255,255,255,0.82); box-sizing:border-box; }
 .p4-col3{ left:68%; right:2%; top:32%; padding:0 clamp(2px,0.4vw,4px) 0 clamp(6px,1.1vw,16px); overflow:hidden; }
+.p4-ghost{position:absolute;top:32%;bottom:0;font-family:'Times New Roman',Times,serif;font-weight:bold;text-transform:uppercase;font-size:clamp(11px,1.1vw,16px);line-height:1.35;color:transparent;pointer-events:none;user-select:none;overflow:hidden;box-sizing:border-box;}
+.p4-ghost-left{left:2%;right:68%;padding:0 0 0 clamp(2px,0.4vw,4px);}
+.p4-ghost-mid{left:32%;right:32%;padding:0;}
+.p4-ghost-right{left:68%;right:2%;padding:0 clamp(2px,0.4vw,4px) 0 0;}
 .p4-bottom-mask{
-  position:absolute; bottom:0; left:0; right:0; height:2em; background:#000; pointer-events:none; z-index:10;
+  position:absolute; bottom:0; left:0; right:0; height:1.9em; background:#000; pointer-events:none; z-index:10;
 }
 .p4-bottom-mask-lg{
   position:absolute; bottom:0; left:0; right:0; height:2.5em; background:#000; pointer-events:none; z-index:10;
@@ -549,20 +553,20 @@ canvas{
       <!-- Column 1 -->
       <div class="p4-col p4-col1">
         <h2 class="p4-col-hed">What Holds</h2>
-        weight never stillness a carries settles that carries weight a settles never stillness that weight that stillness carries never settles a weight settles a that never carries stillness weight carries stillness settles that a never weight a settles never that stillness carries weight never that weight carries a stillness settles never settles that carries weight stillness a never weight a stillness that settles carries never carries never a weight stillness settles that weight settles stillness never a carries that weight a never stillness carries settles that carries settles a weight never stillness that weight stillness never settles a carries that a carries weight settles stillness never that settles weight never carries a stillness that weight a settles that stillness never carries weight that a stillness never weight settles carries that settles never weight a stillness carries never a that carries settles weight stillness never weight a settles carries that stillness weight carries settles never that a stillness settles a never weight carries that stillness carries a stillness settles weight never that weight that never carries settles a stillness weight never settles carries a that stillness settles weight never a carries stillness that weight a settles stillness never carries that a weight settles never stillness carries that settles weight a stillness never carries weight settles that stillness a never weight carries settles a stillness that never weight settles carries a stillness that carries settles never weight a that stillness weight never a settles carries stillness that settles a weight carries never stillness that weight carries a never settles stillness settles never a carries weight that stillness never weight a carries that settles stillness weight settles never carries a that stillness never a weight settles carries stillness that weight never stillness carries settles a that never weight stillness a carries settles never that weight carries stillness never a settles that
+        weight never stillness a carries settles that carries weight a settles never stillness that weight that stillness carries never settles a weight settles a that never carries stillness weight carries stillness settles that a never weight a settles never that stillness carries weight never that weight carries a stillness settles never settles that carries weight stillness a never weight a stillness that settles carries never carries never a weight stillness settles that weight settles stillness never a carries that weight a never stillness carries settles that carries settles a weight never stillness that weight stillness never settles a carries that a carries weight settles stillness never that settles weight never carries a stillness that weight a settles that stillness never carries weight that a stillness never weight settles carries that settles never weight a stillness carries never a that carries settles weight stillness never weight a settles carries that stillness weight carries settles never that a stillness settles a never weight carries that stillness carries a stillness settles weight never that weight that never carries settles a stillness weight never settles carries a that stillness settles weight never a carries stillness that weight a settles stillness never carries that a weight settles never stillness carries that settles weight a stillness never carries weight settles that stillness a never weight carries settles a stillness that never weight settles carries a stillness that carries settles never weight a that stillness weight never a settles carries stillness that settles a weight carries never stillness that weight carries a never settles stillness settles never a carries weight that stillness never weight a carries that settles stillness weight settles never carries a that stillness never a weight settles carries stillness that weight never stillness carries settles a that never weight stillness a carries settles never that weight carries stillness never a settles that weight carries a settles never stillness that never weight settles a carries stillness that settles a weight never carries stillness weight never that carries settles a stillness never carries settles weight a that stillness weight settles a never carries that stillness settles never weight carries a that stillness a weight never settles carries that stillness carries never settles a weight that stillness weight a never carries settles that never settles weight a carries stillness that weight carries never a stillness settles that a never weight stillness settles carries that stillness never weight carries settles a that settles weight never a carries stillness that carries a weight settles never stillness that never carries a settles weight stillness that weight settles never stillness a carries settles never weight that carries a stillness weight a carries settles that never stillness settles a that weight carries never stillness weight never carries a settles that stillness settles carries weight never a that stillness a weight carries never settles that stillness never a carries weight settles that weight a settles stillness carries never that never weight carries a settles stillness that settles weight a never stillness carries that stillness weight never carries a settles that a settles carries never weight stillness that carries settles weight a never stillness that weight never settles a carries stillness that stillness a never settles weight carries that weight carries never a stillness settles that a weight settles never carries stillness that never settles a carries weight stillness that carries weight settles never a stillness that a carries never settles weight stillness never weight that settles a carries stillness weight settles carries never a that stillness never carries that a settles weight stillness weight a settles carries never that stillness carries weight never settles a that stillness settles carries never weight a that weight a never stillness carries settles that never carries settles a weight stillness that
         <div class="p4-bottom-mask"></div>
       </div>
 
       <!-- Column 2 upper (above pull quote) -->
       <div class="p4-col2a">
         <h2 class="p4-col-hed">The Grid</h2>
-        weight stillness carries that never a settles carries a never weight stillness settles that stillness never settles weight a carries that weight a carries never settles stillness that never weight settles carries a stillness that settles a never weight carries stillness that carries weight never a settles stillness never a settles weight that carries stillness weight settles that never carries a stillness weight never that carries settles a stillness carries never weight that a settles weight never stillness that a carries settles never weight that stillness carries a settles never weight that stillness a carries settles weight never stillness that
+        weight stillness carries that never a settles carries a never weight stillness settles that stillness never settles weight a carries that weight a carries never settles stillness that never weight settles carries a stillness that settles a never weight carries stillness that carries weight never a settles stillness never a settles weight that carries stillness weight settles that never carries a stillness weight never that carries settles a stillness carries never weight that a settles weight never stillness that a carries settles never weight that stillness carries a settles never weight that stillness a carries settles weight never stillness that weight a never stillness settles carries that stillness carries weight never settles a that never weight a carries stillness settles that settles never carries weight a stillness that carries settles weight never a stillness that never weight settles carries a stillness that a weight never carries settles stillness that stillness never a weight carries settles that weight settles a never stillness carries that carries a stillness settles never weight that never weight stillness carries a settles that settles a weight carries stillness never that stillness carries never weight settles a that weight a carries never settles stillness that stillness never settles a weight carries that carries weight a never stillness settles that a settles weight never carries stillness that never carries stillness a settles weight that weight stillness settles a never carries that
       </div>
       <div class="p4-col2a-mask"></div>
 
       <!-- Column 2 lower (below pull quote) -->
       <div class="p4-col2b">
-        settles that never weight a carries stillness never a weight that carries settles stillness weight carries a settles never that stillness never weight settles a carries that stillness carries never a settles weight that stillness settles a never carries weight that stillness never carries settles that a weight stillness a that settles weight carries never stillness weight that a never settles carries stillness never weight carries a that settles stillness carries never a settles weight that stillness settles weight a never carries that stillness never that carries a settles weight stillness carries settles a never that weight stillness a weight never carries settles that stillness never settles carries weight a that stillness carries a never that settles weight stillness weight settles never a carries that stillness never carries that settles weight a stillness settles a weight carries never that stillness that a never weight settles carries stillness
+        settles that never weight a carries stillness never a weight that carries settles stillness weight carries a settles never that stillness never weight settles a carries that stillness carries never a settles weight that stillness settles a never carries weight that stillness never carries settles that a weight stillness a that settles weight carries never stillness weight that a never settles carries stillness never weight carries a that settles stillness carries never a settles weight that stillness settles weight a never carries that stillness never that carries a settles weight stillness carries settles a never that weight stillness a weight never carries settles that stillness never settles carries weight a that stillness carries a never that settles weight stillness weight settles never a carries that stillness never carries that settles weight a stillness settles a weight carries never that stillness that a never weight settles carries stillness never weight carries settles a that stillness carries a never weight settles that weight settles never stillness a carries that a weight never carries stillness settles that stillness carries settles never a weight that never settles a weight carries stillness that carries weight never settles a stillness that weight a settles never carries stillness that a settles stillness carries never weight that stillness a never weight settles carries that weight carries settles never a stillness that never weight a settles stillness carries that settles carries never a weight stillness that weight never settles a carries stillness that stillness settles a weight never carries that never weight carries a settles stillness that weight a never stillness settles carries that carries never weight settles a stillness that settles weight a never carries stillness that stillness carries weight never a settles that weight never settles carries a stillness that a carries weight settles never stillness that settles never weight a carries stillness that
         <div class="p4-bottom-mask"></div>
       </div>
 
@@ -577,9 +581,16 @@ canvas{
       <!-- Column 3 (image box overlays the top portion) -->
       <div class="p4-col p4-col3">
         <h2 class="p4-col-hed">The System</h2>
-        never weight a settles stillness carries that weight settles a never that stillness carries stillness a that weight never carries settles weight never settles that carries a stillness that settles carries weight a never stillness weight a stillness carries never settles that carries settles never stillness a weight that stillness never a weight carries settles that weight carries stillness settles never a that stillness a carries weight never settles that stillness carries weight settles never a that stillness never weight settles a carries that stillness weight a never settles stillness carries that never weight a carries settles stillness that weight settles a never carries stillness that a settles never weight stillness carries weight that a never stillness settles carries never settles a weight that stillness carries a weight never settles that stillness weight carries never a settles that weight stillness never carries that a settles stillness weight a never settles carries that stillness settles weight never a carries stillness that weight settles carries a never stillness that a carries weight settles never stillness that carries never a settles weight stillness that stillness never weight carries a settles that never carries stillness weight settles a that weight never stillness carries settles
+        never weight a settles stillness carries that weight settles a never that stillness carries stillness a that weight never carries settles weight never settles that carries a stillness that settles carries weight a never stillness weight a stillness carries never settles that carries settles never stillness a weight that stillness never a weight carries settles that weight carries stillness settles never a that stillness a carries weight never settles that stillness carries weight settles never a that stillness never weight settles a carries that stillness weight a never settles stillness carries that never weight a carries settles stillness that weight settles a never carries stillness that a settles never weight stillness carries weight that a never stillness settles carries never settles a weight that stillness carries a weight never settles that stillness weight carries never a settles that weight stillness never carries that a settles stillness weight a never settles carries that stillness settles weight never a carries stillness that weight settles carries a never stillness that a carries weight settles never stillness that carries never a settles weight stillness that stillness never weight carries a settles that never carries stillness weight settles a that weight never stillness carries settles a carries weight never settles stillness that weight settles never a carries stillness that never weight stillness carries a settles that stillness a carries weight never settles that carries settles a weight never stillness that weight never a stillness carries settles that a stillness settles weight never carries that settles weight a carries never stillness that never weight carries settles a stillness that weight stillness a never settles carries that carries a never settles weight stillness that settles never carries weight a stillness that stillness weight carries a never settles that a weight never stillness carries settles that carries weight settles never a stillness that never settles a weight carries stillness that stillness carries settles a never weight that weight a settles never stillness carries that never weight a carries settles stillness that carries settles weight never a stillness that settles never weight stillness a carries that weight carries a never stillness settles that stillness a never weight carries settles that never settles carries weight a stillness that weight stillness never settles a carries that a carries never weight settles stillness that stillness never carries settles a weight that carries weight a never stillness settles that settles a weight never carries stillness that weight never stillness a settles carries that carries stillness settles a never weight that weight never settles a stillness carries that stillness weight a never settles carries that a settles weight carries never stillness that carries never settles weight a stillness that never weight a settles carries stillness that weight settles carries never a stillness that stillness a weight carries never settles that settles weight never a carries stillness that weight carries a never settles stillness that never weight a stillness carries settles that stillness settles a weight never carries that carries a never settles weight stillness that weight never settles stillness a carries that a stillness weight carries settles never that never carries a weight settles stillness that weight a settles carries never stillness that stillness never a settles weight carries that settles weight a carries stillness never that
         <div class="p4-bottom-mask"></div>
       </div>
+
+<!-- Ghost columns: transparent text that flows through the full column height.
+     p4AnimateBalance detects chars whose centres land inside the BALANCE shape
+     and colours them orange — filling the pull-quote gap and column edges. -->
+      <div class="p4-ghost p4-ghost-left">weight never stillness a carries settles that carries weight a settles never stillness that weight that stillness carries never settles a weight settles a that never carries stillness weight carries stillness settles that a never weight a settles never that stillness carries weight never that weight carries a stillness settles never settles that carries weight stillness a never weight a stillness that settles carries never carries never a weight stillness settles that weight settles stillness never a carries that weight a never stillness carries settles that carries settles a weight never stillness that weight stillness never settles a carries that a carries weight settles stillness never that settles weight never carries a stillness that weight a settles that stillness never carries weight that a stillness never weight settles carries that settles never weight a stillness carries never a that carries settles weight stillness never weight a settles carries that stillness weight carries settles never that a stillness settles a never weight carries that stillness carries a stillness settles weight never that weight that never carries settles a stillness weight never settles carries a that stillness settles weight never a carries stillness that weight a settles stillness never carries that a weight settles never stillness carries that settles weight a stillness never carries weight settles that stillness a never weight carries settles a stillness that never weight settles carries a stillness that a carries weight settles never stillness that settles never weight a carries stillness that stillness carries weight never a settles that weight never settles carries a stillness that a carries weight settles never stillness that settles never weight a carries stillness that stillness carries weight never a settles weight never stillness a carries settles that carries weight a settles never stillness that weight that stillness carries never settles a weight settles a that never carries stillness weight carries stillness settles that a never weight a settles never that stillness carries weight never that weight carries a stillness settles never settles that carries weight stillness a never weight a stillness that settles carries never carries never a weight stillness settles that weight settles stillness never a carries that</div>
+      <div class="p4-ghost p4-ghost-mid">weight stillness carries that never a settles carries a never weight stillness settles that stillness never settles weight a carries that weight a carries never settles stillness that never weight settles carries a stillness that settles a never weight carries stillness that carries weight never a settles stillness never a settles weight that carries stillness weight settles that never carries a stillness weight never that carries settles a stillness carries never weight that a settles weight never stillness that a carries settles never weight that stillness carries a settles never weight that stillness a carries settles weight never stillness that weight a never stillness settles carries that stillness carries weight never settles a that never weight a carries stillness settles that settles never carries weight a stillness that carries settles weight never a stillness that never weight settles carries a stillness that a weight never carries settles stillness that stillness never a weight carries settles that weight settles a never stillness carries that carries a stillness settles never weight that never weight stillness carries a settles that settles a weight carries stillness never that stillness carries never weight settles a that weight a carries never settles stillness that stillness never settles a weight carries that carries weight a never stillness settles that a settles weight never carries stillness that never carries stillness a settles weight that weight stillness settles a never carries that settles that never weight a carries stillness never a weight that carries settles stillness weight carries a settles never that stillness never weight settles a carries that stillness carries never a settles weight that stillness settles a never carries weight that stillness never carries settles that a weight stillness a that settles weight carries never stillness weight that a never settles carries stillness never weight carries a that settles stillness carries never a settles weight that stillness settles weight a never carries that stillness never that carries a settles weight stillness carries settles a never that weight stillness a weight never carries settles that stillness never settles carries weight a that stillness carries a never that settles weight stillness weight settles never a carries that stillness never carries that settles weight a stillness settles a weight carries never that stillness that a never weight settles carries stillness never weight carries settles a that stillness carries a never weight settles that weight settles never stillness a carries that a weight never carries stillness settles that stillness carries settles never a weight that never settles a weight carries stillness that carries weight never settles a stillness that weight a settles never carries stillness that a settles stillness carries never weight that stillness a never weight settles carries that weight carries settles never a stillness that never weight a settles stillness carries that settles carries never a weight stillness that weight never settles a carries stillness that stillness settles a weight never carries that never weight carries a settles stillness that weight a never stillness settles carries that carries never weight settles a stillness that settles weight a never carries stillness that stillness carries weight never a settles that weight never settles carries a stillness that a carries weight settles never stillness that settles never weight a carries stillness weight stillness carries that never a settles carries a never weight stillness settles that stillness never settles weight a carries that weight a carries never settles stillness that never weight settles carries a stillness that settles a never weight carries stillness that carries weight never a settles stillness never a settles weight that carries stillness weight settles that never carries a stillness</div>
+      <div class="p4-ghost p4-ghost-right">never weight a settles stillness carries that weight settles a never that stillness carries stillness a that weight never carries settles weight never settles that carries a stillness that settles carries weight a never stillness weight a stillness carries never settles that carries settles never stillness a weight that stillness never a weight carries settles that weight carries stillness settles never a that stillness a carries weight never settles that stillness carries weight settles never a that stillness never weight settles a carries that stillness weight a never settles stillness carries that never weight a carries settles stillness that weight settles a never carries stillness that a settles never weight stillness carries weight that a never stillness settles carries never settles a weight that stillness carries a weight never settles that stillness weight carries never a settles that weight stillness never carries that a settles stillness weight a never settles carries that stillness settles weight never a carries stillness that weight settles carries a never stillness that a carries weight settles never stillness that carries never a settles weight stillness that stillness never weight carries a settles that never carries stillness weight settles a that weight never stillness carries settles a carries weight never settles stillness that weight settles never a carries stillness that never weight stillness carries a settles that stillness a carries weight never settles that carries settles a weight never stillness that weight never a stillness carries settles that a stillness settles weight never carries that settles weight a carries never stillness that never weight carries settles a stillness that weight stillness a never settles carries that carries a never settles weight stillness that settles never carries weight a stillness that stillness weight carries a never settles that a weight never stillness carries settles that carries weight settles never a stillness that never settles a weight carries stillness that stillness carries settles a never weight that weight a settles never stillness carries that never weight a carries settles stillness that carries settles weight never a stillness that settles never weight stillness a carries that weight carries a never stillness settles that stillness a never weight carries settles that never settles carries weight a stillness that weight stillness never settles a carries that a carries never weight settles stillness that settles weight never a carries stillness</div>
 
 <!-- Footer -->
       <div class="p4-footer"></div>
@@ -616,10 +627,10 @@ const p4PaintCtx = p4PaintCanvas.getContext("2d");
 const p4HintEl = document.getElementById("p4Hint");
 
 const STAGE_BG_PAGE1 = 'url("Background.png") center top/cover no-repeat';
-const BYPASS_PUZZLE = false;
+const BYPASS_PUZZLE = true;
 const PENCIL_CURSOR = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' stroke='white' stroke-width='2' fill='none'/%3E%3Cpath d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z' fill='%23222'/%3E%3C/svg%3E\") 3 21, crosshair";
-const BYPASS_PAGE2 = false;
-const BYPASS_PAGE3 = false;  // set false to restore full page 3 flow
+const BYPASS_PAGE2 = true;
+const BYPASS_PAGE3 = true;  // set false to restore full page 3 flow
 const BYPASS_PAGE4 = false;  // set false to restore full page 4 flow
 
 /* page switch */
@@ -4581,7 +4592,7 @@ function riverTick(timestamp){
     p3Hint.style.transition = 'none';
     p3Hint.style.opacity = '0';
   }
-  if(p3TransitionPending && p3ScrollPos >= 1.31){
+  if(p3TransitionPending && p3ScrollPos >= 1.33){
     p3TransitionPending = false;
     goTo(4);
     return;
@@ -5817,9 +5828,9 @@ function p4WrapWords(el, startDelay){
       if(!part){ continue; }
       if(/^\s+$/.test(part)){ frag.appendChild(document.createTextNode(part)); continue; }
       const outer = document.createElement('span');
-      outer.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.25em;';
+      outer.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.35em;';
       const inner = document.createElement('span');
-      inner.style.cssText = `display:inline-block;line-height:1.25em;animation:p4CharRise 0.85s cubic-bezier(0.16,1,0.3,1) ${startDelay}ms both;`;
+      inner.style.cssText = `display:inline-block;line-height:1.35em;animation:p4CharRise 0.85s cubic-bezier(0.16,1,0.3,1) ${startDelay}ms both;`;
       inner.textContent = part;
       outer.appendChild(inner);
       frag.appendChild(outer);
@@ -5947,7 +5958,7 @@ function p4WrapCharsForBalance(){
   // All elements already processed by p4WrapWords (outer>inner word spans),
   // including the pull quote which is in P4_BOX_SELECTORS[3]
   const els = p4Newspaper.querySelectorAll(
-    '.p4-col1, .p4-col2a, .p4-col2b, .p4-col3'
+    '.p4-col1, .p4-col2a, .p4-col2b, .p4-col3, .p4-ghost'
   );
   els.forEach(el => {
     el.querySelectorAll('span > span').forEach(inner => {
@@ -5968,65 +5979,79 @@ function p4AnimateBalance(){
   const nRect = p4Newspaper.getBoundingClientRect();
   const NW = nRect.width, NH = nRect.height;
 
-  // Draw BALANCE + arrow on an offscreen canvas at newspaper resolution
+  // Draw BALANCE on a fixed reference canvas (same dimensions as P4_GAP_REF)
+  // so the same relative newspaper positions qualify on every screen size.
+  const REF_W = 1470, REF_H = 835;
   const oc = document.createElement('canvas');
-  oc.width  = Math.ceil(NW);
-  oc.height = Math.ceil(NH);
+  oc.width  = REF_W;
+  oc.height = REF_H;
   const octx = oc.getContext('2d');
   octx.fillStyle = '#000';
-  octx.fillRect(0, 0, oc.width, oc.height);
+  octx.fillRect(0, 0, REF_W, REF_H);
 
-  // BALANCE
-  const fontSize = Math.round(NH * 0.58);
+  // BALANCE — always at reference size/position
+  const fontSize = Math.round(REF_H * 0.58);
   octx.font = `900 ${fontSize}px "Arial Black", Arial, sans-serif`;
   octx.textBaseline = 'middle';
   octx.textAlign = 'center';
   const measured = octx.measureText('BALANCE').width;
-  const scaleX = (NW * 0.76) / measured;
+  const scaleX = (REF_W * 0.76) / measured;
 
   octx.fillStyle = '#fff';
   octx.save();
-  octx.translate(NW / 2, NH * 0.62);
+  octx.translate(REF_W / 2, REF_H * 0.62);
   octx.scale(scaleX, 1);
   octx.fillText('BALANCE', 0, 0);
   octx.restore();
 
-  const pixels = octx.getImageData(0, 0, oc.width, oc.height).data;
+  const pixels = octx.getImageData(0, 0, REF_W, REF_H).data;
   const nL = nRect.left, nT = nRect.top;
 
-  // Check each char span against BALANCE canvas only (arrow is drawn manually)
+  // Map each char's relative position in the newspaper to reference space.
+  // Ghost columns are excluded here — they are revealed only after the arrow is clicked.
   const matched = [];
-  p4Newspaper.querySelectorAll('.p4-char').forEach(el => {
+  p4Newspaper.querySelectorAll('.p4-col1 .p4-char, .p4-col2a .p4-char, .p4-col2b .p4-char, .p4-col3 .p4-char').forEach(el => {
     const r   = el.getBoundingClientRect();
-    const ncx = Math.round(r.left + r.width  / 2 - nL);
-    const ncy = Math.round(r.top  + r.height / 2 - nT);
-    if(ncx < 0 || ncy < 0 || ncx >= oc.width || ncy >= oc.height) return;
-    if(pixels[(ncy * oc.width + ncx) * 4] > 64) matched.push({ el, cx: ncx });
+    const ncx = Math.round((r.left + r.width  / 2 - nL) / NW * REF_W);
+    const ncy = Math.round((r.top  + r.height / 2 - nT) / NH * REF_H);
+    if(ncx < 0 || ncy < 0 || ncx >= REF_W || ncy >= REF_H) return;
+    if(pixels[(ncy * REF_W + ncx) * 4] > 64) matched.push({ el, cx: Math.round(r.left + r.width / 2 - nL) });
   });
 
   // Snapshot BALANCE-only chars before arrow chars are pushed
   p4BalanceCharEls = matched.map(m => m.el);
 
   const ARROW_REL_POS = [[0.9257068452380952,0.7983626497005988],[0.9329666241496599,0.7983626497005988],[0.9402264030612245,0.7983626497005988],[0.9280346513605442,0.8242234281437125],[0.9352944302721088,0.8242234281437125],[0.9428544855442177,0.8242234281437125],[0.9504145408163265,0.8242234281437125],[0.9570711096938775,0.8242234281437125],[0.8700361394557823,0.8500842065868264],[0.877295918367347,0.8500842065868264],[0.8839524872448979,0.8500842065868264],[0.8941167091836735,0.8500842065868264],[0.9019796981292517,0.8500842065868264],[0.9099410076530612,0.8500842065868264],[0.9170971513605443,0.8500842065868264],[0.9270594175170068,0.8500842065868264],[0.9337159863945578,0.8500842065868264],[0.9394637542517007,0.8500842065868264],[0.9452115221088435,0.8500842065868264],[0.9524713010204081,0.8500842065868264],[0.960031356292517,0.8500842065868264],[0.9675914115646258,0.8500842065868264],[0.9742479804421769,0.8500842065868264],[0.8704453656462585,0.8759449850299401],[0.8777051445578231,0.8759449850299401],[0.8849649234693877,0.8759449850299401],[0.8922247023809524,0.8759449850299401],[0.8988812712585034,0.8759449850299401],[0.908545918367347,0.8759449850299401],[0.9164089073129251,0.8759449850299401],[0.9243702168367347,0.8759449850299401],[0.9315263605442177,0.8759449850299401],[0.9434045493197278,0.8759449850299401],[0.9524766156462585,0.8759449850299401],[0.9582243835034013,0.8759449850299401],[0.9645753613945578,0.8759449850299401],[0.9730415603741497,0.8759449850299401],[0.9251700680272109,0.9018057634730539],[0.9324298469387755,0.9018057634730539],[0.9396896258503401,0.9018057634730539],[0.9463461947278912,0.9018057634730539],[0.9554926658163265,0.9018057634730539],[0.9258742559523809,0.9276665419161677],[0.9352519132653061,0.9276665419161677],[0.9431149022108843,0.9276665419161677]];
-  const allChars = Array.from(p4Newspaper.querySelectorAll('.p4-char'));
+  const allChars = Array.from(p4Newspaper.querySelectorAll('.p4-col1 .p4-char, .p4-col2a .p4-char, .p4-col2b .p4-char, .p4-col3 .p4-char'));
   const usedEls = new Set(p4BalanceCharEls);
   const charCenters = allChars.map(el => {
     const r = el.getBoundingClientRect();
     return { el, rx: (r.left + r.width/2 - nL) / NW, ry: (r.top + r.height/2 - nT) / NH };
   });
+  // Arrow fill radius per screen height bucket — tune each value independently.
+  // ≤ 950px  : MacBook Air 13", small laptops (768p/900p)
+  //  951-1150: 1080p monitors at 100% scaling
+  // 1151-1350: 1440p with DPI scaling / 1200p monitors
+  // 1351-1800: 1440p at 100% scaling  (your Windows PC)
+  //   > 1800 : 4K monitors at 100% scaling
+  const ARROW_FILL_RADIUS =
+    NH > 1800 ? 0.018 :
+    NH > 1350 ? 0.013 :
+    NH > 1150 ? 0.013 :
+    NH > 950  ? 0.008 :
+                0.005;
+  const ARROW_FILL_R2 = ARROW_FILL_RADIUS * ARROW_FILL_RADIUS;
+
   ARROW_REL_POS.forEach(([tx, ty]) => {
-    let best = null, bestDist = Infinity;
     charCenters.forEach(c => {
       if (usedEls.has(c.el)) return;
       const dx = c.rx - tx, dy = c.ry - ty;
-      const d = dx*dx + dy*dy;
-      if (d < bestDist) { bestDist = d; best = c; }
+      if (dx*dx + dy*dy < ARROW_FILL_R2) {
+        usedEls.add(c.el);
+        const r = c.el.getBoundingClientRect();
+        matched.push({ el: c.el, cx: Math.round(r.left - nL) });
+      }
     });
-    if (best && bestDist < 0.015) {
-      usedEls.add(best.el);
-      const r = best.el.getBoundingClientRect();
-      matched.push({ el: best.el, cx: Math.round(r.left - nL) });
-    }
   });
 
   // Snapshot arrow chars (everything pushed after the BALANCE chars)
@@ -6078,13 +6103,38 @@ function p4OnBalanceDone(){
 }
 
 function p4ArrowClicked(){
-  // Clone the orange BALANCE chars into a fixed overlay that persists over page 5
+  // Build the overlay entirely from ghost chars detected inside BALANCE.
+  // Ghost columns have identical font/column-width to the real columns so positions
+  // are close enough that the swap is imperceptible as the newspaper fades out.
+  // Using ghost-only gives a single clean layer with no stacking anywhere.
   const overlay = document.createElement('div');
   overlay.id = 'p4-balance-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:200;';
-  const frag0 = document.createDocumentFragment();
-  p4BalanceCharEls.forEach(el => {
-    const r  = el.getBoundingClientRect();
+
+  const nr0 = p4Newspaper.getBoundingClientRect();
+  const REF_W = 1470, REF_H = 835;
+  const NW = nr0.width, NH = nr0.height;
+
+  const gc = document.createElement('canvas');
+  gc.width = REF_W; gc.height = REF_H;
+  const gx = gc.getContext('2d');
+  gx.fillStyle = '#000'; gx.fillRect(0, 0, REF_W, REF_H);
+  gx.font = `900 ${Math.round(REF_H * 0.58)}px "Arial Black",Arial,sans-serif`;
+  gx.textBaseline = 'middle'; gx.textAlign = 'center';
+  gx.fillStyle = '#fff';
+  gx.save(); gx.translate(REF_W / 2, REF_H * 0.62);
+  gx.scale((REF_W * 0.76) / gx.measureText('BALANCE').width, 1);
+  gx.fillText('BALANCE', 0, 0); gx.restore();
+  const gpix = gx.getImageData(0, 0, REF_W, REF_H).data;
+  const nL = nr0.left, nT = nr0.top;
+
+  const frag = document.createDocumentFragment();
+  p4Newspaper.querySelectorAll('.p4-ghost .p4-char').forEach(el => {
+    const r   = el.getBoundingClientRect();
+    const ncx = Math.round((r.left + r.width  / 2 - nL) / NW * REF_W);
+    const ncy = Math.round((r.top  + r.height / 2 - nT) / NH * REF_H);
+    if (ncx < 0 || ncy < 0 || ncx >= REF_W || ncy >= REF_H) return;
+    if (gpix[(ncy * REF_W + ncx) * 4] <= 64) return;
     const cs = getComputedStyle(el);
     const s  = document.createElement('span');
     s.textContent = el.textContent;
@@ -6094,48 +6144,18 @@ function p4ArrowClicked(){
       + `font-size:${cs.fontSize};font-family:${cs.fontFamily};`
       + `font-weight:${cs.fontWeight};letter-spacing:${cs.letterSpacing};`
       + `color:#F71F08;line-height:1;display:inline-block;`;
-    frag0.appendChild(s);
+    frag.appendChild(s);
   });
-  overlay.appendChild(frag0);
+  overlay.appendChild(frag);
   document.body.appendChild(overlay);
 
-  // Add the hardcoded gap chars (orange, immediately visible) to fill BALANCE.
-  // Positions stored relative to the 1280×832 reference viewport; scale to the
-  // live newspaper bounds so they land correctly on any screen size.
-  const nr = p4Newspaper.getBoundingClientRect();
-  const P4_GAP_REF_W = 1470, P4_GAP_REF_H = 835;
-  const liveFontSize = p4BalanceCharEls.length
-    ? parseFloat(getComputedStyle(p4BalanceCharEls[0]).fontSize)
-    : 16;
-  const gapLayer = document.createElement('div');
-  gapLayer.id = 'p4-gap-layer';
-  gapLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:201;opacity:0;transition:opacity 0.7s ease;';
-  const frag1 = document.createDocumentFragment();
-  P4_GAP_CHARS.forEach(d => {
-    const s = document.createElement('span');
-    s.textContent = d.char;
-    const left = nr.left + (d.left / P4_GAP_REF_W) * nr.width;
-    const top  = nr.top  + (d.top  / P4_GAP_REF_H) * nr.height;
-    s.style.cssText =
-      `position:absolute;left:${left}px;top:${top}px;`
-      + `width:${d.width}px;height:${d.height}px;`
-      + `font-size:${liveFontSize}px;font-family:${d.fontFamily};`
-      + `font-weight:bold;color:#F71F08;line-height:1;display:inline-block;`;
-    frag1.appendChild(s);
-  });
-  gapLayer.appendChild(frag1);
-  document.body.appendChild(gapLayer);
-
-  // Fade out the newspaper, fade in the gap chars simultaneously
+  // Fade out the newspaper; overlay chars (cloned above) are position:fixed on body
+  // and persist over page 5 — no gap-fill layer needed, ghost columns supply the fill.
   p4Newspaper.style.transition = 'opacity 0.7s ease';
   p4Newspaper.style.opacity = '0';
   p4PaintCtx.clearRect(0, 0, p4PaintCanvas.width, p4PaintCanvas.height);
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    gapLayer.style.opacity = '1';
-  }));
 
   // Switch to page 5 once the fade completes
-  // overlay and gapLayer are position:fixed on body so they remain over the black page
   setTimeout(() => { goTo(5); }, 750);
 }
 
@@ -6291,25 +6311,21 @@ function packColumnText(el) {
   if (curWord) curWords.push(curWord);
   if (curWords.length) lines.push(curWords);
 
-  // Use Math.floor so the container never overflows the column boundary.
-  // For columns with an internal mask, the mask height is set dynamically in JS
-  // to start exactly at the last row's top edge — no partial characters visible.
-  // col2a has no internal mask; reserve a small strip so padding rows don't creep
-  // into the BALANCE canvas area below.
+  // Fill the entire column height.
+  // hasMask columns: use Math.ceil — container overflows by <1 row, the column's
+  // overflow:hidden clips it, and the position:absolute bottom mask (z-index:10)
+  // overlays any partial visible row, so there is no blank gap before the mask.
+  // col2a (no internal mask): use Math.floor — avoids a partial visible row at the
+  // col2a/pull-quote boundary; leaves only a tiny sub-row gap which is acceptable.
   var elRect = el.getBoundingClientRect();
-  // p4WrapWords sets line-height:1.25em on both the outer and inner spans,
-  // so the actual rendered row height is fontSize × 1.25 regardless of what
-  // getComputedStyle returns (which reflects the CSS 1.35 value, not the DOM override).
-  var lineHeightPx = parseFloat(cs.fontSize) * 1.25;
+  var lineHeightPx = parseFloat(cs.lineHeight);
+  if (isNaN(lineHeightPx) || lineHeightPx < 1) lineHeightPx = parseFloat(cs.fontSize) * 1.35;
   var paddingTop = parseFloat(cs.paddingTop) || 0;
   var header = el.querySelector('.p4-col-hed');
   var headerHeight = header ? header.getBoundingClientRect().height : 0;
   var hasMask = !!el.querySelector('.p4-bottom-mask, .p4-bottom-mask-lg');
-  // For columns without a mask (col2a), reserve ~1.4 row-heights so padding rows
-  // don't spill into the BALANCE canvas area immediately below.
-  var maskReserve = hasMask ? 0 : parseFloat(cs.fontSize) * 1.4;
-  var availHeight = elRect.height - paddingTop - headerHeight - maskReserve;
-  var maxLines = Math.floor(availHeight / lineHeightPx);
+  var availHeight = elRect.height - paddingTop - headerHeight;
+  var maxLines = hasMask ? Math.ceil(availHeight / lineHeightPx) : Math.floor(availHeight / lineHeightPx);
   if (maxLines > 0) lines = lines.slice(0, maxLines);
 
   // Track how many lines the original text produces.
@@ -6331,7 +6347,7 @@ function packColumnText(el) {
   lines.forEach(function(words, idx) {
     var div = document.createElement('div');
     var isLast = idx === lines.length - 1 || idx === originalLineCount - 1;
-    var isSingle = words.length <= 1;
+    var isSingle = words.length <= 2;
     if (idx >= originalLineCount) div.setAttribute('data-p4r', '1');
     div.style.cssText = 'display:flex;width:' + colWidth.toFixed(1) + 'px;' +
       'justify-content:' + (isLast || isSingle ? 'flex-start' : 'space-between') + ';' +
@@ -6351,17 +6367,8 @@ function packColumnText(el) {
   container.appendChild(frag);
 
   var anchor = el.querySelector('.p4-bottom-mask, .p4-bottom-mask-lg');
-  if (anchor) {
-    el.insertBefore(container, anchor);
-    // Snap mask top to the last row's top edge so no partial characters are visible.
-    // dynamicMaskH = gap-below-container + one-full-row = availHeight - (maxLines-1)*lineHeightPx
-    if (maxLines > 0) {
-      var dynamicMaskH = availHeight - (maxLines - 1) * lineHeightPx;
-      anchor.style.height = dynamicMaskH.toFixed(1) + 'px';
-    }
-  } else {
-    el.appendChild(container);
-  }
+  if (anchor) el.insertBefore(container, anchor);
+  else el.appendChild(container);
 }
 
 let p4TextPacked = false;
@@ -6384,6 +6391,19 @@ function startP4(){
       ['.p4-col1', '.p4-col2a', '.p4-col2b', '.p4-col3'].forEach(function(sel) {
         var el = document.querySelector(sel);
         if (el) packColumnText(el);
+      });
+
+      // Ghost columns: pack text then wrap words so p4WrapCharsForBalance can wrap chars.
+      // Animations are cancelled immediately so getBoundingClientRect is reliable.
+      ['.p4-ghost-left', '.p4-ghost-mid', '.p4-ghost-right'].forEach(function(sel) {
+        var el = p4Newspaper.querySelector(sel);
+        if (el) {
+          packColumnText(el);
+          p4WrapWords(el, 0);
+          el.querySelectorAll('span').forEach(function(s) {
+            if (s.style.animation) { s.style.animation = 'none'; s.style.transform = 'none'; }
+          });
+        }
       });
 
       if(BYPASS_PAGE4){
@@ -6417,7 +6437,7 @@ function startP4(){
         const pix2 = octx2.getImageData(0, 0, oc2.width, oc2.height).data;
         const nL2 = nRect.left, nT2 = nRect.top;
         const matched2 = [];
-        p4Newspaper.querySelectorAll('.p4-char').forEach(function(el) {
+        p4Newspaper.querySelectorAll('.p4-col1 .p4-char, .p4-col2a .p4-char, .p4-col2b .p4-char, .p4-col3 .p4-char').forEach(function(el) {
           const r = el.getBoundingClientRect();
           const ncx = Math.round(r.left + r.width / 2 - nL2);
           const ncy = Math.round(r.top + r.height / 2 - nT2);
