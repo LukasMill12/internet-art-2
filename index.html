@@ -1316,7 +1316,7 @@ function drawImageCover(img, targetCtx, w, h){
   if(!iw || !ih) return;
   const scale = Math.max(w / iw, h / ih);
   const sw = iw * scale, sh = ih * scale;
-  targetCtx.drawImage(img, (w - sw) / 2, (h - sh) / 2, sw, sh);
+  targetCtx.drawImage(img, (w - sw) / 2, sh > h ? 0 : (h - sh) / 2, sw, sh);
 }
 
 function startBeltUnscramble(rowIdx){
@@ -4918,7 +4918,7 @@ function playTransition2(){
       setTimeout(drawFrame2,FRAME_DELAY2);
     } else {
       ctx.clearRect(0,0,W,H);
-      stageEl.style.background='url("2Animation_17.png") center/cover no-repeat';
+      stageEl.style.background='url("2Animation_17.png") center top/cover no-repeat';
       if(capturedDots.length>0){
         ctx.fillStyle='rgba(0,0,0,0.92)';
         for(const d of capturedDots){
