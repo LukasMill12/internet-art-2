@@ -342,6 +342,10 @@ canvas{
 .p4-col2a{ position:absolute; left:34.5%; right:34.5%; top:32%; bottom:46%; padding:0 clamp(6px,1.1vw,16px); overflow:hidden; font-family:'Times New Roman',Times,serif; font-weight:bold; text-transform:uppercase; font-size:clamp(11px,1.1vw,16px); line-height:1.35; color:rgba(255,255,255,0.82); box-sizing:border-box; }
 .p4-col2b{ position:absolute; left:34.5%; right:34.5%; top:72%; bottom:0; padding:0.6em clamp(6px,1.1vw,16px) 0; overflow:hidden; font-family:'Times New Roman',Times,serif; font-weight:bold; text-transform:uppercase; font-size:clamp(11px,1.1vw,16px); line-height:1.35; color:rgba(255,255,255,0.82); box-sizing:border-box; }
 .p4-col3{ left:68%; right:2%; top:32%; padding:0 clamp(2px,0.4vw,4px) 0 clamp(6px,1.1vw,16px); overflow:hidden; }
+.p4-ghost{position:absolute;top:32%;bottom:0;font-family:'Times New Roman',Times,serif;font-weight:bold;text-transform:uppercase;font-size:clamp(11px,1.1vw,16px);line-height:1.35;color:transparent;pointer-events:none;user-select:none;overflow:hidden;box-sizing:border-box;}
+.p4-ghost-left{left:2%;right:68%;padding:0 0 0 clamp(2px,0.4vw,4px);}
+.p4-ghost-mid{left:32%;right:32%;padding:0;}
+.p4-ghost-right{left:68%;right:2%;padding:0 clamp(2px,0.4vw,4px) 0 0;}
 .p4-bottom-mask{
   position:absolute; bottom:0; left:0; right:0; height:1.9em; background:#000; pointer-events:none; z-index:10;
 }
@@ -580,6 +584,13 @@ canvas{
         never weight a settles stillness carries that weight settles a never that stillness carries stillness a that weight never carries settles weight never settles that carries a stillness that settles carries weight a never stillness weight a stillness carries never settles that carries settles never stillness a weight that stillness never a weight carries settles that weight carries stillness settles never a that stillness a carries weight never settles that stillness carries weight settles never a that stillness never weight settles a carries that stillness weight a never settles stillness carries that never weight a carries settles stillness that weight settles a never carries stillness that a settles never weight stillness carries weight that a never stillness settles carries never settles a weight that stillness carries a weight never settles that stillness weight carries never a settles that weight stillness never carries that a settles stillness weight a never settles carries that stillness settles weight never a carries stillness that weight settles carries a never stillness that a carries weight settles never stillness that carries never a settles weight stillness that stillness never weight carries a settles that never carries stillness weight settles a that weight never stillness carries settles a carries weight never settles stillness that weight settles never a carries stillness that never weight stillness carries a settles that stillness a carries weight never settles that carries settles a weight never stillness that weight never a stillness carries settles that a stillness settles weight never carries that settles weight a carries never stillness that never weight carries settles a stillness that weight stillness a never settles carries that carries a never settles weight stillness that settles never carries weight a stillness that stillness weight carries a never settles that a weight never stillness carries settles that carries weight settles never a stillness that never settles a weight carries stillness that stillness carries settles a never weight that weight a settles never stillness carries that never weight a carries settles stillness that carries settles weight never a stillness that settles never weight stillness a carries that weight carries a never stillness settles that stillness a never weight carries settles that never settles carries weight a stillness that weight stillness never settles a carries that a carries never weight settles stillness that stillness never carries settles a weight that carries weight a never stillness settles that settles a weight never carries stillness that weight never stillness a settles carries that carries stillness settles a never weight that weight never settles a stillness carries that stillness weight a never settles carries that a settles weight carries never stillness that carries never settles weight a stillness that never weight a settles carries stillness that weight settles carries never a stillness that stillness a weight carries never settles that settles weight never a carries stillness that weight carries a never settles stillness that never weight a stillness carries settles that stillness settles a weight never carries that carries a never settles weight stillness that weight never settles stillness a carries that a stillness weight carries settles never that never carries a weight settles stillness that weight a settles carries never stillness that stillness never a settles weight carries that settles weight a carries stillness never that
         <div class="p4-bottom-mask"></div>
       </div>
+
+<!-- Ghost columns: transparent text that flows through the full column height.
+     p4AnimateBalance detects chars whose centres land inside the BALANCE shape
+     and colours them orange — filling the pull-quote gap and column edges. -->
+      <div class="p4-ghost p4-ghost-left">weight never stillness a carries settles that carries weight a settles never stillness that weight that stillness carries never settles a weight settles a that never carries stillness weight carries stillness settles that a never weight a settles never that stillness carries weight never that weight carries a stillness settles never settles that carries weight stillness a never weight a stillness that settles carries never carries never a weight stillness settles that weight settles stillness never a carries that weight a never stillness carries settles that carries settles a weight never stillness that weight stillness never settles a carries that a carries weight settles stillness never that settles weight never carries a stillness that weight a settles that stillness never carries weight that a stillness never weight settles carries that settles never weight a stillness carries never a that carries settles weight stillness never weight a settles carries that stillness weight carries settles never that a stillness settles a never weight carries that stillness carries a stillness settles weight never that weight that never carries settles a stillness weight never settles carries a that stillness settles weight never a carries stillness that weight a settles stillness never carries that a weight settles never stillness carries that settles weight a stillness never carries weight settles that stillness a never weight carries settles a stillness that never weight settles carries a stillness that a carries weight settles never stillness that settles never weight a carries stillness that stillness carries weight never a settles that weight never settles carries a stillness that a carries weight settles never stillness that settles never weight a carries stillness that stillness carries weight never a settles weight never stillness a carries settles that carries weight a settles never stillness that weight that stillness carries never settles a weight settles a that never carries stillness weight carries stillness settles that a never weight a settles never that stillness carries weight never that weight carries a stillness settles never settles that carries weight stillness a never weight a stillness that settles carries never carries never a weight stillness settles that weight settles stillness never a carries that</div>
+      <div class="p4-ghost p4-ghost-mid">weight stillness carries that never a settles carries a never weight stillness settles that stillness never settles weight a carries that weight a carries never settles stillness that never weight settles carries a stillness that settles a never weight carries stillness that carries weight never a settles stillness never a settles weight that carries stillness weight settles that never carries a stillness weight never that carries settles a stillness carries never weight that a settles weight never stillness that a carries settles never weight that stillness carries a settles never weight that stillness a carries settles weight never stillness that weight a never stillness settles carries that stillness carries weight never settles a that never weight a carries stillness settles that settles never carries weight a stillness that carries settles weight never a stillness that never weight settles carries a stillness that a weight never carries settles stillness that stillness never a weight carries settles that weight settles a never stillness carries that carries a stillness settles never weight that never weight stillness carries a settles that settles a weight carries stillness never that stillness carries never weight settles a that weight a carries never settles stillness that stillness never settles a weight carries that carries weight a never stillness settles that a settles weight never carries stillness that never carries stillness a settles weight that weight stillness settles a never carries that settles that never weight a carries stillness never a weight that carries settles stillness weight carries a settles never that stillness never weight settles a carries that stillness carries never a settles weight that stillness settles a never carries weight that stillness never carries settles that a weight stillness a that settles weight carries never stillness weight that a never settles carries stillness never weight carries a that settles stillness carries never a settles weight that stillness settles weight a never carries that stillness never that carries a settles weight stillness carries settles a never that weight stillness a weight never carries settles that stillness never settles carries weight a that stillness carries a never that settles weight stillness weight settles never a carries that stillness never carries that settles weight a stillness settles a weight carries never that stillness that a never weight settles carries stillness never weight carries settles a that stillness carries a never weight settles that weight settles never stillness a carries that a weight never carries stillness settles that stillness carries settles never a weight that never settles a weight carries stillness that carries weight never settles a stillness that weight a settles never carries stillness that a settles stillness carries never weight that stillness a never weight settles carries that weight carries settles never a stillness that never weight a settles stillness carries that settles carries never a weight stillness that weight never settles a carries stillness that stillness settles a weight never carries that never weight carries a settles stillness that weight a never stillness settles carries that carries never weight settles a stillness that settles weight a never carries stillness that stillness carries weight never a settles that weight never settles carries a stillness that a carries weight settles never stillness that settles never weight a carries stillness weight stillness carries that never a settles carries a never weight stillness settles that stillness never settles weight a carries that weight a carries never settles stillness that never weight settles carries a stillness that settles a never weight carries stillness that carries weight never a settles stillness never a settles weight that carries stillness weight settles that never carries a stillness</div>
+      <div class="p4-ghost p4-ghost-right">never weight a settles stillness carries that weight settles a never that stillness carries stillness a that weight never carries settles weight never settles that carries a stillness that settles carries weight a never stillness weight a stillness carries never settles that carries settles never stillness a weight that stillness never a weight carries settles that weight carries stillness settles never a that stillness a carries weight never settles that stillness carries weight settles never a that stillness never weight settles a carries that stillness weight a never settles stillness carries that never weight a carries settles stillness that weight settles a never carries stillness that a settles never weight stillness carries weight that a never stillness settles carries never settles a weight that stillness carries a weight never settles that stillness weight carries never a settles that weight stillness never carries that a settles stillness weight a never settles carries that stillness settles weight never a carries stillness that weight settles carries a never stillness that a carries weight settles never stillness that carries never a settles weight stillness that stillness never weight carries a settles that never carries stillness weight settles a that weight never stillness carries settles a carries weight never settles stillness that weight settles never a carries stillness that never weight stillness carries a settles that stillness a carries weight never settles that carries settles a weight never stillness that weight never a stillness carries settles that a stillness settles weight never carries that settles weight a carries never stillness that never weight carries settles a stillness that weight stillness a never settles carries that carries a never settles weight stillness that settles never carries weight a stillness that stillness weight carries a never settles that a weight never stillness carries settles that carries weight settles never a stillness that never settles a weight carries stillness that stillness carries settles a never weight that weight a settles never stillness carries that never weight a carries settles stillness that carries settles weight never a stillness that settles never weight stillness a carries that weight carries a never stillness settles that stillness a never weight carries settles that never settles carries weight a stillness that weight stillness never settles a carries that a carries never weight settles stillness that settles weight never a carries stillness</div>
 
 <!-- Footer -->
       <div class="p4-footer"></div>
@@ -5947,7 +5958,7 @@ function p4WrapCharsForBalance(){
   // All elements already processed by p4WrapWords (outer>inner word spans),
   // including the pull quote which is in P4_BOX_SELECTORS[3]
   const els = p4Newspaper.querySelectorAll(
-    '.p4-col1, .p4-col2a, .p4-col2b, .p4-col3'
+    '.p4-col1, .p4-col2a, .p4-col2b, .p4-col3, .p4-ghost'
   );
   els.forEach(el => {
     el.querySelectorAll('span > span').forEach(inner => {
@@ -5996,9 +6007,10 @@ function p4AnimateBalance(){
   const pixels = octx.getImageData(0, 0, REF_W, REF_H).data;
   const nL = nRect.left, nT = nRect.top;
 
-  // Map each char's relative position in the newspaper to reference space
+  // Map each char's relative position in the newspaper to reference space.
+  // Ghost columns are excluded here — they are revealed only after the arrow is clicked.
   const matched = [];
-  p4Newspaper.querySelectorAll('.p4-char').forEach(el => {
+  p4Newspaper.querySelectorAll('.p4-col1 .p4-char, .p4-col2a .p4-char, .p4-col2b .p4-char, .p4-col3 .p4-char').forEach(el => {
     const r   = el.getBoundingClientRect();
     const ncx = Math.round((r.left + r.width  / 2 - nL) / NW * REF_W);
     const ncy = Math.round((r.top  + r.height / 2 - nT) / NH * REF_H);
@@ -6010,7 +6022,7 @@ function p4AnimateBalance(){
   p4BalanceCharEls = matched.map(m => m.el);
 
   const ARROW_REL_POS = [[0.9257068452380952,0.7983626497005988],[0.9329666241496599,0.7983626497005988],[0.9402264030612245,0.7983626497005988],[0.9280346513605442,0.8242234281437125],[0.9352944302721088,0.8242234281437125],[0.9428544855442177,0.8242234281437125],[0.9504145408163265,0.8242234281437125],[0.9570711096938775,0.8242234281437125],[0.8700361394557823,0.8500842065868264],[0.877295918367347,0.8500842065868264],[0.8839524872448979,0.8500842065868264],[0.8941167091836735,0.8500842065868264],[0.9019796981292517,0.8500842065868264],[0.9099410076530612,0.8500842065868264],[0.9170971513605443,0.8500842065868264],[0.9270594175170068,0.8500842065868264],[0.9337159863945578,0.8500842065868264],[0.9394637542517007,0.8500842065868264],[0.9452115221088435,0.8500842065868264],[0.9524713010204081,0.8500842065868264],[0.960031356292517,0.8500842065868264],[0.9675914115646258,0.8500842065868264],[0.9742479804421769,0.8500842065868264],[0.8704453656462585,0.8759449850299401],[0.8777051445578231,0.8759449850299401],[0.8849649234693877,0.8759449850299401],[0.8922247023809524,0.8759449850299401],[0.8988812712585034,0.8759449850299401],[0.908545918367347,0.8759449850299401],[0.9164089073129251,0.8759449850299401],[0.9243702168367347,0.8759449850299401],[0.9315263605442177,0.8759449850299401],[0.9434045493197278,0.8759449850299401],[0.9524766156462585,0.8759449850299401],[0.9582243835034013,0.8759449850299401],[0.9645753613945578,0.8759449850299401],[0.9730415603741497,0.8759449850299401],[0.9251700680272109,0.9018057634730539],[0.9324298469387755,0.9018057634730539],[0.9396896258503401,0.9018057634730539],[0.9463461947278912,0.9018057634730539],[0.9554926658163265,0.9018057634730539],[0.9258742559523809,0.9276665419161677],[0.9352519132653061,0.9276665419161677],[0.9431149022108843,0.9276665419161677]];
-  const allChars = Array.from(p4Newspaper.querySelectorAll('.p4-char'));
+  const allChars = Array.from(p4Newspaper.querySelectorAll('.p4-col1 .p4-char, .p4-col2a .p4-char, .p4-col2b .p4-char, .p4-col3 .p4-char'));
   const usedEls = new Set(p4BalanceCharEls);
   const charCenters = allChars.map(el => {
     const r = el.getBoundingClientRect();
@@ -6091,17 +6103,38 @@ function p4OnBalanceDone(){
 }
 
 function p4ArrowClicked(){
-  const P4_GAP_REF_W = 1470, P4_GAP_REF_H = 835;
-
-  // Clone the orange BALANCE chars into a fixed overlay that persists over page 5.
-  // Keep each char at its exact screen position — no transformation.
+  // Build the overlay entirely from ghost chars detected inside BALANCE.
+  // Ghost columns have identical font/column-width to the real columns so positions
+  // are close enough that the swap is imperceptible as the newspaper fades out.
+  // Using ghost-only gives a single clean layer with no stacking anywhere.
   const overlay = document.createElement('div');
   overlay.id = 'p4-balance-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:200;';
-  const frag0 = document.createDocumentFragment();
+
   const nr0 = p4Newspaper.getBoundingClientRect();
-  p4BalanceCharEls.forEach(el => {
-    const r  = el.getBoundingClientRect();
+  const REF_W = 1470, REF_H = 835;
+  const NW = nr0.width, NH = nr0.height;
+
+  const gc = document.createElement('canvas');
+  gc.width = REF_W; gc.height = REF_H;
+  const gx = gc.getContext('2d');
+  gx.fillStyle = '#000'; gx.fillRect(0, 0, REF_W, REF_H);
+  gx.font = `900 ${Math.round(REF_H * 0.58)}px "Arial Black",Arial,sans-serif`;
+  gx.textBaseline = 'middle'; gx.textAlign = 'center';
+  gx.fillStyle = '#fff';
+  gx.save(); gx.translate(REF_W / 2, REF_H * 0.62);
+  gx.scale((REF_W * 0.76) / gx.measureText('BALANCE').width, 1);
+  gx.fillText('BALANCE', 0, 0); gx.restore();
+  const gpix = gx.getImageData(0, 0, REF_W, REF_H).data;
+  const nL = nr0.left, nT = nr0.top;
+
+  const frag = document.createDocumentFragment();
+  p4Newspaper.querySelectorAll('.p4-ghost .p4-char').forEach(el => {
+    const r   = el.getBoundingClientRect();
+    const ncx = Math.round((r.left + r.width  / 2 - nL) / NW * REF_W);
+    const ncy = Math.round((r.top  + r.height / 2 - nT) / NH * REF_H);
+    if (ncx < 0 || ncy < 0 || ncx >= REF_W || ncy >= REF_H) return;
+    if (gpix[(ncy * REF_W + ncx) * 4] <= 64) return;
     const cs = getComputedStyle(el);
     const s  = document.createElement('span');
     s.textContent = el.textContent;
@@ -6111,130 +6144,18 @@ function p4ArrowClicked(){
       + `font-size:${cs.fontSize};font-family:${cs.fontFamily};`
       + `font-weight:${cs.fontWeight};letter-spacing:${cs.letterSpacing};`
       + `color:#F71F08;line-height:1;display:inline-block;`;
-    frag0.appendChild(s);
+    frag.appendChild(s);
   });
-  overlay.appendChild(frag0);
+  overlay.appendChild(frag);
   document.body.appendChild(overlay);
 
-  // Add gap chars to fill BALANCE letter shapes.
-  const nr = p4Newspaper.getBoundingClientRect();
-  const liveFontSize = p4BalanceCharEls.length
-    ? parseFloat(getComputedStyle(p4BalanceCharEls[0]).fontSize)
-    : 16;
-  const hScale = nr.width  / P4_GAP_REF_W;
-  const vScale = nr.height / P4_GAP_REF_H;
-
-  // Sort by row then by horizontal position
-  const sortedGaps = [...P4_GAP_CHARS].sort((a, b) =>
-    Math.abs(a.top - b.top) > 1 ? a.top - b.top : a.left - b.left
-  );
-
-  const gapLayer = document.createElement('div');
-  gapLayer.id = 'p4-gap-layer';
-  gapLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:201;opacity:0;transition:opacity 0.7s ease;';
-  const frag1 = document.createDocumentFragment();
-
-  // Hardcoded MacBook-calibrated gap chars (inter-column gap positions)
-  let i = 0;
-  while (i < sortedGaps.length) {
-    const anchor = sortedGaps[i];
-    // Proportional position for the first char of this cluster
-    let x = nr.left + anchor.left * hScale;
-    const y = nr.top  + anchor.top  * vScale;
-    let j = i;
-    while (j < sortedGaps.length) {
-      const curr = sortedGaps[j];
-      if (Math.abs(curr.top - anchor.top) > 1) break; // different row
-      if (j > i) {
-        const prev = sortedGaps[j - 1];
-        if (curr.left - (prev.left + prev.width) > 2) break; // gap > 2px → new cluster
-      }
-      const s = document.createElement('span');
-      s.textContent = curr.char;
-      s.style.cssText =
-        `position:absolute;left:${x}px;top:${y}px;`
-        + `width:${curr.width}px;height:${curr.height}px;`
-        + `font-size:${liveFontSize}px;font-family:${curr.fontFamily};`
-        + `font-weight:bold;color:#F71F08;line-height:1;display:inline-block;`;
-      frag1.appendChild(s);
-      x += curr.width; // tight-pack: next char immediately follows
-      j++;
-    }
-    i = j;
-  }
-
-  // On screens wider/taller than the MacBook reference the BALANCE shape spans
-  // more physical pixels while each article char stays at 16 px, leaving larger
-  // visible gaps inside the letters.  Fill those gaps dynamically: draw BALANCE
-  // at the actual viewport size, mark cells already covered by article chars,
-  // then insert filler chars for every uncovered cell inside the shape.
-  if (hScale > 1.05 || vScale > 1.05) {
-    const CELL_W = Math.round(liveFontSize); // one step = font-size, prevents glyph overflow
-    const CELL_H = Math.round(liveFontSize * 1.35); // matches column line-height
-    const dcW = Math.ceil(nr.width), dcH = Math.ceil(nr.height);
-    const cgCols = Math.ceil(dcW / CELL_W);
-    const cgRows = Math.ceil(dcH / CELL_H);
-    const covGrid = new Uint8Array(cgCols * cgRows);
-
-    // Mark cells already occupied by article chars
-    p4BalanceCharEls.forEach(el => {
-      const r = el.getBoundingClientRect();
-      const gx = Math.floor((r.left + r.width  / 2 - nr.left) / CELL_W);
-      const gy = Math.floor((r.top  + r.height / 2 - nr.top)  / CELL_H);
-      if (gx >= 0 && gy >= 0 && gx < cgCols && gy < cgRows) covGrid[gy * cgCols + gx] = 1;
-    });
-
-    // Draw BALANCE at actual screen size for pixel-accurate gap detection
-    const dynC = document.createElement('canvas');
-    dynC.width = dcW; dynC.height = dcH;
-    const dctx = dynC.getContext('2d');
-    dctx.fillStyle = '#000';
-    dctx.fillRect(0, 0, dcW, dcH);
-    const dfs = Math.round(dcH * 0.58);
-    dctx.font = `900 ${dfs}px "Arial Black",Arial,sans-serif`;
-    dctx.textBaseline = 'middle'; dctx.textAlign = 'center';
-    const dmw = dctx.measureText('BALANCE').width;
-    const dsx = (dcW * 0.76) / dmw;
-    dctx.fillStyle = '#fff';
-    dctx.save(); dctx.translate(dcW / 2, dcH * 0.62); dctx.scale(dsx, 1);
-    dctx.fillText('BALANCE', 0, 0); dctx.restore();
-    const dpix = dctx.getImageData(0, 0, dcW, dcH).data;
-
-    const POOL = 'ABCEHILNRST'; // narrow chars only — no W/U which overflow a 16px cell
-    for (let gy2 = 0; gy2 < cgRows; gy2++) {
-      for (let gx2 = 0; gx2 < cgCols; gx2++) {
-        if (covGrid[gy2 * cgCols + gx2]) continue;
-        const cx = Math.round(gx2 * CELL_W + CELL_W / 2);
-        const cy = Math.round(gy2 * CELL_H + CELL_H / 2);
-        if (cx >= dcW || cy >= dcH) continue;
-        if (dpix[(cy * dcW + cx) * 4] < 64) continue; // not inside BALANCE
-        const ch = POOL[(gx2 * 7 + gy2 * 13) % POOL.length];
-        const s = document.createElement('span');
-        s.textContent = ch;
-        s.style.cssText =
-          `position:absolute;left:${nr.left + gx2 * CELL_W}px;top:${nr.top + gy2 * CELL_H}px;`
-          + `width:${CELL_W}px;height:${CELL_H}px;overflow:hidden;`
-          + `font-size:${liveFontSize}px;font-family:'Times New Roman',Times,serif;`
-          + `font-weight:bold;color:#F71F08;line-height:1;display:inline-block;`;
-        frag1.appendChild(s);
-        covGrid[gy2 * cgCols + gx2] = 1;
-      }
-    }
-  }
-
-  gapLayer.appendChild(frag1);
-  document.body.appendChild(gapLayer);
-
-  // Fade out the newspaper, fade in the gap chars simultaneously
+  // Fade out the newspaper; overlay chars (cloned above) are position:fixed on body
+  // and persist over page 5 — no gap-fill layer needed, ghost columns supply the fill.
   p4Newspaper.style.transition = 'opacity 0.7s ease';
   p4Newspaper.style.opacity = '0';
   p4PaintCtx.clearRect(0, 0, p4PaintCanvas.width, p4PaintCanvas.height);
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    gapLayer.style.opacity = '1';
-  }));
 
   // Switch to page 5 once the fade completes
-  // overlay and gapLayer are position:fixed on body so they remain over the black page
   setTimeout(() => { goTo(5); }, 750);
 }
 
@@ -6472,6 +6393,19 @@ function startP4(){
         if (el) packColumnText(el);
       });
 
+      // Ghost columns: pack text then wrap words so p4WrapCharsForBalance can wrap chars.
+      // Animations are cancelled immediately so getBoundingClientRect is reliable.
+      ['.p4-ghost-left', '.p4-ghost-mid', '.p4-ghost-right'].forEach(function(sel) {
+        var el = p4Newspaper.querySelector(sel);
+        if (el) {
+          packColumnText(el);
+          p4WrapWords(el, 0);
+          el.querySelectorAll('span').forEach(function(s) {
+            if (s.style.animation) { s.style.animation = 'none'; s.style.transform = 'none'; }
+          });
+        }
+      });
+
       if(BYPASS_PAGE4){
         // p4WrapCharsForBalance needs span>span structure (created by p4WrapWords
         // during normal box-press reveals — must run it here since we skip those)
@@ -6503,7 +6437,7 @@ function startP4(){
         const pix2 = octx2.getImageData(0, 0, oc2.width, oc2.height).data;
         const nL2 = nRect.left, nT2 = nRect.top;
         const matched2 = [];
-        p4Newspaper.querySelectorAll('.p4-char').forEach(function(el) {
+        p4Newspaper.querySelectorAll('.p4-col1 .p4-char, .p4-col2a .p4-char, .p4-col2b .p4-char, .p4-col3 .p4-char').forEach(function(el) {
           const r = el.getBoundingClientRect();
           const ncx = Math.round(r.left + r.width / 2 - nL2);
           const ncy = Math.round(r.top + r.height / 2 - nT2);
