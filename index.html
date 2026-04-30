@@ -6169,7 +6169,7 @@ function p4ArrowClicked(){
   // at the actual viewport size, mark cells already covered by article chars,
   // then insert filler chars for every uncovered cell inside the shape.
   if (hScale > 1.05 || vScale > 1.05) {
-    const CELL_W = Math.round(liveFontSize * 0.75); // ≈ avg uppercase char width
+    const CELL_W = Math.round(liveFontSize); // one step = font-size, prevents glyph overflow
     const CELL_H = Math.round(liveFontSize * 1.35); // matches column line-height
     const dcW = Math.ceil(nr.width), dcH = Math.ceil(nr.height);
     const cgCols = Math.ceil(dcW / CELL_W);
@@ -6200,7 +6200,7 @@ function p4ArrowClicked(){
     dctx.fillText('BALANCE', 0, 0); dctx.restore();
     const dpix = dctx.getImageData(0, 0, dcW, dcH).data;
 
-    const POOL = 'ABCEHILNRSTUW';
+    const POOL = 'ABCEHILNRST'; // narrow chars only — no W/U which overflow a 16px cell
     for (let gy2 = 0; gy2 < cgRows; gy2++) {
       for (let gx2 = 0; gx2 < cgCols; gx2++) {
         if (covGrid[gy2 * cgCols + gx2]) continue;
@@ -6213,7 +6213,7 @@ function p4ArrowClicked(){
         s.textContent = ch;
         s.style.cssText =
           `position:absolute;left:${nr.left + gx2 * CELL_W}px;top:${nr.top + gy2 * CELL_H}px;`
-          + `width:${CELL_W}px;height:${CELL_H}px;`
+          + `width:${CELL_W}px;height:${CELL_H}px;overflow:hidden;`
           + `font-size:${liveFontSize}px;font-family:'Times New Roman',Times,serif;`
           + `font-weight:bold;color:#F71F08;line-height:1;display:inline-block;`;
         frag1.appendChild(s);
