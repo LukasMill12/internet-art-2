@@ -6116,11 +6116,7 @@ function p4ArrowClicked(){
   overlay.appendChild(frag0);
   document.body.appendChild(overlay);
 
-  // Add the hardcoded gap chars to fill BALANCE letter shapes.
-  // Strategy: anchor each cluster of consecutive chars at the proportionally-scaled
-  // newspaper position (so they land in the right gap), then pack chars within the
-  // cluster tightly (touching) so there are no visible spaces between them regardless
-  // of screen width. Chars between clusters are intentional — balance chars fill those.
+  // Add gap chars to fill BALANCE letter shapes.
   const nr = p4Newspaper.getBoundingClientRect();
   const liveFontSize = p4BalanceCharEls.length
     ? parseFloat(getComputedStyle(p4BalanceCharEls[0]).fontSize)
@@ -6138,6 +6134,7 @@ function p4ArrowClicked(){
   gapLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:201;opacity:0;transition:opacity 0.7s ease;';
   const frag1 = document.createDocumentFragment();
 
+  // Hardcoded MacBook-calibrated gap chars (inter-column gap positions)
   let i = 0;
   while (i < sortedGaps.length) {
     const anchor = sortedGaps[i];
@@ -6164,6 +6161,65 @@ function p4ArrowClicked(){
       j++;
     }
     i = j;
+  }
+
+  // On screens wider/taller than the MacBook reference the BALANCE shape spans
+  // more physical pixels while each article char stays at 16 px, leaving larger
+  // visible gaps inside the letters.  Fill those gaps dynamically: draw BALANCE
+  // at the actual viewport size, mark cells already covered by article chars,
+  // then insert filler chars for every uncovered cell inside the shape.
+  if (hScale > 1.05 || vScale > 1.05) {
+    const CELL_W = Math.round(liveFontSize * 0.75); // ≈ avg uppercase char width
+    const CELL_H = Math.round(liveFontSize * 1.35); // matches column line-height
+    const dcW = Math.ceil(nr.width), dcH = Math.ceil(nr.height);
+    const cgCols = Math.ceil(dcW / CELL_W);
+    const cgRows = Math.ceil(dcH / CELL_H);
+    const covGrid = new Uint8Array(cgCols * cgRows);
+
+    // Mark cells already occupied by article chars
+    p4BalanceCharEls.forEach(el => {
+      const r = el.getBoundingClientRect();
+      const gx = Math.floor((r.left + r.width  / 2 - nr.left) / CELL_W);
+      const gy = Math.floor((r.top  + r.height / 2 - nr.top)  / CELL_H);
+      if (gx >= 0 && gy >= 0 && gx < cgCols && gy < cgRows) covGrid[gy * cgCols + gx] = 1;
+    });
+
+    // Draw BALANCE at actual screen size for pixel-accurate gap detection
+    const dynC = document.createElement('canvas');
+    dynC.width = dcW; dynC.height = dcH;
+    const dctx = dynC.getContext('2d');
+    dctx.fillStyle = '#000';
+    dctx.fillRect(0, 0, dcW, dcH);
+    const dfs = Math.round(dcH * 0.58);
+    dctx.font = `900 ${dfs}px "Arial Black",Arial,sans-serif`;
+    dctx.textBaseline = 'middle'; dctx.textAlign = 'center';
+    const dmw = dctx.measureText('BALANCE').width;
+    const dsx = (dcW * 0.76) / dmw;
+    dctx.fillStyle = '#fff';
+    dctx.save(); dctx.translate(dcW / 2, dcH * 0.62); dctx.scale(dsx, 1);
+    dctx.fillText('BALANCE', 0, 0); dctx.restore();
+    const dpix = dctx.getImageData(0, 0, dcW, dcH).data;
+
+    const POOL = 'ABCEHILNRSTUW';
+    for (let gy2 = 0; gy2 < cgRows; gy2++) {
+      for (let gx2 = 0; gx2 < cgCols; gx2++) {
+        if (covGrid[gy2 * cgCols + gx2]) continue;
+        const cx = Math.round(gx2 * CELL_W + CELL_W / 2);
+        const cy = Math.round(gy2 * CELL_H + CELL_H / 2);
+        if (cx >= dcW || cy >= dcH) continue;
+        if (dpix[(cy * dcW + cx) * 4] < 64) continue; // not inside BALANCE
+        const ch = POOL[(gx2 * 7 + gy2 * 13) % POOL.length];
+        const s = document.createElement('span');
+        s.textContent = ch;
+        s.style.cssText =
+          `position:absolute;left:${nr.left + gx2 * CELL_W}px;top:${nr.top + gy2 * CELL_H}px;`
+          + `width:${CELL_W}px;height:${CELL_H}px;`
+          + `font-size:${liveFontSize}px;font-family:'Times New Roman',Times,serif;`
+          + `font-weight:bold;color:#F71F08;line-height:1;display:inline-block;`;
+        frag1.appendChild(s);
+        covGrid[gy2 * cgCols + gx2] = 1;
+      }
+    }
   }
 
   gapLayer.appendChild(frag1);
