@@ -601,6 +601,20 @@ canvas{
 
   <section class="page" id="page5">
   </section>
+
+  <section class="page" id="page6" style="background:#fff;">
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.6em;">
+      <span style="font-family:Supreme,system-ui,sans-serif;font-weight:400;font-size:clamp(10px,1vw,15px);letter-spacing:0.22em;text-transform:uppercase;color:#1c1c1c;">Lukas Miliauskis</span>
+      <span style="font-family:Supreme,system-ui,sans-serif;font-weight:400;font-size:clamp(10px,1vw,15px);letter-spacing:0.22em;color:#1c1c1c;">2026</span>
+    </div>
+    <button id="p6BackBtn" style="position:absolute;bottom:clamp(24px,4vh,48px);left:50%;transform:translateX(-50%);background:none;border:none;cursor:pointer;pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:0.5em;padding:0;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="12" y1="20" x2="12" y2="4" stroke="#1c1c1c" stroke-width="1.2"/>
+        <polyline points="6,10 12,4 18,10" fill="none" stroke="#1c1c1c" stroke-width="1.2"/>
+      </svg>
+      <span style="font-family:Supreme,system-ui,sans-serif;font-weight:400;font-size:clamp(9px,0.8vw,12px);letter-spacing:0.2em;text-transform:uppercase;color:#1c1c1c;">back to start</span>
+    </button>
+  </section>
 </div>
 
 <script>
@@ -621,6 +635,7 @@ const stageEl = document.getElementById("stage");
 const p3Hint = document.getElementById("p3Hint");
 const page4 = document.getElementById("page4");
 const page5 = document.getElementById("page5");
+const page6 = document.getElementById("page6");
 const p4Newspaper = document.getElementById("p4Newspaper");
 const p4PaintCanvas = document.getElementById("p4-paint");
 const p4PaintCtx = p4PaintCanvas.getContext("2d");
@@ -639,7 +654,11 @@ function goTo(p){
     page1.classList.add("active");
     page2.classList.remove("active");
     page3.classList.remove("active");
+    page4.classList.remove("active");
+    page5.classList.remove("active");
+    page6.classList.remove("active");
     canvas.style.pointerEvents = "auto";
+    canvas.style.display = '';
     stageEl.style.background = STAGE_BG_PAGE1;
     startHintTimer();
   } else if(p===2){
@@ -693,6 +712,12 @@ function goTo(p){
     p4PaintCanvas.style.display = 'none';
     stageEl.style.background = "#000";
     setTimeout(splitBalanceAway, 2000);
+  } else if(p===6){
+    page5.classList.remove("active");
+    page6.classList.add("active");
+    stageEl.style.background = "#fff";
+    document.getElementById('p5-white-bg')?.remove();
+    document.getElementById('p5-balance-cv')?.remove();
   }
 }
 
@@ -710,6 +735,7 @@ function splitBalanceAway() {
 
   // White backdrop revealed after split
   const whiteBg = document.createElement('div');
+  whiteBg.id = 'p5-white-bg';
   whiteBg.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:199;pointer-events:none;';
   document.body.appendChild(whiteBg);
 
@@ -838,6 +864,7 @@ function startPage5Letters() {
   const dpr = window.devicePixelRatio || 1;
   const cv  = document.createElement('canvas');
   cv.width  = W * dpr; cv.height = H * dpr;
+  cv.id = 'p5-balance-cv';
   cv.style.cssText = 'position:fixed;inset:0;z-index:210;pointer-events:none;';
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
   document.body.appendChild(cv);
@@ -858,6 +885,10 @@ function startPage5Letters() {
   let aStarted = false, bStarted = false;
   setTimeout(() => { aStarted = true; }, 2000);
   setTimeout(() => { bStarted = true; }, 3800);
+
+  // Tracks whether we've already fired the end-prompt timer
+  let endPromptScheduled = false;
+  let loopStopped = false;
 
   function renderShape(pts, count) {
     const mirrorX = W - mouseX, mirrorY = H - mouseY;
@@ -892,13 +923,203 @@ function startPage5Letters() {
     }
   }
 
+  function showEndPrompt() {
+    const text = 'click here to end the journey';
+    // Angle matches the top-left → bottom-right diagonal of the blank gap
+    const angleDeg = 59.3;
+
+    const container = document.createElement('div');
+    container.style.cssText = [
+      'position:fixed',
+      `left:${W / 2}px`,
+      `top:${H / 2}px`,
+      `transform:translate(-50%,-50%) rotate(${angleDeg.toFixed(2)}deg)`,
+      `font-size:${Math.round(FONT_SIZE * 1.45)}px`,
+      'font-family:"Supreme",system-ui,sans-serif',
+      'font-weight:400',
+      'letter-spacing:0.18em',
+      'color:#1c1c1c',
+      'cursor:pointer',
+      'z-index:220',
+      'pointer-events:auto',
+      'user-select:none',
+      'white-space:nowrap',
+    ].join(';');
+
+    const chars = [...text].map(ch => {
+      const span = document.createElement('span');
+      span.textContent = ch;
+      span.style.cssText = 'opacity:0;display:inline;';
+      container.appendChild(span);
+      return span;
+    });
+
+    document.body.appendChild(container);
+
+    const CHAR_DELAY = 60;
+    chars.forEach((span, i) => {
+      setTimeout(() => {
+        span.style.transition = 'opacity 0.1s ease';
+        span.style.opacity = '1';
+      }, i * CHAR_DELAY);
+    });
+
+    container.addEventListener('click', () => {
+      container.style.pointerEvents = 'none';
+
+      const textWidth = container.offsetWidth;
+      const diagLen   = Math.ceil(Math.sqrt(W * W + H * H));
+      const SQUISH_DUR = 900; // ms — shared by both halves so they mirror each other
+
+      // Line starts fully squished (scaleY 0) and un-squishes at the same speed
+      // the text squishes — they are mirror images of the same motion
+      const line = document.createElement('div');
+      line.style.cssText = [
+        'position:fixed',
+        `left:${W / 2}px`,
+        `top:${H / 2}px`,
+        'height:3px',
+        `width:${textWidth}px`,
+        'background:#1c1c1c',
+        `transform:translate(-50%,-50%) rotate(${angleDeg.toFixed(2)}deg) scaleY(0)`,
+        `transition:transform ${SQUISH_DUR}ms ease-in-out`,
+        'z-index:219',
+        'pointer-events:none',
+      ].join(';');
+      document.body.appendChild(line);
+
+      const LINE_DELAY  = 555; // ms into the text squish before the line starts appearing
+      const LINE_DUR    = 400; // ms for the line to un-squish
+
+      // Text starts squishing immediately
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        container.style.transition = `transform ${SQUISH_DUR}ms ease-in-out`;
+        container.style.transform  = `translate(-50%,-50%) rotate(${angleDeg.toFixed(2)}deg) scaleY(0)`;
+      }));
+
+      // Line starts un-squishing only once the letters are nearly gone
+      setTimeout(() => {
+        line.style.transition = `transform ${LINE_DUR}ms ease-out`;
+        line.style.transform  = `translate(-50%,-50%) rotate(${angleDeg.toFixed(2)}deg) scaleY(1)`;
+      }, LINE_DELAY);
+
+      // Once text is gone and line is fully visible, extend to screen edges
+      setTimeout(() => {
+        container.remove();
+        line.style.transition = 'width 1.8s cubic-bezier(0.4,0,0.2,1)';
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          line.style.width = `${diagLen}px`;
+        }));
+
+        // Line fully extended — stop the letter loop and run the curtain wipe.
+        // Pass the line element so the curtain removes it on its very first paint,
+        // avoiding the one-frame gap that caused the thin-flicker on split.
+        setTimeout(() => {
+          loopStopped = true;
+          startCurtain(angleDeg, line);
+        }, 1900);
+      }, LINE_DELAY + LINE_DUR + 80);
+    }, { once: true });
+  }
+
+  function startCurtain(angleDeg, lineEl) {
+    const θ    = angleDeg * Math.PI / 180;
+    const cosθ = Math.cos(θ), sinθ = Math.sin(θ);
+    const cx = W / 2, cy = H / 2;
+
+    // Diagonal endpoints on screen edges
+    const ts = [];
+    if (Math.abs(cosθ) > 1e-6) { ts.push(-cx / cosθ); ts.push((W - cx) / cosθ); }
+    if (Math.abs(sinθ) > 1e-6) { ts.push(-cy / sinθ); ts.push((H - cy) / sinθ); }
+    const valid = ts
+      .filter(t => { const x = cx + t*cosθ, y = cy + t*sinθ; return x >= -1 && x <= W+1 && y >= -1 && y <= H+1; })
+      .sort((a, b) => a - b);
+    const p1 = { x: cx + valid[0]*cosθ,              y: cy + valid[0]*sinθ };
+    const p2 = { x: cx + valid[valid.length-1]*cosθ, y: cy + valid[valid.length-1]*sinθ };
+
+    const nx = sinθ, ny = -cosθ; // normal pointing toward top-right
+    const big = Math.sqrt(W*W + H*H);
+    const FAR = big * 3; // clip polygons extend way beyond screen — guarantees full coverage
+
+    const CURTAIN_DUR = 5500;
+    let t0 = null;
+
+    // Draws letters clipped to the half-plane beyond the given line offset.
+    // offsetX/Y: how far the line has moved from the original diagonal.
+    // dirX/Y: direction to extend the clip polygon (away from center).
+    function drawClipped(offsetX, offsetY, dirX, dirY) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(p1.x + offsetX - FAR*cosθ,            p1.y + offsetY - FAR*sinθ);
+      ctx.lineTo(p2.x + offsetX + FAR*cosθ,            p2.y + offsetY + FAR*sinθ);
+      ctx.lineTo(p2.x + offsetX + FAR*cosθ + FAR*dirX, p2.y + offsetY + FAR*sinθ + FAR*dirY);
+      ctx.lineTo(p1.x + offsetX - FAR*cosθ + FAR*dirX, p1.y + offsetY - FAR*sinθ + FAR*dirY);
+      ctx.closePath();
+      ctx.clip();
+      renderShape(shapeA, shapeA.length);
+      renderShape(shapeB, shapeB.length);
+      ctx.restore();
+    }
+
+    function frame(ts) {
+      // Remove the DOM line on the exact same paint that canvas draws its first frame
+      if (lineEl) { lineEl.remove(); lineEl = null; }
+      if (!t0) t0 = ts;
+      const raw  = Math.min(1, (ts - t0) / CURTAIN_DUR);
+      // Cubic ease-in: starts almost still, gradually accelerates — the split feels gentle
+      const ease = raw * raw * raw;
+      const dist = ease * big;
+
+      // Clear canvas entirely — white bg at z:199 shows through everywhere
+      ctx.clearRect(0, 0, W, H);
+
+      // Re-draw letters only in the not-yet-swept corners
+      drawClipped( dist*nx,  dist*ny,  nx,  ny);
+      drawClipped(-dist*nx, -dist*ny, -nx, -ny);
+
+      // Two thin black lines — endpoints extended by FAR so they always bleed past screen edges
+      ctx.save();
+      ctx.strokeStyle = '#1c1c1c';
+      ctx.lineWidth   = 3;
+      ctx.lineCap     = 'butt';
+      ctx.setLineDash([]);
+
+      ctx.beginPath();
+      ctx.moveTo(p1.x + dist*nx - FAR*cosθ, p1.y + dist*ny - FAR*sinθ);
+      ctx.lineTo(p2.x + dist*nx + FAR*cosθ, p2.y + dist*ny + FAR*sinθ);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(p1.x - dist*nx - FAR*cosθ, p1.y - dist*ny - FAR*sinθ);
+      ctx.lineTo(p2.x - dist*nx + FAR*cosθ, p2.y - dist*ny + FAR*sinθ);
+      ctx.stroke();
+
+      ctx.restore();
+
+      if (raw < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        ctx.clearRect(0, 0, W, H);
+        goTo(6);
+      }
+    }
+
+    requestAnimationFrame(frame);
+  }
+
   function loop() {
+    if (loopStopped) return;
     if (aStarted && revealedA < shapeA.length) revealedA = Math.min(revealedA + REVEAL_RATE, shapeA.length);
     if (bStarted && revealedB < shapeB.length) revealedB = Math.min(revealedB + REVEAL_RATE, shapeB.length);
 
     ctx.clearRect(0, 0, W, H);
     renderShape(shapeA, revealedA);
     renderShape(shapeB, revealedB);
+
+    if (!endPromptScheduled && revealedA === shapeA.length && revealedB === shapeB.length) {
+      endPromptScheduled = true;
+      setTimeout(showEndPrompt, 4000);
+    }
 
     requestAnimationFrame(loop);
   }
@@ -4993,6 +5214,8 @@ enterBtn2.addEventListener("click",()=>{
   enterBtn2.style.display = "none";
   playTransition2();
 });
+
+document.getElementById('p6BackBtn').addEventListener('click', () => { location.reload(); });
 
 
 
