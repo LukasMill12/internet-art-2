@@ -620,6 +620,9 @@ canvas{
 <script>
 (() => {
 
+/* Preload bold Supreme so canvas drawExpansion (STRUCTURE) never falls back to system font */
+document.fonts.load('700 64px "Supreme"');
+
 /* DOM refs */
 const page1 = document.getElementById("page1");
 const page2 = document.getElementById("page2");
@@ -4737,9 +4740,11 @@ function drawExpansion(t,cx,cy,phase){
 
   // Cut 'STRUCTURE' from the flood — background colour shows through the letters
   const fontSize=Math.round(W*0.115);
+  const structureFont=`700 ${fontSize}px "Supreme",system-ui,sans-serif`;
+  if(!document.fonts.check(structureFont)) document.fonts.load('700 64px "Supreme"');
   expandCtx.save();
   expandCtx.globalCompositeOperation='destination-out';
-  expandCtx.font=`700 ${fontSize}px "Supreme",system-ui,sans-serif`;
+  expandCtx.font=structureFont;
   expandCtx.letterSpacing='-0.03em';
   expandCtx.textAlign='center';
   expandCtx.textBaseline='top';
@@ -5366,7 +5371,7 @@ const p3GlyphCache = new Map();
 function p3GetGlyph(ch){
   if(p3GlyphCache.has(ch)) return p3GlyphCache.get(ch);
   const S = P3_GLYPH_SCALE;
-  const font = `bold ${P3_WORD_SIZE}px "Supreme", system-ui, sans-serif`;
+  const font = `${P3_WORD_SIZE}px "Supreme", system-ui, sans-serif`;
   ctx.font = font;
   const dw = ctx.measureText(ch).width;
   const dh = P3_WORD_SIZE * 2; // generous vertical space
@@ -5434,7 +5439,7 @@ function p3DrawWords(px,py,halfW,halfH,phase,organic){
     ctx.save();
     ctx.globalAlpha = alpha;
     // font must be set so measureText inside p3GetGlyph uses the right metrics
-    ctx.font = `bold ${P3_WORD_SIZE}px "Supreme", system-ui, sans-serif`;
+    ctx.font = `${P3_WORD_SIZE}px "Supreme", system-ui, sans-serif`;
 
     // measure total word width using cached glyph widths
     let totalW = 0;
