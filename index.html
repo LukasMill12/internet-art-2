@@ -5366,7 +5366,7 @@ const p3GlyphCache = new Map();
 function p3GetGlyph(ch){
   if(p3GlyphCache.has(ch)) return p3GlyphCache.get(ch);
   const S = P3_GLYPH_SCALE;
-  const font = `${P3_WORD_SIZE}px "Supreme", system-ui, sans-serif`;
+  const font = `bold ${P3_WORD_SIZE}px "Supreme", system-ui, sans-serif`;
   ctx.font = font;
   const dw = ctx.measureText(ch).width;
   const dh = P3_WORD_SIZE * 2; // generous vertical space
@@ -5434,7 +5434,7 @@ function p3DrawWords(px,py,halfW,halfH,phase,organic){
     ctx.save();
     ctx.globalAlpha = alpha;
     // font must be set so measureText inside p3GetGlyph uses the right metrics
-    ctx.font = `${P3_WORD_SIZE}px "Supreme", system-ui, sans-serif`;
+    ctx.font = `bold ${P3_WORD_SIZE}px "Supreme", system-ui, sans-serif`;
 
     // measure total word width using cached glyph widths
     let totalW = 0;
