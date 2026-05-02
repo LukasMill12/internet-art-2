@@ -602,17 +602,17 @@ canvas{
   <section class="page" id="page5">
   </section>
 
-  <section class="page" id="page6" style="background:#fff;">
-    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.6em;">
-      <span style="font-family:Supreme,system-ui,sans-serif;font-weight:400;font-size:clamp(10px,1vw,15px);letter-spacing:0.22em;text-transform:uppercase;color:#1c1c1c;">Lukas Miliauskis</span>
-      <span style="font-family:Supreme,system-ui,sans-serif;font-weight:400;font-size:clamp(10px,1vw,15px);letter-spacing:0.22em;color:#1c1c1c;">2026</span>
+  <section class="page" id="page6">
+    <div style="position:absolute;bottom:18vh;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0.6em;">
+      <span style="font-family:'Supreme',system-ui,sans-serif;font-weight:400;font-size:clamp(12px,1.4vw,22px);letter-spacing:-0.01em;text-transform:uppercase;color:#111;">Lukas Miliauskis</span>
+      <span style="font-family:'Supreme',system-ui,sans-serif;font-weight:400;font-size:clamp(12px,1.4vw,22px);letter-spacing:-0.01em;text-transform:uppercase;color:#111;">2026</span>
     </div>
-    <button id="p6BackBtn" style="position:absolute;bottom:clamp(24px,4vh,48px);left:50%;transform:translateX(-50%);background:none;border:none;cursor:pointer;pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:0.5em;padding:0;">
+    <button id="p6BackBtn" style="position:absolute;bottom:clamp(24px,4vh,48px);left:50%;transform:translateX(-50%);background:none;border:none;cursor:pointer;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:0.5em;padding:0;">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <line x1="12" y1="20" x2="12" y2="4" stroke="#1c1c1c" stroke-width="1.2"/>
         <polyline points="6,10 12,4 18,10" fill="none" stroke="#1c1c1c" stroke-width="1.2"/>
       </svg>
-      <span style="font-family:Supreme,system-ui,sans-serif;font-weight:400;font-size:clamp(9px,0.8vw,12px);letter-spacing:0.2em;text-transform:uppercase;color:#1c1c1c;">back to start</span>
+      <span style="font-family:'Supreme',system-ui,sans-serif;font-weight:400;font-size:clamp(9px,0.8vw,12px);letter-spacing:-0.01em;text-transform:uppercase;color:#111;">back to start</span>
     </button>
   </section>
 </div>
@@ -715,9 +715,10 @@ function goTo(p){
   } else if(p===6){
     page5.classList.remove("active");
     page6.classList.add("active");
-    stageEl.style.background = "#fff";
+    stageEl.style.background = STAGE_BG_PAGE1;
     document.getElementById('p5-white-bg')?.remove();
     document.getElementById('p5-balance-cv')?.remove();
+    document.getElementById('p6BackBtn').style.pointerEvents = 'auto';
   }
 }
 
@@ -1017,8 +1018,9 @@ function startPage5Letters() {
           loopStopped = true;
           page5.classList.remove("active");
           page6.classList.add("active");
-          stageEl.style.background = "#fff";
+          stageEl.style.background = STAGE_BG_PAGE1;
           document.getElementById('p5-white-bg')?.remove();
+          document.getElementById('p6BackBtn').style.pointerEvents = 'auto';
           startCurtain(angleDeg, line);
         }, 1900);
       }, LINE_DELAY + LINE_DUR + 80);
@@ -6255,37 +6257,44 @@ function p4AnimateBalance(){
   // Snapshot BALANCE-only chars before arrow chars are pushed
   p4BalanceCharEls = matched.map(m => m.el);
 
-  const ARROW_REL_POS = [[0.9257068452380952,0.7983626497005988],[0.9329666241496599,0.7983626497005988],[0.9402264030612245,0.7983626497005988],[0.9280346513605442,0.8242234281437125],[0.9352944302721088,0.8242234281437125],[0.9428544855442177,0.8242234281437125],[0.9504145408163265,0.8242234281437125],[0.9570711096938775,0.8242234281437125],[0.8700361394557823,0.8500842065868264],[0.877295918367347,0.8500842065868264],[0.8839524872448979,0.8500842065868264],[0.8941167091836735,0.8500842065868264],[0.9019796981292517,0.8500842065868264],[0.9099410076530612,0.8500842065868264],[0.9170971513605443,0.8500842065868264],[0.9270594175170068,0.8500842065868264],[0.9337159863945578,0.8500842065868264],[0.9394637542517007,0.8500842065868264],[0.9452115221088435,0.8500842065868264],[0.9524713010204081,0.8500842065868264],[0.960031356292517,0.8500842065868264],[0.9675914115646258,0.8500842065868264],[0.9742479804421769,0.8500842065868264],[0.8704453656462585,0.8759449850299401],[0.8777051445578231,0.8759449850299401],[0.8849649234693877,0.8759449850299401],[0.8922247023809524,0.8759449850299401],[0.8988812712585034,0.8759449850299401],[0.908545918367347,0.8759449850299401],[0.9164089073129251,0.8759449850299401],[0.9243702168367347,0.8759449850299401],[0.9315263605442177,0.8759449850299401],[0.9434045493197278,0.8759449850299401],[0.9524766156462585,0.8759449850299401],[0.9582243835034013,0.8759449850299401],[0.9645753613945578,0.8759449850299401],[0.9730415603741497,0.8759449850299401],[0.9251700680272109,0.9018057634730539],[0.9324298469387755,0.9018057634730539],[0.9396896258503401,0.9018057634730539],[0.9463461947278912,0.9018057634730539],[0.9554926658163265,0.9018057634730539],[0.9258742559523809,0.9276665419161677],[0.9352519132653061,0.9276665419161677],[0.9431149022108843,0.9276665419161677]];
+  // Arrow detection: 6 horizontal scan-strips on a reference canvas, one per row
+  // of the arrow shape. Each strip is ±0.016 tall (above the measured ~0.013
+  // cross-browser font drift) so chars shifted by Safari's layout still land inside.
+  // Horizontal x-ranges match the original per-row extent with a small buffer.
+  // No hardcoded Chrome char positions — fully browser-agnostic.
+  const ARROW_STRIPS = [
+    // [x_min, y_min, x_max, y_max] normalised to newspaper dimensions
+    [0.918, 0.784, 0.948, 0.812],  // row 1: narrow shaft top    (Chrome y≈0.798)
+    [0.920, 0.810, 0.965, 0.838],  // row 2: shaft               (Chrome y≈0.824)
+    [0.862, 0.836, 0.982, 0.864],  // row 3: arrowhead wide      (Chrome y≈0.850)
+    [0.862, 0.862, 0.981, 0.890],  // row 4: arrowhead wide      (Chrome y≈0.876)
+    [0.917, 0.888, 0.963, 0.916],  // row 5: shaft bottom        (Chrome y≈0.902)
+    [0.918, 0.914, 0.951, 0.942],  // row 6: narrow tip          (Chrome y≈0.928)
+  ];
+
+  const ac = document.createElement('canvas');
+  ac.width = REF_W; ac.height = REF_H;
+  const actx = ac.getContext('2d');
+  actx.fillStyle = '#000'; actx.fillRect(0, 0, REF_W, REF_H);
+  actx.fillStyle = '#fff';
+  ARROW_STRIPS.forEach(([x1, y1, x2, y2]) => {
+    actx.fillRect(x1 * REF_W, y1 * REF_H, (x2 - x1) * REF_W, (y2 - y1) * REF_H);
+  });
+  const arrowPixels = actx.getImageData(0, 0, REF_W, REF_H).data;
+
   const allChars = Array.from(p4Newspaper.querySelectorAll('.p4-col1 .p4-char, .p4-col2a .p4-char, .p4-col2b .p4-char, .p4-col3 .p4-char'));
   const usedEls = new Set(p4BalanceCharEls);
-  const charCenters = allChars.map(el => {
-    const r = el.getBoundingClientRect();
-    return { el, rx: (r.left + r.width/2 - nL) / NW, ry: (r.top + r.height/2 - nT) / NH };
-  });
-  // Arrow fill radius per screen height bucket — tune each value independently.
-  // ≤ 950px  : MacBook Air 13", small laptops (768p/900p)
-  //  951-1150: 1080p monitors at 100% scaling
-  // 1151-1350: 1440p with DPI scaling / 1200p monitors
-  // 1351-1800: 1440p at 100% scaling  (your Windows PC)
-  //   > 1800 : 4K monitors at 100% scaling
-  const ARROW_FILL_RADIUS =
-    NH > 1800 ? 0.018 :
-    NH > 1350 ? 0.013 :
-    NH > 1150 ? 0.013 :
-    NH > 950  ? 0.008 :
-                0.005;
-  const ARROW_FILL_R2 = ARROW_FILL_RADIUS * ARROW_FILL_RADIUS;
 
-  ARROW_REL_POS.forEach(([tx, ty]) => {
-    charCenters.forEach(c => {
-      if (usedEls.has(c.el)) return;
-      const dx = c.rx - tx, dy = c.ry - ty;
-      if (dx*dx + dy*dy < ARROW_FILL_R2) {
-        usedEls.add(c.el);
-        const r = c.el.getBoundingClientRect();
-        matched.push({ el: c.el, cx: Math.round(r.left - nL) });
-      }
-    });
+  allChars.forEach(el => {
+    if (usedEls.has(el)) return;
+    const r = el.getBoundingClientRect();
+    const ncx = Math.round((r.left + r.width  / 2 - nL) / NW * REF_W);
+    const ncy = Math.round((r.top  + r.height / 2 - nT) / NH * REF_H);
+    if (ncx < 0 || ncy < 0 || ncx >= REF_W || ncy >= REF_H) return;
+    if (arrowPixels[(ncy * REF_W + ncx) * 4] > 64) {
+      usedEls.add(el);
+      matched.push({ el, cx: Math.round(r.left - nL) });
+    }
   });
 
   // Snapshot arrow chars (everything pushed after the BALANCE chars)
