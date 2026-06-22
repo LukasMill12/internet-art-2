@@ -61,6 +61,38 @@
   --muted: rgba(0,0,0,.55);
 }
 
+.mobile-block{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:var(--bg);
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:1.2em;
+  padding:2em;
+  box-sizing:border-box;
+  text-align:center;
+}
+.mobile-block-title{
+  font-family:"Supreme",system-ui,sans-serif;
+  font-weight:700;
+  font-size:clamp(18px,5vw,28px);
+  letter-spacing:-0.01em;
+  text-transform:uppercase;
+  color:var(--fg);
+}
+.mobile-block-body{
+  font-family:"Supreme",system-ui,sans-serif;
+  font-weight:400;
+  font-size:clamp(13px,3.5vw,16px);
+  letter-spacing:0.01em;
+  color:var(--muted);
+  line-height:1.6;
+  max-width:28em;
+}
+
 html,body{
   margin:0;
   height:100%;
@@ -506,6 +538,21 @@ canvas{
 </head>
 <body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js"></script>
+
+<div class="mobile-block" id="mobileBlock">
+  <div class="mobile-block-title">Desktop only</div>
+  <div class="mobile-block-body">This experience is designed for desktop and requires a mouse. Please open it on a computer.</div>
+</div>
+<script>
+(function(){
+  var isPhone = /Android.*Mobile|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+             || (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
+  if(isPhone){
+    var el = document.getElementById("mobileBlock");
+    el.style.display = "flex";
+  }
+})();
+</script>
 
 <div class="app">
   <div class="stage" id="stage">
@@ -1381,6 +1428,18 @@ let leftDotsStart=[], leftDotsTarget=[];
 let leftMergeAnim=false, leftMergeStartTime=0; const leftMergeDuration=520;
 let leftLine={active:false,x1:0,y1:0,x2:0,y2:0,t:0}; let leftSequenceStarted=false;
 let leftLineHover=false, leftLineLoad=0, leftLineLoading=false, leftLineLoaded=false;
+
+let p2GuideLine1Active=false, p2GuideLine1StartTime=0;
+let p2GuideLine1Erasing=false, p2GuideLine1EraseStartTime=0;
+let p2GuideLine1FixedX1=0, p2GuideLine1FixedX2=0, p2GuideLine1FixedY=0;
+
+let p2GuideLine2Active=false, p2GuideLine2StartTime=0;
+let p2GuideLine2Erasing=false, p2GuideLine2EraseStartTime=0;
+let p2GuideLine2FixedX1=0, p2GuideLine2FixedX2=0, p2GuideLine2FixedY=0;
+
+let p2GuideLine3Active=false, p2GuideLine3StartTime=0;
+let p2GuideLine3Erasing=false, p2GuideLine3EraseStartTime=0;
+let p2GuideLine3FixedX1=0, p2GuideLine3FixedX2=0, p2GuideLine3FixedY=0;
 const leftLineLoadDuration=700;
 
 let blankDots=[], blankDotsVisible=false, blankDotsAnim=false, blankDotsStartTime=0;
@@ -2055,12 +2114,17 @@ function completeIfDone(){
     drawing=false;
   }
 }
+function syncDotVisibility(){
+  if(dots[10]) dots[10].hidden = (nextIdx === 9);
+  if(dots[24]) dots[24].hidden = (nextIdx === 23);
+}
 function hitCurrentDotClick(){
   const d=dots[nextIdx];
   if(!d) return false;
   if(dist2(pointer.x,pointer.y,d.x,d.y)<=CLICK_HIT_R*CLICK_HIT_R){
     appendPoint(d.x,d.y);
     nextIdx++;
+    syncDotVisibility();
     segmentStartIdx=strokePts.length;
     if(!undoBtn.classList.contains("visible")) hideUndoBtn();
     completeIfDone();
@@ -2075,6 +2139,7 @@ function hitCurrentDotDrag(){
   if(dist2(pointer.x,pointer.y,d.x,d.y)<=DRAG_HIT_R*DRAG_HIT_R){
     appendPoint(pointer.x,pointer.y);
     nextIdx++;
+    syncDotVisibility();
     segmentStartIdx=strokePts.length;
     if(!undoBtn.classList.contains("visible")) hideUndoBtn();
     completeIfDone();
@@ -2125,6 +2190,7 @@ function onDown(e){
       
       appendPoint(d.x,d.y);
       nextIdx++;
+      syncDotVisibility();
       segmentStartIdx=strokePts.length;
       if(!undoBtn.classList.contains("visible")) hideUndoBtn();
       completeIfDone();
@@ -2241,16 +2307,11 @@ window.addEventListener("click",(e)=>{
       continueButtonClicked=true;
       beltMouseEnabled=false;
       beltTargetOffset=beltOffset;
-      const ts=performance.now();
-      startThirdPillReverse(ts);
-      startFourthPillReverse(ts);
-      setTimeout(()=>{
-        if(!continueExitStarted){
-          continueExitStarted=true;
-          continueExitAnim=true;
-          continueExitStartTime=performance.now();
-        }
-      }, 1300);
+      if(!continueExitStarted){
+        continueExitStarted=true;
+        continueExitAnim=true;
+        continueExitStartTime=performance.now();
+      }
     }
   }
 });
@@ -2258,6 +2319,7 @@ window.addEventListener("click",(e)=>{
 
 function drawDots(){
   for(const d of dots){
+    if(d.hidden) continue;
     ctx.fillStyle="rgba(0,0,0,0.92)";
     ctx.beginPath();
     ctx.arc(d.x,d.y,DOT_R,0,Math.PI*2);
@@ -2410,6 +2472,123 @@ function drawThirdPillNumber(ts){
     const t=Math.min(1,(ts-thirdPillNumberStartTime)/thirdPillNumberDuration);
     if(t>=1) thirdPillNumberAnim=false;
   }
+}
+
+function drawP2GuideLine1(timestamp){
+  if(!p2GuideLine1Active||!page2.classList.contains("active")) return;
+  const now=timestamp||performance.now();
+
+  let fullX1, fullX2, fullY, clipX, clipW;
+
+  if(p2GuideLine1Erasing){
+    const ep=Math.min(1,(now-p2GuideLine1EraseStartTime)/2400);
+    if(ep>=1){ p2GuideLine1Active=false; return; }
+    // always draw full line with dashes anchored at FixedX1;
+    // clip rect shrinks from the right (FixedX1 side) toward FixedX2
+    const clipRight=p2GuideLine1FixedX1+(p2GuideLine1FixedX2-p2GuideLine1FixedX1)*ep;
+    fullX1=p2GuideLine1FixedX1;
+    fullX2=p2GuideLine1FixedX2;
+    fullY=p2GuideLine1FixedY;
+    clipX=p2GuideLine1FixedX2;
+    clipW=clipRight-p2GuideLine1FixedX2;
+  } else {
+    const center=cornerDots[1];
+    if(!center) return;
+    const elapsed=now-p2GuideLine1StartTime;
+    if(elapsed<leftArrowDuration) return;
+    const progress=Math.min(1,(elapsed-leftArrowDuration)/2400);
+    const startX=center.x-(center.r??DOT_R)*4.5;
+    const endX=W*0.28;
+    // always draw full line with dashes anchored at startX;
+    // clip rect grows from startX (right) extending leftward
+    const curX=startX+(endX-startX)*progress;
+    fullX1=startX; fullX2=endX; fullY=center.y;
+    clipX=curX; clipW=startX-curX;
+  }
+
+  if(clipW<=0) return;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(clipX, 0, clipW, H);
+  ctx.clip();
+  ctx.setLineDash([6,9]);
+  ctx.strokeStyle='rgba(0,0,0,0.55)';
+  ctx.lineWidth=Math.max(1,W*0.0012);
+  ctx.lineCap='butt';
+  ctx.beginPath();
+  ctx.moveTo(fullX1,fullY);
+  ctx.lineTo(fullX2,fullY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawP2GuideLine2(timestamp){
+  if(!p2GuideLine2Active||!page2.classList.contains("active")) return;
+  const now=timestamp||performance.now();
+  let fullX1,fullX2,fullY,clipX,clipW;
+  if(p2GuideLine2Erasing){
+    const ep=Math.min(1,(now-p2GuideLine2EraseStartTime)/2400);
+    if(ep>=1){ p2GuideLine2Active=false; return; }
+    const clipRight=p2GuideLine2FixedX1+(p2GuideLine2FixedX2-p2GuideLine2FixedX1)*ep;
+    fullX1=p2GuideLine2FixedX1; fullX2=p2GuideLine2FixedX2; fullY=p2GuideLine2FixedY;
+    clipX=p2GuideLine2FixedX2; clipW=clipRight-p2GuideLine2FixedX2;
+  } else {
+    const center=centerDots[1];
+    if(!center) return;
+    const elapsed=now-p2GuideLine2StartTime;
+    if(elapsed<rightArrowDuration) return;
+    const progress=Math.min(1,(elapsed-rightArrowDuration)/2400);
+    const startX=center.x-(center.r??DOT_R)*4.5;
+    const endX=W*0.28;
+    const curX=startX+(endX-startX)*progress;
+    fullX1=startX; fullX2=endX; fullY=center.y;
+    clipX=curX; clipW=startX-curX;
+  }
+  if(clipW<=0) return;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(clipX,0,clipW,H); ctx.clip();
+  ctx.setLineDash([6,9]);
+  ctx.strokeStyle='rgba(0,0,0,0.55)';
+  ctx.lineWidth=Math.max(1,W*0.0012);
+  ctx.lineCap='butt';
+  ctx.beginPath(); ctx.moveTo(fullX1,fullY); ctx.lineTo(fullX2,fullY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawP2GuideLine3(timestamp){
+  if(!p2GuideLine3Active||!page2.classList.contains("active")) return;
+  const now=timestamp||performance.now();
+  let fullX1,fullX2,fullY,clipX,clipW;
+  if(p2GuideLine3Erasing){
+    const ep=Math.min(1,(now-p2GuideLine3EraseStartTime)/2400);
+    if(ep>=1){ p2GuideLine3Active=false; return; }
+    const clipRight=p2GuideLine3FixedX1+(p2GuideLine3FixedX2-p2GuideLine3FixedX1)*ep;
+    fullX1=p2GuideLine3FixedX1; fullX2=p2GuideLine3FixedX2; fullY=p2GuideLine3FixedY;
+    clipX=p2GuideLine3FixedX2; clipW=clipRight-p2GuideLine3FixedX2;
+  } else {
+    const center=thirdPillDots[1];
+    if(!center) return;
+    const elapsed=now-p2GuideLine3StartTime;
+    if(elapsed<thirdArrowDuration) return;
+    const progress=Math.min(1,(elapsed-thirdArrowDuration)/2400);
+    const startX=center.x-(center.r??DOT_R)*4.5;
+    const endX=W*0.28;
+    const curX=startX+(endX-startX)*progress;
+    fullX1=startX; fullX2=endX; fullY=center.y;
+    clipX=curX; clipW=startX-curX;
+  }
+  if(clipW<=0) return;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(clipX,0,clipW,H); ctx.clip();
+  ctx.setLineDash([6,9]);
+  ctx.strokeStyle='rgba(0,0,0,0.55)';
+  ctx.lineWidth=Math.max(1,W*0.0012);
+  ctx.lineCap='butt';
+  ctx.beginPath(); ctx.moveTo(fullX1,fullY); ctx.lineTo(fullX2,fullY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
 }
 
 function drawLeftArrow(timestamp){
@@ -3195,7 +3374,12 @@ function updateTextStrokes(dt){
       strokeTextBleedDelayT += dt;
     } else {
       strokeTextBleedT = Math.min(1, strokeTextBleedT + dt / STROKE_TEXT_BLEED_DURATION);
-      if(strokeTextBleedT >= 1) strokeTextBleedDone = true;
+      if(strokeTextBleedT >= 1){
+        strokeTextBleedDone = true;
+        const ts = performance.now();
+        startThirdPillReverse(ts);
+        startFourthPillReverse(ts);
+      }
     }
   }
 }
@@ -4064,6 +4248,8 @@ function render(timestamp){
         cornerLineLoaded=true;
         cornerLineLoading=false;
         startBeltUnscramble(0);
+        p2GuideLine1Active=true;
+        p2GuideLine1StartTime=timestamp||performance.now();
         beltHighlightRow=0;
         beltHighlightActive=true;
         beltHighlightFade=0;
@@ -4089,6 +4275,16 @@ function render(timestamp){
         beltHighlightFadeIn=false;
         beltHighlightFadeOutStartTime=timestamp||performance.now();
         sentenceLineActive=true;
+        if(p2GuideLine1Active&&!p2GuideLine1Erasing){
+          const _c=cornerDots[1];
+          if(_c){
+            p2GuideLine1FixedX1=_c.x-(_c.r??DOT_R)*4.5;
+            p2GuideLine1FixedX2=W*0.28;
+            p2GuideLine1FixedY=_c.y;
+          }
+          p2GuideLine1Erasing=true;
+          p2GuideLine1EraseStartTime=timestamp||performance.now();
+        }
         sentenceLineResolved=false;
         sentenceLineResolveAnim=false;
         sentenceLineProgress=0;
@@ -4110,6 +4306,8 @@ function render(timestamp){
         centerLineLoaded=true;
         centerLineLoading=false;
         startBeltUnscramble(1);
+        p2GuideLine2Active=true;
+        p2GuideLine2StartTime=timestamp||performance.now();
         beltHighlightRow=1;
         beltHighlightActive=true;
         beltHighlightFade=0;
@@ -4131,6 +4329,16 @@ function render(timestamp){
         blankLineLoad=1;
         blankLineLoaded=true;
         blankLineLoading=false;
+        if(p2GuideLine2Active&&!p2GuideLine2Erasing){
+          const _c=centerDots[1];
+          if(_c){
+            p2GuideLine2FixedX1=_c.x-(_c.r??DOT_R)*4.5;
+            p2GuideLine2FixedX2=W*0.28;
+            p2GuideLine2FixedY=_c.y;
+          }
+          p2GuideLine2Erasing=true;
+          p2GuideLine2EraseStartTime=timestamp||performance.now();
+        }
         blobActive=true;
         blobCX=sentenceBoxX+sentenceBoxW*0.5;
         blobCY=sentenceBoxY+sentenceBoxH*0.5;
@@ -4161,6 +4369,8 @@ function render(timestamp){
         thirdPillLineLoaded=true;
         thirdPillLineLoading=false;
         startBeltUnscramble(2);
+        p2GuideLine3Active=true;
+        p2GuideLine3StartTime=timestamp||performance.now();
         thirdArrowVisible=true;
         thirdArrowAnim=true;
         thirdArrowStartTime=timestamp||performance.now();
@@ -4182,6 +4392,16 @@ function render(timestamp){
         fourthPillLineLoad=1;
         fourthPillLineLoaded=true;
         fourthPillLineLoading=false;
+        if(p2GuideLine3Active&&!p2GuideLine3Erasing){
+          const _c=thirdPillDots[1];
+          if(_c){
+            p2GuideLine3FixedX1=_c.x-(_c.r??DOT_R)*4.5;
+            p2GuideLine3FixedX2=W*0.28;
+            p2GuideLine3FixedY=_c.y;
+          }
+          p2GuideLine3Erasing=true;
+          p2GuideLine3EraseStartTime=timestamp||performance.now();
+        }
         borderSnakeActive=false;
         borderSnakeHover=false;
         beltHighlightFadeOut=true;
@@ -4238,9 +4458,12 @@ function render(timestamp){
   drawDots();
   drawCornerDots(); drawCornerLine(); drawCornerLineLoader(); drawCornerNumber(timestamp||performance.now());
   drawCenterDots(); drawCenterLine(); drawCenterLineLoader(); drawCenterNumber(timestamp||performance.now()); drawRightArrow(timestamp||performance.now());
+  drawP2GuideLine2(timestamp||performance.now());
   drawThirdPillDots(); drawThirdPillLine(); drawThirdPillLineLoader(); drawThirdPillNumber(timestamp||performance.now()); drawThirdArrow(timestamp||performance.now());
+  drawP2GuideLine3(timestamp||performance.now());
   drawFourthPillDots(); drawFourthPillLine(); drawFourthPillLineLoader();
   drawBlankDots(); drawBlankLine(); drawBlankLineLoader();
+  drawP2GuideLine1(timestamp||performance.now());
   drawLeftDots(); drawLeftLine(); drawLeftLineLoader(); drawLeftArrow(timestamp||performance.now());
   drawSentenceShape();
   drawBlob();
@@ -4325,6 +4548,18 @@ function resetAllPage2State(){
   beltHighlightFadeOut=false;
   beltScrambleProgress=[0,0,0];
   beltScrambleAnim=[false,false,false];
+
+  p2GuideLine1Active=false; p2GuideLine1StartTime=0;
+  p2GuideLine1Erasing=false; p2GuideLine1EraseStartTime=0;
+  p2GuideLine1FixedX1=0; p2GuideLine1FixedX2=0; p2GuideLine1FixedY=0;
+
+  p2GuideLine2Active=false; p2GuideLine2StartTime=0;
+  p2GuideLine2Erasing=false; p2GuideLine2EraseStartTime=0;
+  p2GuideLine2FixedX1=0; p2GuideLine2FixedX2=0; p2GuideLine2FixedY=0;
+
+  p2GuideLine3Active=false; p2GuideLine3StartTime=0;
+  p2GuideLine3Erasing=false; p2GuideLine3EraseStartTime=0;
+  p2GuideLine3FixedX1=0; p2GuideLine3FixedX2=0; p2GuideLine3FixedY=0;
 
   cornerDots=[];
   cornerDotsVisible=false;
@@ -5145,6 +5380,7 @@ undoBtn.addEventListener("click",()=>{
   if(!undoBtn.classList.contains("visible")) return;
   strokePts.length = mistakeSegStart;
   nextIdx = mistakeNextIdx;
+  syncDotVisibility();
   segmentStartIdx = mistakeSegStart;
   hideUndoBtn();
   render();
