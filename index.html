@@ -66,30 +66,14 @@
   position:fixed;
   inset:0;
   z-index:9999;
-  background:#fff;
+  background:url("phone background.png") center/cover no-repeat;
   flex-direction:column;
   align-items:center;
-  justify-content:flex-start;
+  justify-content:center;
+  gap:1.2em;
+  padding:2em;
   box-sizing:border-box;
-  overflow:hidden;
-}
-.mobile-block-circle{
-  width:80vw;
-  height:80vw;
-  max-width:420px;
-  max-height:420px;
-  background:#F71F08;
-  border-radius:50%;
-  flex-shrink:0;
-  margin-top:calc(-40vw);
-}
-.mobile-block-content{
-  margin-top:clamp(24px,8vw,48px);
-  padding:0 2.4em;
   text-align:center;
-  display:flex;
-  flex-direction:column;
-  gap:1em;
 }
 .mobile-block-title{
   font-family:"Supreme",system-ui,sans-serif;
@@ -556,11 +540,8 @@ canvas{
 <script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js"></script>
 
 <div class="mobile-block" id="mobileBlock">
-  <div class="mobile-block-circle"></div>
-  <div class="mobile-block-content">
-    <div class="mobile-block-title">Desktop only</div>
-    <div class="mobile-block-body">This experience is designed for desktop and requires a mouse. Please open it on a computer.</div>
-  </div>
+  <div class="mobile-block-title">Desktop only</div>
+  <div class="mobile-block-body">This experience is designed for desktop and requires a mouse. Please open it on a computer.</div>
 </div>
 <script>
 (function(){
