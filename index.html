@@ -562,6 +562,8 @@ canvas{
 </div>
 <script>
 (function(){
+  var isMobile=/Android.*Mobile|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&window.innerWidth<1024);
+  if(isMobile){document.getElementById('loadingScreen').style.display='none';return;}
   var ls=document.getElementById('loadingScreen');
   var cv=document.getElementById('lsCv');
   var c=cv.getContext('2d');
