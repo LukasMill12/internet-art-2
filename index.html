@@ -534,9 +534,72 @@ canvas{
   white-space:nowrap;
   line-height:1.3;
 }
+
+#loadingScreen{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:1.8em;
+  transition:opacity .9s ease;
+}
+#loadingScreen.ls-done{
+  opacity:0;
+  pointer-events:none;
+}
+.ls-label{
+  font-family:"Supreme",system-ui,sans-serif;
+  font-weight:400;
+  font-size:clamp(11px,1.1vw,17px);
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.ls-track{
+  width:clamp(100px,18vw,220px);
+  height:1px;
+  background:rgba(0,0,0,.12);
+  overflow:hidden;
+}
+.ls-fill{
+  height:100%;
+  width:0%;
+  background:var(--fg);
+  transition:width .4s ease;
+}
+@keyframes lsFake{
+  0%{width:0%}
+  100%{width:88%}
+}
+.ls-fill.ls-running{
+  animation:lsFake 5s cubic-bezier(.15,.5,.25,1) forwards;
+}
 </style>
 </head>
 <body>
+<div id="loadingScreen">
+  <div class="ls-label">Loading</div>
+  <div class="ls-track"><div class="ls-fill" id="lsFill"></div></div>
+</div>
+<script>
+(function(){
+  document.getElementById('lsFill').classList.add('ls-running');
+  window.addEventListener('load',function(){
+    var fill=document.getElementById('lsFill');
+    var screen=document.getElementById('loadingScreen');
+    if(!screen) return;
+    if(fill){ fill.style.animation='none'; fill.style.transition='width .35s ease'; fill.style.width='100%'; }
+    setTimeout(function(){
+      screen.classList.add('ls-done');
+      setTimeout(function(){ screen.style.display='none'; },1000);
+    },400);
+  });
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js"></script>
 
 <div class="mobile-block" id="mobileBlock">
@@ -2114,17 +2177,13 @@ function completeIfDone(){
     drawing=false;
   }
 }
-function syncDotVisibility(){
-  if(dots[10]) dots[10].hidden = (nextIdx === 9);
-  if(dots[24]) dots[24].hidden = (nextIdx === 23);
-}
+
 function hitCurrentDotClick(){
   const d=dots[nextIdx];
   if(!d) return false;
   if(dist2(pointer.x,pointer.y,d.x,d.y)<=CLICK_HIT_R*CLICK_HIT_R){
     appendPoint(d.x,d.y);
     nextIdx++;
-    syncDotVisibility();
     segmentStartIdx=strokePts.length;
     if(!undoBtn.classList.contains("visible")) hideUndoBtn();
     completeIfDone();
@@ -2139,7 +2198,6 @@ function hitCurrentDotDrag(){
   if(dist2(pointer.x,pointer.y,d.x,d.y)<=DRAG_HIT_R*DRAG_HIT_R){
     appendPoint(pointer.x,pointer.y);
     nextIdx++;
-    syncDotVisibility();
     segmentStartIdx=strokePts.length;
     if(!undoBtn.classList.contains("visible")) hideUndoBtn();
     completeIfDone();
@@ -2190,7 +2248,6 @@ function onDown(e){
       
       appendPoint(d.x,d.y);
       nextIdx++;
-      syncDotVisibility();
       segmentStartIdx=strokePts.length;
       if(!undoBtn.classList.contains("visible")) hideUndoBtn();
       completeIfDone();
@@ -2319,7 +2376,6 @@ window.addEventListener("click",(e)=>{
 
 function drawDots(){
   for(const d of dots){
-    if(d.hidden) continue;
     ctx.fillStyle="rgba(0,0,0,0.92)";
     ctx.beginPath();
     ctx.arc(d.x,d.y,DOT_R,0,Math.PI*2);
@@ -5380,7 +5436,6 @@ undoBtn.addEventListener("click",()=>{
   if(!undoBtn.classList.contains("visible")) return;
   strokePts.length = mistakeSegStart;
   nextIdx = mistakeNextIdx;
-  syncDotVisibility();
   segmentStartIdx = mistakeSegStart;
   hideUndoBtn();
   render();
