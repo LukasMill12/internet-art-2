@@ -6276,10 +6276,9 @@ function p4TraceRaf(timestamp){
       const [x1,y1,x2,y2] = lines[i];
       const dx = x2-x1, dy = y2-y1, len = Math.hypot(dx, dy);
       const ndx = dx/len, ndy = dy/len;
-      const npx = -ndy, npy = ndx; 
-      const fwd = Math.max(28, W * 0.021), perp = Math.max(18, W * 0.016);
-      const ax = x1 + ndx * fwd + npx * perp;
-      const ay = y1 + ndy * fwd + npy * perp;
+      const fwd = Math.max(28, W * 0.021);
+      const ax = x1 + ndx * fwd;
+      const ay = y1 + ndy * fwd;
 
       p4DrawTraceArrow(ax, ay, -ndx, -ndy, t);
     }
